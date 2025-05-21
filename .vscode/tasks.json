@@ -8,11 +8,11 @@
                 "-fdiagnostics-color=always",
                 "-g",
                 "${file}",
-                "-I\"C:/LibreriaSFML/SFML-3.0.0/include\"",
+                "-I\"${workspaceFolder}/SFML-3.0.0/include\"",
                 "-DSFML_STATIC",
                 "-o",
                 "${fileDirname}\\${fileBasenameNoExtension}.exe",
-                "-L\"C:/LibreriaSFML/SFML-3.0.0/lib\"",
+                "-L\"${workspaceFolder}/SFML-3.0.0/lib\"",
                 "-lsfml-graphics-s",
                 "-lsfml-window-s",
                 "-lsfml-system-s",
@@ -25,9 +25,7 @@
             "options": {
                 "cwd": "C:/msys64/ucrt64/bin"
             },
-            "problemMatcher": [
-                "$gcc"
-            ],
+            "problemMatcher": ["$gcc"],
             "group": {
                 "kind": "build",
                 "isDefault": true

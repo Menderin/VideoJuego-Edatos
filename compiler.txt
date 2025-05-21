@@ -1,1 +1,4 @@
 g++ nombreClase.cpp -o nombreClase -lsfml-graphics -lsfml-window -lsfml-system
+
+Revisar cual es la ruta abosoluta para compilar
+g++ GUI/Main.cpp -o GUI/Main -lsfml-graphics -lsfml-window -lsfml-system

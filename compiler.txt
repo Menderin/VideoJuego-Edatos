@@ -1,0 +1,1 @@
+g++ nombreClase.cpp -o nombreClase -lsfml-graphics -lsfml-window -lsfml-system

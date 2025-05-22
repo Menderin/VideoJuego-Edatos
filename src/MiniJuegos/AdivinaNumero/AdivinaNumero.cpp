@@ -89,7 +89,7 @@ const std::vector<int>& AdivinaNumero::getIntentosJugador(int jugador) const {
 }
 
 void AdivinaNumero::mostrarEstado() const {
-    std::cout << "\n=== ADIVINA EL NÚMERO ===" << std::endl;
+    std::cout << "\n=== ADIVINA EL NUMERO ===" << std::endl;
     std::cout << "Estado: ";
     
     switch(estado) {
@@ -106,32 +106,21 @@ void AdivinaNumero::mostrarEstado() const {
     std::cout << std::endl;
     
     if (numeroJ1Elegido && numeroJ2Elegido) {
-        std::cout << "Ambos jugadores han elegido sus números secretos." << std::endl;
+        std::cout << "Ambos jugadores han elegido sus numeros secretos." << std::endl;
     } else {
         std::cout << "Esperando que ";
         if (!numeroJ1Elegido) std::cout << "Jugador 1 ";
         if (!numeroJ1Elegido && !numeroJ2Elegido) std::cout << "y ";
         if (!numeroJ2Elegido) std::cout << "Jugador 2 ";
-        std::cout << "elija(n) su(s) número(s) secreto(s)." << std::endl;
+        std::cout << "elija su numero secreto." << std::endl;
     }
     
-    std::cout << "Intentos del Jugador 1: ";
-    for (size_t i = 0; i < intentosJugador1.size(); ++i) {
-        std::cout << intentosJugador1[i];
-        if (i < intentosJugador1.size() - 1) std::cout << ", ";
-    }
     std::cout << std::endl;
     
-    std::cout << "Intentos del Jugador 2: ";
-    for (size_t i = 0; i < intentosJugador2.size(); ++i) {
-        std::cout << intentosJugador2[i];
-        if (i < intentosJugador2.size() - 1) std::cout << ", ";
-    }
-    std::cout << std::endl;
     
     if (juegoTerminado) {
-        std::cout << "Número secreto del Jugador 1 era: " << numeroJugador1 << std::endl;
-        std::cout << "Número secreto del Jugador 2 era: " << numeroJugador2 << std::endl;
+        std::cout << "Numero secreto del Jugador 1 era: " << numeroJugador1 << std::endl;
+        std::cout << "Numero secreto del Jugador 2 era: " << numeroJugador2 << std::endl;
     }
 }
 

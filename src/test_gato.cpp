@@ -196,7 +196,7 @@ int main() {
         if (tablero.esMovimientoValido(fila, columna)) {
             const Nodo& nodo = tablero.getNodo(fila, columna);
             
-            cout << "\n🎮 ¡Preparandose para jugar en casilla [" << fila << "][" << columna << "]!" << endl;
+            cout << "\nPreparandose para jugar en casilla [" << fila << "][" << columna << "]!" << endl;
             
             if (nodo.tieneMiniJuegoAsignado()) {
                 cout << "Minijuego: ";
@@ -214,13 +214,13 @@ int main() {
                         cout << "Desconocido" << endl;
                         break;
                 }
-                cout << "¡Que comience el minijuego!" << endl;
+                cout << "Que comience el minijuego!" << endl;
             }
             
             bool movimientoExitoso = tablero.jugarNodo(fila, columna);
             
             if (movimientoExitoso) {
-                cout << "\n ¡Movimiento completado en [" << fila << "][" << columna << "]!" << endl;
+                cout << "\n Movimiento completado en [" << fila << "][" << columna << "]!" << endl;
                 
                 // Mostrar quién ganó el minijuego
                 const Nodo& nodoActualizado = tablero.getNodo(fila, columna);

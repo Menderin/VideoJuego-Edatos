@@ -1,5 +1,6 @@
 #include "Nodo.h"
 #include "MiniJuegos/AdivinaNumero/AdivinaNumero.h"
+#include "MiniJuegos/BatallaDeCartas/BatallaDeCartas.h"
 
 // Constructores
 Nodo::Nodo() : estado(EstadoNodo::VACIO), fila(-1), columna(-1), activo(true), 
@@ -86,8 +87,7 @@ void Nodo::asignarMiniJuego(TipoMiniJuego tipo) {
             std::cout << "HEX aun no implementado" << std::endl;
             break;
         case TipoMiniJuego::BATALLA_CARTAS:
-            // TODO: Implementar cuando esté listo
-            std::cout << "BATALLA_CARTAS aun no implementado" << std::endl;
+            miniJuego = std::make_unique<BatallaDeCartas>();
             break;
         default:
             tieneMiniJuego = false;
@@ -108,6 +108,7 @@ MiniJuego* Nodo::getMiniJuego() const {
     return miniJuego.get();
 }
 
+// Modificar el método jugarMiniJuego en Nodo.cpp para agregar la lógica de Batalla de Cartas
 EstadoNodo Nodo::jugarMiniJuego() {
     if (!tieneMiniJuegoAsignado()) {
         return EstadoNodo::VACIO;
@@ -161,6 +162,74 @@ EstadoNodo Nodo::jugarMiniJuego() {
                 return EstadoNodo::JUGADOR2;
             default:
                 return EstadoNodo::VACIO; // No debería pasar
+        }
+    }
+    // NUEVA LÓGICA PARA BATALLA DE CARTAS
+    else if (tipoMiniJuego == TipoMiniJuego::BATALLA_CARTAS) {
+        BatallaDeCartas* juego = static_cast<BatallaDeCartas*>(miniJuego.get());
+        
+        // Crear una versión modificada de BatallaDeCartas que funcione sin IA
+        // y devuelva el ganador para integrarlo en el tablero
+        
+        juego->mostrarTitulo();
+        
+        std::cout << "Presiona ENTER para comenzar la batalla...";
+        std::cin.get();
+        
+        // Reiniciar el juego para asegurar estado limpio
+        juego->reiniciarJuego();
+        
+        // Simular el juego completo
+        for (int ronda = 1; ronda <= 5; ++ronda) {
+            std::cout << "\nRONDA " << ronda << " DE 5\n";
+            std::cout << std::string(30, '─') << "\n";
+            
+            // Obtener mazos actuales (necesitarás agregar getters públicos a BatallaDeCartas)
+            std::vector<int> mazoJ1 = juego->getMazoJugador1();
+            std::vector<int> mazoJ2 = juego->getMazoJugador2();
+            
+            // Jugador 1 selecciona carta
+            juego->mostrarMano(mazoJ1, "Jugador 1");
+            int indiceJ1;
+            do {
+                std::cout << "Jugador 1, elige una carta (1-" << std::min(5, (int)mazoJ1.size()) << "): ";
+                std::cin >> indiceJ1;
+                indiceJ1--; // Convertir a índice 0-based
+            } while (indiceJ1 < 0 || indiceJ1 >= (int)mazoJ1.size() || indiceJ1 >= 5);
+            
+            int cartaJ1 = mazoJ1[indiceJ1];
+            
+            // Jugador 2 selecciona carta
+            juego->mostrarMano(mazoJ2, "Jugador 2");
+            int indiceJ2;
+            do {
+                std::cout << "Jugador 2, elige una carta (1-" << std::min(5, (int)mazoJ2.size()) << "): ";
+                std::cin >> indiceJ2;
+                indiceJ2--; // Convertir a índice 0-based
+            } while (indiceJ2 < 0 || indiceJ2 >= (int)mazoJ2.size() || indiceJ2 >= 5);
+            
+            int cartaJ2 = mazoJ2[indiceJ2];
+            
+            // Procesar la ronda (necesitarás un método público para esto)
+            juego->procesarRonda(cartaJ1, cartaJ2, ronda);
+            
+            if (ronda < 5) {
+                std::cout << "Presiona ENTER para continuar...";
+                std::cin.get();
+            }
+        }
+        
+        // Obtener el resultado final
+        int rondasJ1 = juego->getRondasGanadasJ1();
+        int rondasJ2 = juego->getRondasGanadasJ2();
+        
+        juego->mostrarResultadoFinal();
+        
+        // Retornar el ganador
+        if (rondasJ1 > rondasJ2) {
+            return EstadoNodo::JUGADOR1;
+        } else {
+            return EstadoNodo::JUGADOR2;
         }
     }
     

@@ -50,12 +50,25 @@ bool AdivinaNumero::procesarMovimiento(int jugador, int numeroAdivinado) {
         if (numeroAdivinado == numeroJugador2) {
             terminarJuego(EstadoMiniJuego::GANADOR_JUGADOR1);
             acierto = true;
+
+        }
+        else if (numeroAdivinado>numeroJugador2){
+            std::cout<<"El numero del jugador 2 es menor"<<std::endl;
+        }
+        else{
+            std::cout<<"El numero del jugador 2 es mayor"<<std::endl;
         }
     } else if (jugador == 2) {
         intentosJugador2.push_back(numeroAdivinado);
         if (numeroAdivinado == numeroJugador1) {
             terminarJuego(EstadoMiniJuego::GANADOR_JUGADOR2);
             acierto = true;
+        }
+        else if (numeroAdivinado>numeroJugador1){
+            std::cout<<"El numero del jugador 1 es menor"<<std::endl;
+        }
+        else{
+            std::cout<<"El numero del jugador 1 es mayor"<<std::endl;
         }
     }
     

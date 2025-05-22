@@ -37,7 +37,7 @@ void inicializarMinijuegosAleatorios(Tablero& tablero) {
             //cout << "Casilla [" << i << "][" << j << "]: Adivina el Número" << endl;
         }
     }
-    cout << "¡Minijuegos inicializados!" << endl;
+    cout << "Minijuegos inicializados!" << endl;
 }
 
 void mostrarTableroConMinijuegos(const Tablero& tablero) {
@@ -92,7 +92,7 @@ void mostrarTableroConMinijuegos(const Tablero& tablero) {
         if (i < 2) cout << "  -----------" << endl;
     }
     
-    cout << "\nLeyenda: ? = Adivina Número, H = Hex, C = Cartas" << endl;
+    cout << "\nLeyenda: ? = Adivina Numero, H = Hex, C = Cartas" << endl;
     cout << "Fichas J1(X): " << tablero.getFichasJ1() << " | Fichas J2(O): " << tablero.getFichasJ2() << endl;
     cout << "Turno actual: Jugador " << tablero.getTurnoActual() << endl;
     

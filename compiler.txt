@@ -34,3 +34,9 @@ Linea nueva con advina numero dentro
 g++ -std=c++14 -Wall -O2 -Iinclude src/test_gato.cpp src/Nodo.cpp src/Tablero.cpp src/MiniJuegos/AdivinaNumero/AdivinaNumero.cpp -o bin/Gato
 
 .\bin\Gato.exe
+
+----------------------
+
+g++ -std=c++14 -Wall -O2 -Iinclude src/test_gato.cpp src/Nodo.cpp src/Tablero.cpp src/MiniJuegos/AdivinaNumero/AdivinaNumero.cpp src/MiniJuegos/BatallaDeCartas/BatallaDeCartas.cpp -o bin/Gato
+
+.\bin\Gato.exe

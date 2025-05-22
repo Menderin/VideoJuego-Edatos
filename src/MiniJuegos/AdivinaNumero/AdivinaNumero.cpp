@@ -115,19 +115,8 @@ void AdivinaNumero::mostrarEstado() const {
         std::cout << "elija su numero secreto." << std::endl;
     }
     
-    /**std::cout << "Intentos del Jugador 1: ";
-    for (size_t i = 0; i < intentosJugador1.size(); ++i) {
-        std::cout << intentosJugador1[i];
-        if (i < intentosJugador1.size() - 1) std::cout << ", ";
-    } **/
     std::cout << std::endl;
     
-    /**std::cout << "Intentos del Jugador 2: ";
-    for (size_t i = 0; i < intentosJugador2.size(); ++i) {
-        std::cout << intentosJugador2[i];
-        if (i < intentosJugador2.size() - 1) std::cout << ", ";
-    }
-    std::cout << std::endl;**/
     
     if (juegoTerminado) {
         std::cout << "Numero secreto del Jugador 1 era: " << numeroJugador1 << std::endl;

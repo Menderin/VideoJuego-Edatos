@@ -1,6 +1,9 @@
 #include "Tablero.h"
 #include <iostream>
 #include <random>
+#include <vector>
+#include <algorithm>
+
 using namespace std;
 
 #include <string>
@@ -23,21 +26,46 @@ void mostrarInstrucciones() {
 void inicializarMinijuegosAleatorios(Tablero& tablero) {
     random_device rd;
     mt19937 gen(rd());
-    uniform_int_distribution<> dis(1, 1); // Por ahora solo tenemos AdivinaNumero (tipo 1)
     
     cout << "\nInicializando minijuegos en cada casilla..." << endl;
     
+    // Crear un vector con exactamente 3 de cada tipo de minijuego
+    vector<TipoMiniJuego> minijuegos = {
+        TipoMiniJuego::ADIVINA_NUMERO, TipoMiniJuego::ADIVINA_NUMERO, TipoMiniJuego::ADIVINA_NUMERO,
+        TipoMiniJuego::HEX, TipoMiniJuego::HEX, TipoMiniJuego::HEX,
+        TipoMiniJuego::BATALLA_CARTAS, TipoMiniJuego::BATALLA_CARTAS, TipoMiniJuego::BATALLA_CARTAS
+    };
+    
+    // Mezclar aleatoriamente el vector
+    shuffle(minijuegos.begin(), minijuegos.end(), gen);
+    
+    // Asignar los minijuegos mezclados al tablero
+    int indice = 0;
     for (int i = 0; i < 3; i++) {
         for (int j = 0; j < 3; j++) {
             Nodo& nodo = tablero.getNodo(i, j);
             
-            // Por ahora solo asignamos AdivinaNumero a todas las casillas
-            nodo.asignarMiniJuego(TipoMiniJuego::ADIVINA_NUMERO);
+            // Asignar el minijuego desde el vector mezclado
+            nodo.asignarMiniJuego(minijuegos[indice]);
             
-            //cout << "Casilla [" << i << "][" << j << "]: Adivina el Número" << endl;
+            // Mostrar qué se asignó
+            cout << "Casilla [" << i << "][" << j << "]: ";
+            switch(minijuegos[indice]) {
+                case TipoMiniJuego::ADIVINA_NUMERO:
+                    cout << "Adivina el Numero" << endl;
+                    break;
+                case TipoMiniJuego::HEX:
+                    cout << "Hex" << endl;
+                    break;
+                case TipoMiniJuego::BATALLA_CARTAS:
+                    cout << "Batalla de Cartas" << endl;
+                    break;
+            }
+            
+            indice++;
         }
     }
-    cout << "Minijuegos inicializados!" << endl;
+    cout << "Minijuegos inicializados! (3 de cada tipo)" << endl;
 }
 
 void mostrarTableroConMinijuegos(const Tablero& tablero) {
@@ -121,51 +149,7 @@ int main() {
     mostrarInstrucciones();
     mostrarMenu();
     inicializarMinijuegosAleatorios(tablero);
-    
-    
- /**    while (true) {
-        tablero.mostrarTablero();
-        
-        int fila, columna;
-        cout<<"Ingrese la fila: ";cin>>fila;
-        cout<<"Ingrese la columna: ";cin>>columna;
-            
-        if (tablero.esMovimientoValido(fila, columna)) {
-            bool movimientoExitoso = tablero.jugarNodo(fila, columna);
-                
-            if (movimientoExitoso) {
-                cout << "¡Movimiento exitoso en [" << fila << "][" << columna << "]!" << std::endl;
-                tablero.mostrarTablero();
-                    
-                // Verificar si el juego terminó
-                EstadoJuego estado = tablero.getEstadoJuego();
-                if (estado != EstadoJuego::EN_CURSO) {
-                    cout << "\nJUEGO TERMINADO" << std::endl;
-                    switch(estado) {
-                        case EstadoJuego::GANADOR_J1:
-                            cout << " JUGADOR 1 (X) GANA! " << std::endl;
-                            break;
-                        case EstadoJuego::GANADOR_J2:
-                            cout << " JUGADOR 2 (O) GANA! " << std::endl;
-                            break;
-                            
-                    }
-                    cout << "Resultado final - J1: " << tablero.getFichasJ1() << " fichas | J2: " << tablero.getFichasJ2() << " fichas" << std::endl;
-                    break;
-                    
-                    }
-                } else {
-                    std::cout << " Error: No se pudo realizar el movimiento." << std::endl;
-                   
-                }
-            } else {
-                std::cout << " Movimiento invalido. Verifica que:" << std::endl;
-                std::cout << "   - Las coordenadas esten entre 0 y 2" << std::endl;
-                std::cout << "   - La casilla este vacia" << std::endl;
-                std::cout << "   - El juego este en curso" << std::endl;
-            }
-    } **/
-    
+
     while (true) {
         mostrarTableroConMinijuegos(tablero);
         

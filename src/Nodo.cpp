@@ -83,11 +83,11 @@ void Nodo::asignarMiniJuego(TipoMiniJuego tipo) {
             break;
         case TipoMiniJuego::HEX:
             // TODO: Implementar cuando esté listo
-            std::cout << "HEX aún no implementado" << std::endl;
+            std::cout << "HEX aun no implementado" << std::endl;
             break;
         case TipoMiniJuego::BATALLA_CARTAS:
             // TODO: Implementar cuando esté listo
-            std::cout << "BATALLA_CARTAS aún no implementado" << std::endl;
+            std::cout << "BATALLA_CARTAS aun no implementado" << std::endl;
             break;
         default:
             tieneMiniJuego = false;

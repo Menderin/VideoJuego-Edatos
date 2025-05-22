@@ -7,3 +7,22 @@ g++ src/gato.cpp -o bin/gato.exe -lsfml-graphics -lsfml-window -lsfml-system
 ---------------
 linea buena para compilar gato :D
 g++ src/gato.cpp -o bin/gato.exe -I"lib/SFML-3.0.0/include" -L"lib/SFML-3.0.0/lib" -lsfml-graphics-s -lsfml-window-s -lsfml-system-s -lopengl32 -lfreetype -lwinmm -lgdi32 -DSFML_STATIC
+-------------------------------------------------------------------------------------------------------------------------------------
+linea nueva - Siempre borrar el archivo principal en bin\Gato.exe  para que se compile correctamente a su ultima version
+
+borrar archivo.exe para forzar recoompilación - REVISAR ESTE PASO
+
+
+del bin\Gato.exe
+
+*NO ES borrar ASEGURARSE DE GUARDAR TODOS LOS CAMBIOS EN LOS ARCHIVOS ANTES DE COMPILAR*
+----------------------------
+
+linea de compilación
+
+g++ -std=c++17 -g -o bin/Gato.exe src/test_gato.cpp src/Tablero.cpp src/Nodo.cpp -Iinclude
+
+linea de ejecución:
+
+.\bin\Gato.exe
+

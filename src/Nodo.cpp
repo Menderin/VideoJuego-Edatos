@@ -1,6 +1,9 @@
 #include "Nodo.h"
 #include "MiniJuegos/AdivinaNumero/AdivinaNumero.h"
 #include "MiniJuegos/BatallaDeCartas/BatallaDeCartas.h"
+#include "MiniJuegos/Hex/Hex.h"
+#include <iostream>
+#include <limits>
 
 // Constructores
 Nodo::Nodo() : estado(EstadoNodo::VACIO), fila(-1), columna(-1), activo(true), 
@@ -83,8 +86,7 @@ void Nodo::asignarMiniJuego(TipoMiniJuego tipo) {
             miniJuego = std::make_unique<AdivinaNumero>();
             break;
         case TipoMiniJuego::HEX:
-            // TODO: Implementar cuando esté listo
-            std::cout << "HEX aun no implementado" << std::endl;
+            miniJuego = std::make_unique<Hex>();
             break;
         case TipoMiniJuego::BATALLA_CARTAS:
             miniJuego = std::make_unique<BatallaDeCartas>();
@@ -108,7 +110,12 @@ MiniJuego* Nodo::getMiniJuego() const {
     return miniJuego.get();
 }
 
-// Modificar el método jugarMiniJuego en Nodo.cpp para agregar la lógica de Batalla de Cartas
+// Función auxiliar para limpiar el buffer de entrada
+void limpiarBuffer() {
+    std::cin.clear();
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+}
+
 EstadoNodo Nodo::jugarMiniJuego() {
     if (!tieneMiniJuegoAsignado()) {
         return EstadoNodo::VACIO;
@@ -124,17 +131,15 @@ EstadoNodo Nodo::jugarMiniJuego() {
         int numeroSecreto1, numeroSecreto2;
         
         std::cout << "Jugador 1, elige tu numero secreto (1-100): ";
-        std::cin >> numeroSecreto1;
-        while (!juego->establecerNumeroSecreto(1, numeroSecreto1)) {
+        while (!(std::cin >> numeroSecreto1) || !juego->establecerNumeroSecreto(1, numeroSecreto1)) {
             std::cout << "Numero invalido. Elige otro numero (1-100): ";
-            std::cin >> numeroSecreto1;
+            limpiarBuffer();
         }
         
         std::cout << "Jugador 2, elige tu numero secreto (1-100): ";
-        std::cin >> numeroSecreto2;
-        while (!juego->establecerNumeroSecreto(2, numeroSecreto2)) {
+        while (!(std::cin >> numeroSecreto2) || !juego->establecerNumeroSecreto(2, numeroSecreto2)) {
             std::cout << "Numero invalido. Elige otro numero (1-100): ";
-            std::cin >> numeroSecreto2;
+            limpiarBuffer();
         }
         
         // Juego por turnos hasta que alguien gane
@@ -145,7 +150,10 @@ EstadoNodo Nodo::jugarMiniJuego() {
             int jugadorActual = juego->getTurnoActual();
             
             std::cout << "Jugador " << jugadorActual << ", ¿cual es el numero secreto del otro jugador? (1-100): ";
-            std::cin >> intento;
+            while (!(std::cin >> intento)) {
+                std::cout << "Entrada invalida. Ingresa un numero (1-100): ";
+                limpiarBuffer();
+            }
             
             if (!juego->procesarMovimiento(jugadorActual, intento)) {
                 std::cout << "Movimiento invalido. Intenta de nuevo." << std::endl;
@@ -161,19 +169,17 @@ EstadoNodo Nodo::jugarMiniJuego() {
             case EstadoMiniJuego::GANADOR_JUGADOR2:
                 return EstadoNodo::JUGADOR2;
             default:
-                return EstadoNodo::VACIO; // No debería pasar
+                return EstadoNodo::VACIO;
         }
     }
-    // NUEVA LÓGICA PARA BATALLA DE CARTAS
+    // LÓGICA PARA BATALLA DE CARTAS
     else if (tipoMiniJuego == TipoMiniJuego::BATALLA_CARTAS) {
         BatallaDeCartas* juego = static_cast<BatallaDeCartas*>(miniJuego.get());
-        
-        // Crear una versión modificada de BatallaDeCartas que funcione sin IA
-        // y devuelva el ganador para integrarlo en el tablero
         
         juego->mostrarTitulo();
         
         std::cout << "Presiona ENTER para comenzar la batalla...";
+        limpiarBuffer();
         std::cin.get();
         
         // Reiniciar el juego para asegurar estado limpio
@@ -182,9 +188,9 @@ EstadoNodo Nodo::jugarMiniJuego() {
         // Simular el juego completo
         for (int ronda = 1; ronda <= 5; ++ronda) {
             std::cout << "\nRONDA " << ronda << " DE 5\n";
-            std::cout << std::string(30, '─') << "\n";
+            std::cout << std::string(30, '-') << "\n";
             
-            // Obtener mazos actuales (necesitarás agregar getters públicos a BatallaDeCartas)
+            // Obtener mazos actuales
             std::vector<int> mazoJ1 = juego->getMazoJugador1();
             std::vector<int> mazoJ2 = juego->getMazoJugador2();
             
@@ -193,7 +199,10 @@ EstadoNodo Nodo::jugarMiniJuego() {
             int indiceJ1;
             do {
                 std::cout << "Jugador 1, elige una carta (1-" << std::min(5, (int)mazoJ1.size()) << "): ";
-                std::cin >> indiceJ1;
+                while (!(std::cin >> indiceJ1)) {
+                    std::cout << "Entrada invalida. Elige una carta (1-" << std::min(5, (int)mazoJ1.size()) << "): ";
+                    limpiarBuffer();
+                }
                 indiceJ1--; // Convertir a índice 0-based
             } while (indiceJ1 < 0 || indiceJ1 >= (int)mazoJ1.size() || indiceJ1 >= 5);
             
@@ -204,13 +213,16 @@ EstadoNodo Nodo::jugarMiniJuego() {
             int indiceJ2;
             do {
                 std::cout << "Jugador 2, elige una carta (1-" << std::min(5, (int)mazoJ2.size()) << "): ";
-                std::cin >> indiceJ2;
+                while (!(std::cin >> indiceJ2)) {
+                    std::cout << "Entrada invalida. Elige una carta (1-" << std::min(5, (int)mazoJ2.size()) << "): ";
+                    limpiarBuffer();
+                }
                 indiceJ2--; // Convertir a índice 0-based
             } while (indiceJ2 < 0 || indiceJ2 >= (int)mazoJ2.size() || indiceJ2 >= 5);
             
             int cartaJ2 = mazoJ2[indiceJ2];
             
-            // Procesar la ronda (necesitarás un método público para esto)
+            // Procesar la ronda
             juego->procesarRonda(cartaJ1, cartaJ2, ronda);
             
             if (ronda < 5) {
@@ -227,6 +239,83 @@ EstadoNodo Nodo::jugarMiniJuego() {
         
         // Retornar el ganador
         if (rondasJ1 > rondasJ2) {
+            return EstadoNodo::JUGADOR1;
+        } else {
+            return EstadoNodo::JUGADOR2;
+        }
+    }
+    // LÓGICA PARA HEX
+    else if (tipoMiniJuego == TipoMiniJuego::HEX) {
+        Hex* juego = static_cast<Hex*>(miniJuego.get());
+        
+        juego->mostrarInstrucciones();
+        
+        std::cout << "Iniciando partida de Hex..." << std::endl;
+        std::cout << "Presiona ENTER para comenzar...";
+        limpiarBuffer();
+        std::cin.get();
+        
+        // Reiniciar el juego para asegurar estado limpio
+        juego->reiniciar();
+        
+        // Bucle principal del juego Hex
+        while (!juego->estaTerminado()) {
+            juego->mostrarEstado();
+            
+            // Preguntar por regla del robo si aplica
+            if (juego->getPuedeRobar() && juego->getJugadorActual() == 2) {
+                char respuesta;
+                std::cout << "\nJugador 2, ¿quieres aplicar la regla del robo? (s/n): ";
+                std::cin >> respuesta;
+                
+                if (respuesta == 's' || respuesta == 'S') {
+                    if (juego->aplicarReglaRobo()) {
+                        std::cout << "Regla del robo aplicada exitosamente!" << std::endl;
+                        continue;
+                    }
+                }
+            }
+            
+            // Pedir movimiento al jugador actual
+            int fila, col;
+            std::cout << "\nJugador " << juego->getJugadorActual() << ", ingresa tu movimiento:" << std::endl;
+            
+            bool movimientoValido = false;
+            do {
+                std::cout << "Fila (0-6): ";
+                while (!(std::cin >> fila)) {
+                    std::cout << "Entrada invalida. Fila (0-6): ";
+                    limpiarBuffer();
+                }
+                
+                std::cout << "Columna (0-6): ";
+                while (!(std::cin >> col)) {
+                    std::cout << "Entrada invalida. Columna (0-6): ";
+                    limpiarBuffer();
+                }
+                
+                if (juego->hacerMovimiento(fila, col)) {
+                    movimientoValido = true;
+                    std::cout << "Movimiento realizado en [" << fila << "][" << col << "]" << std::endl;
+                } else {
+                    std::cout << "Movimiento inválido. La casilla debe estar vacía y dentro del tablero." << std::endl;
+                    std::cout << "Intenta de nuevo." << std::endl;
+                }
+            } while (!movimientoValido);
+            
+            // Pausa entre movimientos
+            std::cout << "Presiona ENTER para continuar...";
+            limpiarBuffer();
+            std::cin.get();
+        }
+        
+        // Mostrar resultado final
+        juego->mostrarEstado();
+        std::cout << "\n¡PARTIDA DE HEX TERMINADA!" << std::endl;
+        std::cout << "Ganador: Jugador " << juego->getGanador() << std::endl;
+        
+        // Retornar el ganador como EstadoNodo
+        if (juego->getGanador() == 1) {
             return EstadoNodo::JUGADOR1;
         } else {
             return EstadoNodo::JUGADOR2;

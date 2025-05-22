@@ -37,10 +37,14 @@ bool Tablero::jugarNodo(int fila, int columna) {
     Nodo& nodo = matrizNodos[fila][columna];
     EstadoNodo estadoJugador = (turnoActual == 1) ? EstadoNodo::JUGADOR1 : EstadoNodo::JUGADOR2;
     
+    // Si el nodo tiene minijuego, ocuparNodo manejará automáticamente el resultado
+    // Si no tiene minijuego, se asignará al jugador actual
     if (nodo.ocuparNodo(estadoJugador)) {
-        if (turnoActual == 1) {
+        // Actualizar contadores basándose en el estado final del nodo
+        EstadoNodo estadoFinal = nodo.getEstado();
+        if (estadoFinal == EstadoNodo::JUGADOR1) {
             fichasJ1++;
-        } else {
+        } else if (estadoFinal == EstadoNodo::JUGADOR2) {
             fichasJ2++;
         }
         

@@ -6,6 +6,10 @@
                 "${default}",
                 "${workspaceFolder}/lib/SFML-3.0.0/include",
                 "${workspaceFolder}/include",
+                "${workspaceFolder}/include/Minijuegos",
+                "${workspaceFolder}/include/Minijuegos/AdivinaNumero",
+                "${workspaceFolder}/include/Minijuegos/BatallaDeCartas",
+                "${workspaceFolder}/include/Minijuegos/Hex",
                 "${workspaceFolder}"
             ],
             "defines": [

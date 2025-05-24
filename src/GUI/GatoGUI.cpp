@@ -63,6 +63,23 @@ int main() {
         int y = (i / 3) * 200 + 75;
         simbolos[i].setPosition({x, y});
     }
+    for (auto& linea : lineas) {
+    linea.setFillColor(sf::Color::Black);
+    }
+    // Configuración de líneas verticales (ajustadas a la posición de los símbolos)
+    // Configuración de líneas verticales (reducidas a 500px de altura)
+lineas[0].setSize({2, 500});  // Vertical izquierda
+lineas[1].setSize({2, 500});  // Vertical derecha
+
+// Configuración de líneas horizontales (reducidas a 500px de ancho)
+lineas[2].setSize({500, 2});  // Horizontal superior
+lineas[3].setSize({500, 2});  // Horizontal inferior
+
+// Nuevo posicionamiento (movido hacia esquina superior izquierda)
+lineas[0].setPosition({200, 50});  // Vertical izquierda
+lineas[1].setPosition({400, 50});  // Vertical derecha
+lineas[2].setPosition({50, 200});  // Horizontal superior
+lineas[3].setPosition({50, 400});  // Horizontal inferior
 
     while (window.isOpen())
     {
@@ -123,9 +140,9 @@ int main() {
         }
         else {
             // Dibujar tablero
-            for(int i = 0; i < 4; i++) {
-                window.draw(lineas[i]);
-            }
+            for (int i = 0; i < 4; i++){
+            window.draw(lineas[i]);
+        }
             // Dibujar símbolos
             for(int i = 0; i < 9; i++) {
                 window.draw(simbolos[i]);

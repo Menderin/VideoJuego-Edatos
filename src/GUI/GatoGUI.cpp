@@ -1,6 +1,3 @@
-//<<<<<<< HEAD
-//#include <SFML/Graphics.hpp> 
-//=======
 #include <SFML/Graphics.hpp>
 #include <string>
 #include <iostream>
@@ -9,22 +6,24 @@ enum class GameState {
     MENU,
     GAME
 };
-//>>>>>>> f8b5f19284811fb598502605c0f751e36db62362
 
 int main() {
     // Crear ventana
-    sf::RenderWindow window(sf::VideoMode({600, 600}), "Mini Juegos");
+    sf::RenderWindow window(sf::VideoMode({800, 800}), "MendeWing");
     
     // Estado actual del juego
     GameState currentState = GameState::MENU;
     
     // Crear botones del menú
+    sf::RectangleShape titulo({300, 50});
     sf::RectangleShape btnIniciar({200, 50});
     sf::RectangleShape btnSalir({200, 50});
     
-    btnIniciar.setPosition({200, 200});
-    btnSalir.setPosition({200, 300});
+    titulo.setPosition({250,100});
+    btnIniciar.setPosition({300, 400});
+    btnSalir.setPosition({300, 500});
     
+    titulo.setFillColor(sf::Color::Black);
     btnIniciar.setFillColor(sf::Color::Green);
     btnSalir.setFillColor(sf::Color::Red);
     
@@ -32,11 +31,13 @@ int main() {
     sf::Font fuente("c:/WINDOWS/Fonts/ARIALI.TTF");
     sf::Text texto(fuente, "Bienvenidos al videojuego kuliao mas bomba", 50);
 
+    sf::Text titulo1(fuente, "MendenWing",30);
     sf::Text txtIniciar(fuente, "iniciar", 30);
     sf::Text txtSalir(fuente, "salir", 30);
     
-    txtIniciar.setPosition({250, 210});
-    txtSalir.setPosition({270, 310});
+    titulo1.setPosition({310,110});
+    txtIniciar.setPosition({350, 410});
+    txtSalir.setPosition({370, 510});
     
     // Crear las líneas del tablero (tu código existente)
     sf::RectangleShape lineas[4];
@@ -76,13 +77,13 @@ int main() {
                 
                 if (currentState == GameState::MENU) {
                     // Verificar click en botón Iniciar
-                    if (mousePos.x >= 200 && mousePos.x <= 400 &&
-                        mousePos.y >= 200 && mousePos.y <= 250) {
+                    if (mousePos.x >= 300 && mousePos.x <= 500 &&
+                        mousePos.y >= 400 && mousePos.y <= 450) {
                         currentState = GameState::GAME;
                     }
                     // Verificar click en botón Salir
-                    else if (mousePos.x >= 200 && mousePos.x <= 400 &&
-                             mousePos.y >= 300 && mousePos.y <= 350) {
+                    else if (mousePos.x >= 300 && mousePos.x <= 500 &&
+                             mousePos.y >= 500 && mousePos.y <= 550) {
                         window.close();
                     }
                 }
@@ -113,8 +114,10 @@ int main() {
         
         if (currentState == GameState::MENU) {
             // Dibujar menú
+            window.draw(titulo);
             window.draw(btnIniciar);
             window.draw(btnSalir);
+            window.draw(titulo1);
             window.draw(txtIniciar);
             window.draw(txtSalir);
         }

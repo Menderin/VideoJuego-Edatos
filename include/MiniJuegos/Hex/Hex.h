@@ -27,7 +27,7 @@ struct NodoHex {
 // Clase para manejar el grafo del tablero Hex
 class GrafoHex {
 private:
-    static const int TAMAÑO_TABLERO = 7;
+    static const int TAMAÑO_TABLERO = 11;
     std::unordered_map<int, NodoHex> nodos;
     
     // Nodos virtuales para los bordes (para facilitar detección de victoria)

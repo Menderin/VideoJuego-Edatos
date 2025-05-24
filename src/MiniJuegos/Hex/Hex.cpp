@@ -287,65 +287,55 @@ bool Hex::aplicarReglaRobo() {
 }
 
 void Hex::mostrarTablero() const {
-    std::cout << "\n=== TABLERO HEX (Implementado con Grafos) ===" << std::endl;
-    std::cout << "JUGADOR 1 (R): Conectar IZQUIERDA ↔ DERECHA" << std::endl;
-    std::cout << "JUGADOR 2 (A): Conectar ARRIBA ↕ ABAJO" << std::endl;
-    std::cout << std::endl;
-    
+    std::cout << "\n=== TABLERO HEX (Implementado con Grafos) ===\n";
+    std::cout << "JUGADOR 1 (R): Conectar IZQUIERDA a DERECHA\n";
+    std::cout << "JUGADOR 2 (A): Conectar ARRIBA a ABAJO\n\n";
+
     int tamaño = grafo.getTamañoTablero();
-    
-    // Mostrar números de columna
-    std::cout << "   ";
-    for (int j = 0; j < tamaño; j++) {
-        std::cout << std::setw(3) << j;
+
+    // Encabezado: columnas numeradas
+    std::cout << "     ";
+    for (int col = 0; col < tamaño; ++col) {
+        std::cout << col << "   ";
     }
-    std::cout << std::endl;
-    
-    // Mostrar el tablero con indentación hexagonal
-    for (int i = 0; i < tamaño; i++) {
-        std::cout << std::setw(2) << i << " ";
-        
-        // Indentación para simular forma hexagonal
-        for (int k = 0; k < i; k++) {
-            std::cout << " ";
+    std::cout << "\n";
+
+    for (int fila = 0; fila < tamaño; ++fila) {
+        // Espacios al inicio para simular desplazamiento en hexágono
+        std::cout << std::string(fila * 2, ' ');
+
+        // Mostrar fila con casillas y conexiones horizontales
+        std::cout << fila << "  ";
+        for (int col = 0; col < tamaño; ++col) {
+            char simbolo = obtenerSimbolo(grafo.obtenerEstado(fila, col));
+            std::cout << simbolo;
+            if (col != tamaño - 1) std::cout << " - ";
         }
-        
-        // Mostrar las casillas
-        for (int j = 0; j < tamaño; j++) {
-            char simbolo = obtenerSimbolo(grafo.obtenerEstado(i, j));
-            std::cout << simbolo << " ";
-            
-            // Separador entre casillas (excepto la última)
-            if (j < tamaño - 1) {
-                std::cout << "- ";
+        std::cout << "  " << fila << "\n";
+
+        // Mostrar conexiones diagonales inferiores (excepto en la última fila)
+        if (fila != tamaño - 1) {
+            std::cout << std::string(fila * 2 + 3, ' ');
+            for (int col = 0; col < tamaño; ++col) {
+                std::cout << "\\ /";
+                if (col != tamaño - 1) std::cout << " ";
             }
-        }
-        
-        std::cout << " " << i << std::endl;
-        
-        // Líneas de conexión vertical (excepto en la última fila)
-        if (i < tamaño - 1) {
-            std::cout << "   ";
-            for (int k = 0; k <= i; k++) {
-                std::cout << " ";
-            }
-            for (int j = 0; j < tamaño - 1; j++) {
-                std::cout << "\\ / ";
-            }
-            std::cout << "\\" << std::endl;
+            std::cout << "\n";
         }
     }
-    
-    // Mostrar números de columna abajo
-    std::cout << "   ";
-    for (int k = 0; k < tamaño; k++) {
-        std::cout << " ";
+
+    // Encabezado inferior (igual que el superior)
+    std::cout << std::string(tamaño * 2 + 3, ' ');
+    for (int col = 0; col < tamaño; ++col) {
+        std::cout << col << "   ";
     }
-    for (int j = 0; j < tamaño; j++) {
-        std::cout << std::setw(3) << j;
-    }
-    std::cout << std::endl;
-    std::cout << "=============================================" << std::endl;
+    std::cout << "\n";
+
+    std::cout << "\nLEYENDA:\n";
+    std::cout << "  . = Casilla vacía\n";
+    std::cout << "  R = Ficha del Jugador 1 (Rojo) - Conecta IZQUIERDA-DERECHA\n";
+    std::cout << "  A = Ficha del Jugador 2 (Azul) - Conecta ARRIBA-ABAJO\n";
+    std::cout << "=============================================\n";
 }
 
 char Hex::obtenerSimbolo(EstadoCasilla estado) const {
@@ -362,16 +352,16 @@ void Hex::cambiarTurno() {
 }
 
 void Hex::mostrarInstrucciones() const {
-    std::cout << "\n=== INSTRUCCIONES DEL HEX ===" << std::endl;
+    std::cout << "\n INSTRUCCIONES DEL HEX " << std::endl;
     std::cout << "• Hex es un juego de conexión para 2 jugadores" << std::endl;
     std::cout << "• Objetivo:" << std::endl;
     std::cout << "  - Jugador 1 (R): Conectar el lado IZQUIERDO con el DERECHO" << std::endl;
     std::cout << "  - Jugador 2 (A): Conectar el lado SUPERIOR con el INFERIOR" << std::endl;
-    std::cout << "• El tablero usa grafos para detectar conexiones automáticamente" << std::endl;
-    std::cout << "• Regla especial: Después del primer movimiento del Jugador 1," << std::endl;
+    std::cout << " El tablero usa grafos para detectar conexiones automáticamente" << std::endl;
+    std::cout << " Regla especial: Después del primer movimiento del Jugador 1," << std::endl;
     std::cout << "  el Jugador 2 puede 'robar' esa ficha (swap rule)" << std::endl;
-    std::cout << "• Para jugar: introduce fila (0-6) y columna (0-6)" << std::endl;
-    std::cout << "==============================" << std::endl;
+    std::cout << "• Para jugar: introduce fila (0-10) y columna (0-10)" << std::endl;
+    std::cout << std::endl;
 }
 
 void Hex::jugar() {

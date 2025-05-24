@@ -282,15 +282,15 @@ EstadoNodo Nodo::jugarMiniJuego() {
             
             bool movimientoValido = false;
             do {
-                std::cout << "Fila (0-6): ";
+                std::cout << "Fila (0-10): ";
                 while (!(std::cin >> fila)) {
-                    std::cout << "Entrada invalida. Fila (0-6): ";
+                    std::cout << "Entrada invalida. Fila (0-10): ";
                     limpiarBuffer();
                 }
                 
-                std::cout << "Columna (0-6): ";
+                std::cout << "Columna (0-10): ";
                 while (!(std::cin >> col)) {
-                    std::cout << "Entrada invalida. Columna (0-6): ";
+                    std::cout << "Entrada invalida. Columna (0-10): ";
                     limpiarBuffer();
                 }
                 

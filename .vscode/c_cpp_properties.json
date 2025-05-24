@@ -10,6 +10,7 @@
                 "${workspaceFolder}/include/Minijuegos/AdivinaNumero",
                 "${workspaceFolder}/include/Minijuegos/BatallaDeCartas",
                 "${workspaceFolder}/include/Minijuegos/Hex",
+                "${workspaceFolder}/src",
                 "${workspaceFolder}"
             ],
             "defines": [

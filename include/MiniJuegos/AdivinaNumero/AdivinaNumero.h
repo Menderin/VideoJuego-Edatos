@@ -25,7 +25,8 @@ public:
     bool procesarMovimiento(int jugador, int numeroAdivinado) override;
     void mostrarEstado() const override;
     void reiniciar() override;
-    
+    int getNumeroJugador(int jugador) const;
+    void setNumeroJugador(int jugador, int numero);
     // Métodos específicos del juego
     bool establecerNumeroSecreto(int jugador, int numero);
     bool validarNumero(int numero) const;

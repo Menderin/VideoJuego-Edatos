@@ -15,18 +15,18 @@ private:
     int turnoActual;
     EstadoJuego estadoJuego;
     int fichasJ1, fichasJ2;
-    
-    // Métodos privados para verificación de victoria
-    bool verificarFilas();
-    bool verificarColumnas();
-    bool verificarDiagonales();
-    bool tableroLleno();
-    void determinarGanadorPorFichas();
+   
     
 public:
     // Constructor
     Tablero();
     
+    bool verificarFilas();
+    bool verificarColumnas();
+    bool verificarDiagonales();
+    bool tableroLleno();
+    void determinarGanadorPorFichas();
+
     // Métodos de inicialización
     void inicializarMatriz();
     void reiniciar();

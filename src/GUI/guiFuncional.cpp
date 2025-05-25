@@ -3,12 +3,12 @@
 #include <string>
 #include <iostream>
 #include <random>
-#include "MiniJuegos/AdivinaNumero/AdivinaNumero.h" 
-#include "MiniJuegos/BatallaDeCartas/BatallaDeCartas.h"
-#include "MiniJuegos/Hex/Hex.h"
-#include "Nodo.h"
-#include "Minijuegos/Minijuego.h"
-#include "Tablero.h"
+#include "MiniJuegos/Hex/Hex.h" // Añade esta línea
+
+//minijuegos
+// ...resto del código...
+
+//minijuegos
 
 enum class GameState {
     MENU,
@@ -22,6 +22,25 @@ enum class AdivinaState {
     JUGANDO_TURNO_J1,
     JUGANDO_TURNO_J2
 };
+
+bool verificarVictoriaTablero(char tablero[9]) {
+    // Combinaciones ganadoras
+    int combinaciones[8][3] = {
+        {0, 1, 2}, {3, 4, 5}, {6, 7, 8}, // Filas
+        {0, 3, 6}, {1, 4, 7}, {2, 5, 8}, // Columnas
+        {0, 4, 8}, {2, 4, 6}             // Diagonales
+    };
+
+    for (int i = 0; i < 8; i++) {
+        if (tablero[combinaciones[i][0]] != ' ' &&
+            tablero[combinaciones[i][0]] == tablero[combinaciones[i][1]] &&
+            tablero[combinaciones[i][1]] == tablero[combinaciones[i][2]]) {
+            return true;
+        }
+    }
+    return false;
+}
+
 
 // Función para mostrar la ventana del ganador
 void mostrarVentanaGanador(int puntosJ1, int puntosJ2) {
@@ -73,6 +92,8 @@ void mostrarVentanaGanador(int puntosJ1, int puntosJ2) {
         ventanaGanador.display();
     }
 }
+
+
 
 // Variables globales para el tablero principal
 char tableroPrincipal[9] = {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '};
@@ -144,74 +165,9 @@ void mostrarVentanaVictoriaTablero(char simboloGanador) {
     }
 }
 
-void mostrarVentanaVictoriaFichas(char simboloGanador) {
-    sf::RenderWindow ventanaVictoria(sf::VideoMode({500, 300}), "Victoria por Fichas!");
-    
-    // Cargar fuente
-    sf::Font fuente("c:/WINDOWS/Fonts/ARIALI.TTF");
-    
-    // Título de victoria
-    sf::Text tituloVictoria(fuente, "VICTORIA TOTAL!", 48);
-    tituloVictoria.setPosition({80, 50});
-    tituloVictoria.setFillColor(sf::Color::Green);
-    
-    // Mensaje del ganador
-    std::string jugadorGanador = (simboloGanador == 'X') ? "Jugador 1 (X)" : "Jugador 2 (O)";
-    std::string mensajeGanador = jugadorGanador + " ha ganado!";
-    sf::Text textoGanador(fuente, mensajeGanador, 24);
-    textoGanador.setPosition({100, 120});
-    textoGanador.setFillColor(sf::Color::Blue);
-    
-    // Mensaje adicional específico para victoria por fichas
-    sf::Text textoAdicional(fuente, "Ganaste por tener mas fichas en el tablero", 18);
-    textoAdicional.setPosition({70, 160});
-    textoAdicional.setFillColor(sf::Color::Black);
-    
-    // Botón para cerrar
-    sf::RectangleShape btnCerrar({120, 40});
-    btnCerrar.setPosition({190, 220});
-    btnCerrar.setFillColor(sf::Color::Red);
-    
-    sf::Text txtCerrar(fuente, "Cerrar", 20);
-    txtCerrar.setPosition({225, 230});
-    txtCerrar.setFillColor(sf::Color::White);
-    
-    // Loop de la ventana de victoria
-    while (ventanaVictoria.isOpen()) {
-        while (const std::optional event = ventanaVictoria.pollEvent()) {
-            if (event->is<sf::Event::Closed>()) {
-                ventanaVictoria.close();
-            }
-            
-            if (event->is<sf::Event::MouseButtonPressed>()) {
-                sf::Vector2i mousePos = sf::Mouse::getPosition(ventanaVictoria);
-                
-                // Verificar click en botón cerrar
-                if (mousePos.x >= 190 && mousePos.x <= 310 &&
-                    mousePos.y >= 220 && mousePos.y <= 260) {
-                    ventanaVictoria.close();
-                }
-            }
-            
-            // También permitir cerrar con cualquier tecla
-            if (event->is<sf::Event::KeyPressed>()) {
-                ventanaVictoria.close();
-            }
-        }
-        
-        ventanaVictoria.clear(sf::Color::White);
-        ventanaVictoria.draw(tituloVictoria);
-        ventanaVictoria.draw(textoGanador);
-        ventanaVictoria.draw(textoAdicional);
-        ventanaVictoria.draw(btnCerrar);
-        ventanaVictoria.draw(txtCerrar);
-        ventanaVictoria.display();
-    }
-}
-
 // Función para mostrar ventana de victoria del minijuego (modificada)
 // Función para mostrar ventana de victoria del minijuego (simplificada)
-void mostrarVentanaVictoria(int jugadorGanador, int numeroSecreto, Tablero& tablero) {
+void mostrarVentanaVictoria(int jugadorGanador, int numeroSecreto) {
     sf::RenderWindow ventanaVictoria(sf::VideoMode({500, 300}), "Victoria!");
 
     // Cargar fuente
@@ -278,10 +234,13 @@ void mostrarVentanaVictoria(int jugadorGanador, int numeroSecreto, Tablero& tabl
     }
 
     // Verificar victoria en el tablero principal
-    if (tablero.getEstadoJuego() != EstadoJuego::EN_CURSO) {
-        mostrarVentanaVictoriaTablero(tablero.getEstadoJuego() == EstadoJuego::GANADOR_J1 ? 'X' : 'O');
+    if (verificarVictoriaTablero(tableroPrincipal)) {
+        char simboloGanador = (jugadorGanador == 1) ? 'X' : 'O';
+        mostrarVentanaVictoriaTablero(simboloGanador);
     }
 }
+
+
 
 // Función para abrir ventana de Hex
 sf::CircleShape crearHexagono(float radio, sf::Vector2f posicion) {
@@ -293,8 +252,10 @@ sf::CircleShape crearHexagono(float radio, sf::Vector2f posicion) {
     return hexagono;
 }
 
+
 // Función para abrir ventana de Hex
-void abrirHex(int casilla, Tablero& tablero) {
+// Función para abrir ventana de Hex
+void abrirHex(int casilla) {
     casillaMiniJuego = casilla;
 
     sf::RenderWindow ventanaHex(sf::VideoMode({800, 700}), "Juego Hex");
@@ -399,16 +360,13 @@ void abrirHex(int casilla, Tablero& tablero) {
 
                                     // Marcar en el tablero principal
                                     if (casillaMiniJuego >= 0 && casillaMiniJuego < 9) {
-                                        tablero.getNodo(casillaMiniJuego / 3, casillaMiniJuego % 3).setEstado(ganador == 1 ? EstadoNodo::JUGADOR1 : EstadoNodo::JUGADOR2);
+                                        tableroPrincipal[casillaMiniJuego] = (ganador == 1) ? 'X' : 'O';
                                         std::cout << "Marcando " << ((ganador == 1) ? 'X' : 'O')
                                                   << " en casilla " << casillaMiniJuego << std::endl;
                                     }
 
-                                    // Verificar victoria en el tablero principal
-                                    tablero.verificarVictoria();
-
                                     // Mostrar ventana de victoria
-                                    mostrarVentanaVictoria(ganador, -1,tablero);
+                                    mostrarVentanaVictoria(ganador, -1);
                                     ventanaHex.close();
                                 }
                                 movimientoRealizado = true;
@@ -437,84 +395,86 @@ void abrirHex(int casilla, Tablero& tablero) {
 }
 
 
+
+
+
+
 // Función para abrir ventana de "Adivina el número" (modificada para recibir la casilla)
-// Función para abrir ventana de "Adivina el número" (modificada para recibir la casilla)
-void abrirAdivinaNumero(int casilla,Tablero& tablero) {
+void abrirAdivinaNumero(int casilla) {
     casillaMiniJuego = casilla; // Guardar en qué casilla se jugó
-
+    
     sf::RenderWindow ventanaAdivina(sf::VideoMode({600, 450}), "Adivina el Numero");
-
+    
     // Cargar fuente
     sf::Font fuente("c:/WINDOWS/Fonts/ARIALI.TTF");
-
+    
+    // Estado del juego de adivinar
+    AdivinaState estadoAdivina = AdivinaState::JUGADOR1_INGRESA;
+    int numeroJugador1 = 0;
+    int numeroJugador2 = 0;
+    
     // Crear título
     sf::Text titulo(fuente, "Adivina el Numero", 36);
     titulo.setPosition({150, 30});
     titulo.setFillColor(sf::Color::Black);
-
+    
     // Mensaje para jugador (se actualizará según el estado)
     sf::Text mensajeJugador(fuente, "Jugador 1: Elige tu numero", 24);
     mensajeJugador.setPosition({150, 90});
     mensajeJugador.setFillColor(sf::Color::Blue);
-
+    
     // Campo de entrada de número
     sf::RectangleShape campoNumero({200, 40});
     campoNumero.setPosition({200, 140});
     campoNumero.setFillColor(sf::Color::White);
     campoNumero.setOutlineThickness(2);
     campoNumero.setOutlineColor(sf::Color::Black);
-
+    
     // Texto del número ingresado
     std::string numeroIngresado = "";
     sf::Text textoNumero(fuente, numeroIngresado, 24);
     textoNumero.setPosition({210, 148});
     textoNumero.setFillColor(sf::Color::Black);
-
+    
     // Instrucciones
     sf::Text instrucciones(fuente, "Ingresa un numero entre 1 y 100", 18);
     instrucciones.setPosition({170, 200});
     instrucciones.setFillColor(sf::Color::Green);
-
+    
     // Mensaje de resultado
     sf::Text mensajeResultado(fuente, "", 18);
     mensajeResultado.setPosition({150, 240});
     mensajeResultado.setFillColor(sf::Color::Magenta);
-
+    
     // Botón de confirmar
     sf::RectangleShape btnConfirmar({120, 40});
     btnConfirmar.setPosition({240, 280});
     btnConfirmar.setFillColor(sf::Color::Blue);
-
+    
     sf::Text txtConfirmar(fuente, "Confirmar", 18);
     txtConfirmar.setPosition({255, 290});
     txtConfirmar.setFillColor(sf::Color::White);
-
+    
     // Botón de cerrar
     sf::RectangleShape btnCerrar({100, 40});
     btnCerrar.setPosition({250, 350});
     btnCerrar.setFillColor(sf::Color::Red);
-
+    
     sf::Text txtCerrar(fuente, "Cerrar", 20);
     txtCerrar.setPosition({275, 360});
     txtCerrar.setFillColor(sf::Color::White);
-
-    // Crear una instancia del juego AdivinaNumero
-    AdivinaNumero juegoAdivina;
-
-    // Variable para manejar el turno actual
-    int turnoActual = 1;
-
+    
     // Loop de la ventana
     while (ventanaAdivina.isOpen()) {
         while (const std::optional event = ventanaAdivina.pollEvent()) {
             if (event->is<sf::Event::Closed>()) {
                 ventanaAdivina.close();
             }
-
+            
             // Manejar entrada de texto
             if (auto* textEvent = event->getIf<sf::Event::TextEntered>()) {
                 char c = static_cast<char>(textEvent->unicode);
-
+                
                 // Solo permitir números y limitar a 3 dígitos
                 if (c >= '0' && c <= '9' && numeroIngresado.length() < 3) {
                     numeroIngresado += c;
@@ -526,63 +486,93 @@ void abrirAdivinaNumero(int casilla,Tablero& tablero) {
                     textoNumero.setString(numeroIngresado);
                 }
             }
-
+            
             if (event->is<sf::Event::MouseButtonPressed>()) {
                 sf::Vector2i mousePos = sf::Mouse::getPosition(ventanaAdivina);
-
+                
                 // Verificar click en botón confirmar
                 if (mousePos.x >= 240 && mousePos.x <= 360 &&
                     mousePos.y >= 280 && mousePos.y <= 320) {
-
+                    
                     if (!numeroIngresado.empty()) {
                         int numero = std::stoi(numeroIngresado);
-
+                        
                         if (numero >= 1 && numero <= 100) {
-                            if (!juegoAdivina.ambosNumerosElegidos()) {
-                                // Guardar número del jugador 1 o 2
-                                if (!juegoAdivina.establecerNumeroSecreto(1, numero)) {
-                                    juegoAdivina.establecerNumeroSecreto(2, numero);
-                                }
-
-                                // Actualizar textos para el siguiente jugador
-                                if (juegoAdivina.ambosNumerosElegidos()) {
-                                    mensajeJugador.setString("Jugador 1: Adivina el numero del J2");
-                                    mensajeJugador.setFillColor(sf::Color::Blue);
-                                    instrucciones.setString("Intenta adivinar el numero secreto");
-                                    mensajeResultado.setString("");
-                                } else {
-                                    mensajeJugador.setString("Jugador 2: Elige tu numero");
-                                    mensajeJugador.setFillColor(sf::Color::Red);
-                                    instrucciones.setString("Ingresa un numero entre 1 y 100");
-                                }
-
+                            if (estadoAdivina == AdivinaState::JUGADOR1_INGRESA) {
+                                // Guardar número del jugador 1 y cambiar al jugador 2
+                                numeroJugador1 = numero;
+                                estadoAdivina = AdivinaState::JUGADOR2_INGRESA;
+                                
+                                // Actualizar textos para jugador 2
+                                mensajeJugador.setString("Jugador 2: Elige tu numero");
+                                mensajeJugador.setFillColor(sf::Color::Red);
+                                instrucciones.setString("Ingresa un numero entre 1 y 100");
+                                
                                 // Limpiar campo de entrada
                                 numeroIngresado = "";
                                 textoNumero.setString(numeroIngresado);
-                            } else {
-                                // Jugador intenta adivinar el número del otro jugador
-                                if (juegoAdivina.procesarMovimiento(turnoActual, numero)) {
-                                    // Marcar en el tablero principal
-                                    tablero.getNodo(casillaMiniJuego / 3, casillaMiniJuego % 3).setEstado(turnoActual == 1 ? EstadoNodo::JUGADOR1 : EstadoNodo::JUGADOR2);
-                                    // Verificar victoria en el tablero principal
-                                    tablero.verificarVictoria();
+                                
+                                std::cout << "Jugador 1 eligio: " << numeroJugador1 << std::endl;
+                            }
+                            else if (estadoAdivina == AdivinaState::JUGADOR2_INGRESA) {
+                                // Guardar número del jugador 2 e iniciar el juego
+                                numeroJugador2 = numero;
+                                estadoAdivina = AdivinaState::JUGANDO_TURNO_J1;
+                                
+                                // Actualizar textos para comenzar el juego
+                                mensajeJugador.setString("Jugador 1: Adivina el numero del J2");
+                                mensajeJugador.setFillColor(sf::Color::Blue);
+                                instrucciones.setString("Intenta adivinar el numero secreto");
+                                mensajeResultado.setString("");
+                                
+                                // Limpiar campo de entrada
+                                numeroIngresado = "";
+                                textoNumero.setString(numeroIngresado);
+                                
+                                std::cout << "Jugador 2 eligio: " << numeroJugador2 << std::endl;
+                                std::cout << "Comienza el juego!" << std::endl;
+                            }
+                            else if (estadoAdivina == AdivinaState::JUGANDO_TURNO_J1) {
+                                // Jugador 1 intenta adivinar el número del jugador 2
+                                if (numero == numeroJugador2) {
+                                    std::cout << "Jugador 1 acerto! El numero era: " << numeroJugador2 << std::endl;
+                                    
                                     // Mostrar ventana de victoria y cerrar juego
-                                    mostrarVentanaVictoria(turnoActual, numero,tablero);
+                                    mostrarVentanaVictoria(1, numeroJugador2);
                                     ventanaAdivina.close();
                                 } else {
                                     // Dar pista y cambiar turno
-                                    int numeroSecreto = juegoAdivina.getNumeroJugador(turnoActual == 1 ? 2 : 1);
-
-                                    if (numero < numeroSecreto) {
-                                        mensajeResultado.setString("El numero del jugador " + std::to_string(turnoActual == 1 ? 2 : 1) + " es MAYOR. Turno del J" + std::to_string(turnoActual == 1 ? 2 : 1));
+                                    if (numero < numeroJugador2) {
+                                        mensajeResultado.setString("El numero del jugador 2 es MAYOR. Turno del J2");
                                     } else {
-                                        mensajeResultado.setString("El numero del jugador " + std::to_string(turnoActual == 1 ? 2 : 1) + " es MENOR. Turno del J" + std::to_string(turnoActual == 1 ? 2 : 1));
+                                        mensajeResultado.setString("El numero del jugador 2 es MENOR. Turno del J2");
                                     }
-
-                                    // Cambiar turno manualmente
-                                    turnoActual = (turnoActual == 1) ? 2 : 1;
-                                    mensajeJugador.setString("Jugador " + std::to_string(turnoActual) + ": Adivina el numero del J" + std::to_string(turnoActual == 1 ? 2 : 1));
-                                    mensajeJugador.setFillColor(turnoActual == 1 ? sf::Color::Blue : sf::Color::Red);
+                                    estadoAdivina = AdivinaState::JUGANDO_TURNO_J2;
+                                    mensajeJugador.setString("Jugador 2: Adivina el numero del J1");
+                                    mensajeJugador.setFillColor(sf::Color::Red);
+                                }
+                                // Limpiar campo
+                                numeroIngresado = "";
+                                textoNumero.setString(numeroIngresado);
+                            }
+                            else if (estadoAdivina == AdivinaState::JUGANDO_TURNO_J2) {
+                                // Jugador 2 intenta adivinar el número del jugador 1
+                                if (numero == numeroJugador1) {
+                                    std::cout << "Jugador 2 acerto! El numero era: " << numeroJugador1 << std::endl;
+                                    
+                                    // Mostrar ventana de victoria y cerrar juego
+                                    mostrarVentanaVictoria(2, numeroJugador1);
+                                    ventanaAdivina.close();
+                                } else {
+                                    // Dar pista y cambiar turno
+                                    if (numero < numeroJugador1) {
+                                        mensajeResultado.setString("El numero del jugador 1 es MAYOR. Turno del J1");
+                                    } else {
+                                        mensajeResultado.setString("El numero del jugador 1 es MENOR. Turno del J1");
+                                    }
+                                    estadoAdivina = AdivinaState::JUGANDO_TURNO_J1;
+                                    mensajeJugador.setString("Jugador 1: Adivina el numero del J2");
+                                    mensajeJugador.setFillColor(sf::Color::Blue);
                                 }
                                 // Limpiar campo
                                 numeroIngresado = "";
@@ -591,7 +581,7 @@ void abrirAdivinaNumero(int casilla,Tablero& tablero) {
                         }
                     }
                 }
-
+                
                 // Verificar click en botón cerrar
                 if (mousePos.x >= 250 && mousePos.x <= 350 &&
                     mousePos.y >= 350 && mousePos.y <= 390) {
@@ -599,7 +589,7 @@ void abrirAdivinaNumero(int casilla,Tablero& tablero) {
                 }
             }
         }
-
+        
         ventanaAdivina.clear(sf::Color::White);
         ventanaAdivina.draw(titulo);
         ventanaAdivina.draw(mensajeJugador);
@@ -730,31 +720,22 @@ bool ventanaJugador(bool esJugador1, std::vector<int>& valoresCartas, int& carta
     return false;
 }
 
-void abrirBatallaCartas(int casilla, Tablero& tablero) {
+void abrirBatallaCartas(int casilla) {
+    // Verificar si la casilla ya está ocupada
+
     casillaMiniJuego = casilla;
-
-    // ELIMINADA la creación innecesaria de ventanaCartas
-    // sf::RenderWindow ventanaCartas(sf::VideoMode({600, 450}), "Batalla de Cartas");
-
-    // Cargar fuente
-    sf::Font fuente("c:/WINDOWS/Fonts/ARIALI.TTF");
-
-    // Crear título
-    sf::Text titulo(fuente, "Batalla de Cartas", 36);
-    titulo.setPosition({150, 30});
-    titulo.setFillColor(sf::Color::Black);
-
+    
     // Crear vector con todos los números posibles
     std::vector<int> numerosDisponibles;
     for(int i = 1; i <= 15; i++) {
         numerosDisponibles.push_back(i);
     }
-
+    
     // Generar mazos para ambos jugadores
     std::vector<int> mazoJ1, mazoJ2;
     std::random_device rd;
     std::mt19937 gen(rd());
-
+    
     // Repartir cartas J1 sin repetición
     for(int i = 0; i < 5; i++) {
         std::uniform_int_distribution<> dis(0, numerosDisponibles.size() - 1);
@@ -763,7 +744,7 @@ void abrirBatallaCartas(int casilla, Tablero& tablero) {
         numerosDisponibles.erase(numerosDisponibles.begin() + indiceAleatorio);
         mazoJ1.push_back(valorCarta);
     }
-
+    
     // Repartir cartas J2 sin repetición
     for(int i = 0; i < 5; i++) {
         std::uniform_int_distribution<> dis(0, numerosDisponibles.size() - 1);
@@ -772,19 +753,19 @@ void abrirBatallaCartas(int casilla, Tablero& tablero) {
         numerosDisponibles.erase(numerosDisponibles.begin() + indiceAleatorio);
         mazoJ2.push_back(valorCarta);
     }
-
+    
     int puntosJ1 = 0, puntosJ2 = 0;
-
+    
     // Loop principal del juego
     while (!mazoJ1.empty() && !mazoJ2.empty()) {
         int cartaJ1 = -1, cartaJ2 = -1;
-
+        
         // Turno J1
         if (!ventanaJugador(true, mazoJ1, cartaJ1, puntosJ1, puntosJ2)) break;
-
+        
         // Turno J2
         if (!ventanaJugador(false, mazoJ2, cartaJ2, puntosJ1, puntosJ2)) break;
-
+        
         // Comparar cartas y actualizar puntos
         if (cartaJ1 > cartaJ2) {
             puntosJ1++;
@@ -799,58 +780,60 @@ void abrirBatallaCartas(int casilla, Tablero& tablero) {
 
     // Determinar ganador y colocar ficha
     if (puntosJ1 > puntosJ2) {
-        tablero.getNodo(casilla / 3, casilla % 3).setEstado(EstadoNodo::JUGADOR1);
+        tableroPrincipal[casilla] = 'X';  // Marcar X para Jugador 1
         std::cout << "Jugador 1 gana - Marcando X en casilla " << casilla << std::endl;
     } else if (puntosJ2 > puntosJ1) {
-        tablero.getNodo(casilla / 3, casilla % 3).setEstado(EstadoNodo::JUGADOR2);
+        tableroPrincipal[casilla] = 'O';  // Marcar O para Jugador 2
         std::cout << "Jugador 2 gana - Marcando O en casilla " << casilla << std::endl;
     } else {
         std::cout << "Empate - No se marca la casilla" << std::endl;
     }
-
+    
     // Mostrar resultado final
     mostrarVentanaGanador(puntosJ1, puntosJ2);
-
+    
     // Verificar victoria en el tablero principal
-    tablero.verificarVictoria();
+    if (verificarVictoriaTablero(tableroPrincipal)) {
+        char simboloGanador = (puntosJ1 > puntosJ2) ? 'X' : 'O';
+        mostrarVentanaVictoriaTablero(simboloGanador);
+    }
 }
-
 
 int main() {
     // Crear ventana
     sf::RenderWindow window(sf::VideoMode({800, 800}), "MendeWing");
-
+    
     // Estado actual del juego
     GameState currentState = GameState::MENU;
-
+    
     // Crear botones del menú
     sf::RectangleShape titulo({300, 50});
     sf::RectangleShape btnIniciar({200, 50});
     sf::RectangleShape btnSalir({200, 50});
-
-    titulo.setPosition({250, 100});
+    
+    titulo.setPosition({250,100});
     btnIniciar.setPosition({300, 400});
     btnSalir.setPosition({300, 500});
-
+    
     titulo.setFillColor(sf::Color::Black);
     btnIniciar.setFillColor(sf::Color::Green);
     btnSalir.setFillColor(sf::Color::Red);
-
+    
     // Crear fuente para el texto
     sf::Font fuente("c:/WINDOWS/Fonts/ARIALI.TTF");
     sf::Text texto(fuente, "Bienvenidos al videojuego kuliao mas bomba", 50);
 
-    sf::Text titulo1(fuente, "MendenWing", 30);
+    sf::Text titulo1(fuente, "MendenWing",30);
     sf::Text txtIniciar(fuente, "iniciar", 30);
     sf::Text txtSalir(fuente, "salir", 30);
-
-    titulo1.setPosition({310, 110});
+    
+    titulo1.setPosition({310,110});
     txtIniciar.setPosition({350, 410});
     txtSalir.setPosition({370, 510});
-
+    
     // Crear las líneas del tablero
     sf::RectangleShape lineas[4];
-
+    
     // Crear símbolos para el tablero
     sf::Text simbolos[9] = {
         sf::Text(fuente, ""), sf::Text(fuente, ""), sf::Text(fuente, ""),
@@ -858,7 +841,7 @@ int main() {
         sf::Text(fuente, ""), sf::Text(fuente, ""), sf::Text(fuente, "")
     };
     std::string symbols[9] = {"?", "H", "C", "H", "?", "C", "C", "H", "?"};
-
+    
     // Crear símbolos para las fichas del tablero principal (X y O)
     sf::Text fichasTablero[9] = {
         sf::Text(fuente, ""), sf::Text(fuente, ""), sf::Text(fuente, ""),
@@ -866,101 +849,109 @@ int main() {
         sf::Text(fuente, ""), sf::Text(fuente, ""), sf::Text(fuente, "")
     };
     for(int i = 0; i < 9; i++) {
-        fichasTablero[i].setCharacterSize(80);
-        fichasTablero[i].setFillColor(sf::Color::Red);
-
+        fichasTablero[i].setCharacterSize(80); // Más grande que los símbolos de minijuegos
+        fichasTablero[i].setFillColor(sf::Color::Red); // Color diferente para destacar
+        
+        // Calcular posición en el tablero (un poco más centrada)
         int x = (i % 3) * 200 + 85;
         int y = (i / 3) * 200 + 60;
         fichasTablero[i].setPosition({x, y});
     }
-
+    
     for(int i = 0; i < 9; i++) {
         simbolos[i].setFont(fuente);
         simbolos[i].setString(symbols[i]);
         simbolos[i].setCharacterSize(50);
         simbolos[i].setFillColor(sf::Color::Black);
-
+        
+        // Calcular posición en el tablero (ligeramente arriba para dejar espacio a las fichas)
         int x = (i % 3) * 200 + 85;
-        int y = (i / 3) * 200 + 60;
+        int y = (i / 3) * 200 + 60; // Movido un poco arriba
         simbolos[i].setPosition({x, y});
     }
-
+    
     for (auto& linea : lineas) {
         linea.setFillColor(sf::Color::Black);
     }
-
-    // Configuración de líneas verticales
+    
+    // Configuración de líneas verticales (reducidas a 500px de altura)
     lineas[0].setSize({2, 500});  // Vertical izquierda
     lineas[1].setSize({2, 500});  // Vertical derecha
 
-    // Configuración de líneas horizontales
+    // Configuración de líneas horizontales (reducidas a 500px de ancho)
     lineas[2].setSize({500, 2});  // Horizontal superior
     lineas[3].setSize({500, 2});  // Horizontal inferior
 
-    // Posicionamiento de líneas
+    // Nuevo posicionamiento (movido hacia esquina superior izquierda)
     lineas[0].setPosition({200, 50});  // Vertical izquierda
     lineas[1].setPosition({400, 50});  // Vertical derecha
     lineas[2].setPosition({50, 200});  // Horizontal superior
     lineas[3].setPosition({50, 400});  // Horizontal inferior
 
-    // Crear instancia del tablero
-    Tablero tablero;
-
-    // Asignar minijuegos a los nodos
-    tablero.getNodo(0, 0).asignarMiniJuego(TipoMiniJuego::ADIVINA_NUMERO);
-    tablero.getNodo(0, 1).asignarMiniJuego(TipoMiniJuego::HEX);
-    tablero.getNodo(0, 2).asignarMiniJuego(TipoMiniJuego::BATALLA_CARTAS);
-    // Asignar otros minijuegos según sea necesario
-
-    bool victoriaMostrada = false;
-
-    while (window.isOpen()) {
-        while (const std::optional event = window.pollEvent()) {
+    while (window.isOpen())
+    {
+        // Actualizar las fichas del tablero principal
+        for(int i = 0; i < 9; i++) {
+            if (tableroPrincipal[i] != ' ') {
+                fichasTablero[i].setString(std::string(1, tableroPrincipal[i]));
+            } else {
+                fichasTablero[i].setString("");
+            }
+        }
+        
+        while (const std::optional event = window.pollEvent())
+        {
             if (event->is<sf::Event::Closed>()) {
                 window.close();
             }
 
             if (event->is<sf::Event::MouseButtonPressed>()) {
                 sf::Vector2i mousePos = sf::Mouse::getPosition(window);
-
+                
                 if (currentState == GameState::MENU) {
                     // Verificar click en botón Iniciar
                     if (mousePos.x >= 300 && mousePos.x <= 500 &&
                         mousePos.y >= 400 && mousePos.y <= 450) {
                         currentState = GameState::GAME;
-                        std::cout << "iniciando" << std::endl;
+                        std::cout<<"iniciando"<<std::endl;
                     }
                     // Verificar click en botón Salir
                     else if (mousePos.x >= 300 && mousePos.x <= 500 &&
                              mousePos.y >= 500 && mousePos.y <= 550) {
-                        std::cout << "salir" << std::endl;
+                                std::cout<<"salir"<<std::endl;
                         window.close();
                     }
-                } else if (currentState == GameState::GAME) {
+                }
+                else if (currentState == GameState::GAME) {
                     // Verificar clicks en el tablero
                     int columna = mousePos.x / 200;
                     int fila = mousePos.y / 200;
                     if (columna < 3 && fila < 3) {
                         int index = fila * 3 + columna;
-
+                        
                         // Solo permitir jugar en casillas que no tengan ficha
-                        if (tablero.getNodo(fila, columna).estaVacio()) {
+                        if (tableroPrincipal[index] == ' ') {
                             std::string symbol = symbols[index];
                             if (symbol == "H") {
-                                std::cout << "H en casilla " << index << std::endl;
+                                std::cout<<"H en casilla " << index << std::endl;
                                 // Iniciar juego Hex
-                                abrirHex(index, tablero);
-                            } else if (symbol == "C") {
-                                std::cout << "C en casilla " << index << std::endl;
+                                abrirHex(index);
+                            }
+                            else if (symbol == "C") {
                                 // Iniciar Batalla de Cartas
-                                abrirBatallaCartas(index, tablero);
-                            } else if (symbol == "?") {
-                                std::cout << "Abriendo Adivina el Numero en casilla " << index << std::endl;
+                                // TODO: Implementar redirección a Batalla de Cartas
+                                std::cout<<"C en casilla " << index << std::endl;
+                                // abrirBatallaCartas(index);
+                                abrirBatallaCartas(index);
+                            }
+                            else if (symbol == "?") {
                                 // Abrir ventana de Adivina el Número
-                                abrirAdivinaNumero(index, tablero);
+                                std::cout<<"Abriendo Adivina el Numero en casilla " << index << std::endl;
+                                abrirAdivinaNumero(index);
                             }
                         } else {
-                            std::cout << "Casilla " << index << " ya ocupada" << std::endl;
+                            std::cout << "Casilla " << index << " ya ocupada por ficha '" 
+                                     << tableroPrincipal[index] << "'" << std::endl;
                         }
                     }
                 }
@@ -968,7 +959,7 @@ int main() {
         }
 
         window.clear(sf::Color::White);
-
+        
         if (currentState == GameState::MENU) {
             // Dibujar menú
             window.draw(titulo);
@@ -977,46 +968,36 @@ int main() {
             window.draw(titulo1);
             window.draw(txtIniciar);
             window.draw(txtSalir);
-        } else {
+        }
+        else {
             // Dibujar tablero
-            for (int i = 0; i < 4; i++) {
+            for (int i = 0; i < 4; i++){
                 window.draw(lineas[i]);
             }
             // Dibujar símbolos de minijuegos
             for(int i = 0; i < 9; i++) {
                 // Solo dibujar el símbolo si no hay ficha en esa casilla
-                if (tablero.getNodo(i / 3, i % 3).estaVacio()) {
+                if (tableroPrincipal[i] == ' ') {
                     window.draw(simbolos[i]);
                 }
             }
             // Dibujar fichas del tablero principal (X y O)
             for(int i = 0; i < 9; i++) {
-                EstadoNodo estado = tablero.getNodo(i / 3, i % 3).getEstado();
-                if (estado == EstadoNodo::JUGADOR1) {
-                    fichasTablero[i].setString("X");
-                    window.draw(fichasTablero[i]);
-                } else if (estado == EstadoNodo::JUGADOR2) {
-                    fichasTablero[i].setString("O");
+                if (tableroPrincipal[i] != ' ') {
                     window.draw(fichasTablero[i]);
                 }
-            }
-
-            // Verificar victoria en el tablero principal
-            if (tablero.getEstadoJuego() != EstadoJuego::EN_CURSO && !victoriaMostrada) {
-                if (tablero.tableroLleno() && !tablero.verificarFilas() && !tablero.verificarColumnas() && !tablero.verificarDiagonales()) {
-                    mostrarVentanaVictoriaFichas(tablero.getEstadoJuego() == EstadoJuego::GANADOR_J1 ? 'X' : 'O');
-                } else {
-                    mostrarVentanaVictoriaTablero(tablero.getEstadoJuego() == EstadoJuego::GANADOR_J1 ? 'X' : 'O');
-                }
-                victoriaMostrada = true;
             }
         }
-
+        
         window.display();
     }
-
     return 0;
 }
+
+
+
+
+
 
 
 

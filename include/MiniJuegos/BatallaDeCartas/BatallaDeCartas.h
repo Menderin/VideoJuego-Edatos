@@ -5,16 +5,16 @@
 #include "Minijuegos/MiniJuego.h"
 
 class BatallaDeCartas : public MiniJuego{
-private:
+    
+public:
+    // Constructor
     std::vector<int> mazoJugador1;
     std::vector<int> mazoJugador2;
     int rondasGanadasJ1;
     int rondasGanadasJ2;
     int totalRondas;
     std::mt19937 rng;
-
-public:
-    // Constructor
+    
     BatallaDeCartas();
     
     // Métodos virtuales puros de MiniJuego

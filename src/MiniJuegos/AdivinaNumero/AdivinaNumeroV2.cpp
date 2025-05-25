@@ -38,25 +38,18 @@ bool AdivinaNumero::procesarMovimiento(int jugador, int numeroAdivinado) {
     if (juegoTerminado || !ambosNumerosElegidos() || jugador != turnoActual) {
         return false;
     }
-    
+
     if (!validarNumero(numeroAdivinado)) {
         return false;
     }
-    
+
     bool acierto = false;
-    
+
     if (jugador == 1) {
         intentosJugador1.push_back(numeroAdivinado);
         if (numeroAdivinado == numeroJugador2) {
             terminarJuego(EstadoMiniJuego::GANADOR_JUGADOR1);
             acierto = true;
-
-        }
-        else if (numeroAdivinado>numeroJugador2){
-            std::cout<<"El numero del jugador 2 es menor"<<std::endl;
-        }
-        else{
-            std::cout<<"El numero del jugador 2 es mayor"<<std::endl;
         }
     } else if (jugador == 2) {
         intentosJugador2.push_back(numeroAdivinado);
@@ -64,21 +57,16 @@ bool AdivinaNumero::procesarMovimiento(int jugador, int numeroAdivinado) {
             terminarJuego(EstadoMiniJuego::GANADOR_JUGADOR2);
             acierto = true;
         }
-        else if (numeroAdivinado>numeroJugador1){
-            std::cout<<"El numero del jugador 1 es menor"<<std::endl;
-        }
-        else{
-            std::cout<<"El numero del jugador 1 es mayor"<<std::endl;
-        }
     }
-    
+
     // Cambiar turno solo si no acertó
     if (!acierto) {
         turnoActual = (turnoActual == 1) ? 2 : 1;
     }
-    
-    return true;
+
+    return acierto; // Devuelve true solo si hubo un acierto
 }
+
 
 int AdivinaNumero::getNumeroJugador(int jugador) const {
         if (jugador == 1) {
@@ -99,6 +87,7 @@ int AdivinaNumero::getNumeroJugador(int jugador) const {
             numeroJ2Elegido = true;
         }
     }
+
 
 const std::vector<int>& AdivinaNumero::getIntentosJugador(int jugador) const {
     if (jugador == 1) {

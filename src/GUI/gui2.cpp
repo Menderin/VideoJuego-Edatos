@@ -729,6 +729,78 @@ bool ventanaJugador(bool esJugador1, std::vector<int>& valoresCartas, int& carta
     return false;
 }
 
+
+
+
+// Agregar esta función junto con las otras funciones de ventanas
+void mostrarVentanaAyuda() {
+    sf::RenderWindow ventanaAyuda(sf::VideoMode({600, 400}), "Ayuda del Juego");
+    sf::Font fuente("c:/WINDOWS/Fonts/ARIALI.TTF");
+    
+    // Título
+    sf::Text titulo(fuente, "Ayuda Como Jugar", 30);
+    titulo.setPosition({200, 30});
+    titulo.setFillColor(sf::Color::Black);
+    
+    // Instrucciones
+    std::vector<sf::Text> instrucciones;
+    
+    std::vector<std::string> textos = {
+        "Juego de 3 en raya con minijuegos",
+        "Simbolos en el tablero:",
+        "   ? Adivina el Numero",
+        "   H Juego Hex",
+        "   C Batalla de Cartas",
+        "Gana quien consiga 3 en linea O quien tenga mas fichas"
+    };
+    
+    for(size_t i = 0; i < textos.size(); i++) {
+        sf::Text texto(fuente, textos[i], 20);
+        texto.setPosition({50, 100.f + (i * 40)});
+        texto.setFillColor(sf::Color::Black);
+        instrucciones.push_back(texto);
+    }
+    
+    // Botón cerrar
+    sf::RectangleShape btnCerrar({100, 40});
+    btnCerrar.setPosition({250, 340});
+    btnCerrar.setFillColor(sf::Color::Red);
+    
+    sf::Text txtCerrar(fuente, "Cerrar", 20);
+    txtCerrar.setPosition({270, 350});
+    txtCerrar.setFillColor(sf::Color::White);
+    
+    while (ventanaAyuda.isOpen()) {
+        while (const std::optional event = ventanaAyuda.pollEvent()) {
+            if (event->is<sf::Event::Closed>()) {
+                ventanaAyuda.close();
+            }
+            
+            if (event->is<sf::Event::MouseButtonPressed>()) {
+                sf::Vector2i mousePos = sf::Mouse::getPosition(ventanaAyuda);
+                
+                // Click en botón cerrar
+                if (mousePos.x >= 250 && mousePos.x <= 350 &&
+                    mousePos.y >= 340 && mousePos.y <= 380) {
+                    ventanaAyuda.close();
+                }
+            }
+        }
+        
+        ventanaAyuda.clear(sf::Color::White);
+        ventanaAyuda.draw(titulo);
+        for(const auto& texto : instrucciones) {
+            ventanaAyuda.draw(texto);
+        }
+        ventanaAyuda.draw(btnCerrar);
+        ventanaAyuda.draw(txtCerrar);
+        ventanaAyuda.display();
+    }
+}
+
+
+
+
 void abrirBatallaCartas(int casilla, Tablero& tablero) {
     casillaMiniJuego = casilla;
 
@@ -902,7 +974,19 @@ int main() {
     lineas[2].setPosition({50, 200});  // Horizontal superior
     lineas[3].setPosition({50, 400});  // Horizontal inferior
 
+    // Crear botón de ayuda circular
+    sf::CircleShape btnAyuda(30); // Radio de 20 pixels
+    btnAyuda.setPosition({20, 740}); // Posición en esquina inferior izquierda
+    btnAyuda.setFillColor(sf::Color::White);
+    btnAyuda.setOutlineThickness(2);
+    btnAyuda.setOutlineColor(sf::Color::Black);
+
+    // Texto del signo de interrogación
+    sf::Text txtAyuda(fuente, "?", 24);
+    txtAyuda.setPosition({40, 755}); // Ajustar posición para centrar en el círculo
+    txtAyuda.setFillColor(sf::Color::Black);
     // Crear instancia del tablero
+
     Tablero tablero;
 
     // Asignar minijuegos a los nodos
@@ -936,6 +1020,14 @@ int main() {
                         window.close();
                     }
                 } else if (currentState == GameState::GAME) {
+                    // Verificar click en botón de ayuda primero
+                    sf::Vector2f posAyuda = btnAyuda.getPosition();
+                    float radio = btnAyuda.getRadius();
+                    if (mousePos.x >= posAyuda.x && mousePos.x <= posAyuda.x + (radio * 2) &&
+                        mousePos.y >= posAyuda.y && mousePos.y <= posAyuda.y + (radio * 2)) {
+                        mostrarVentanaAyuda();
+                        continue;
+                    }
                     // Verificar clicks en el tablero
                     int columna = mousePos.x / 200;
                     int fila = mousePos.y / 200;
@@ -968,6 +1060,8 @@ int main() {
 
         window.clear(sf::Color::White);
 
+
+
         if (currentState == GameState::MENU) {
             // Dibujar menú
             window.draw(titulo);
@@ -976,7 +1070,11 @@ int main() {
             window.draw(titulo1);
             window.draw(txtIniciar);
             window.draw(txtSalir);
+
+
         } else {
+            window.draw(btnAyuda);
+            window.draw(txtAyuda);
             // Dibujar tablero
             for (int i = 0; i < 4; i++) {
                 window.draw(lineas[i]);

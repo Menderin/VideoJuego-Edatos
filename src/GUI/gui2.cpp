@@ -3,12 +3,17 @@
 #include <string>
 #include <iostream>
 #include <random>
+#include <vector>
+#include <algorithm>
+
 #include "MiniJuegos/AdivinaNumero/AdivinaNumero.h" 
 #include "MiniJuegos/BatallaDeCartas/BatallaDeCartas.h"
 #include "MiniJuegos/Hex/Hex.h"
 #include "Nodo.h"
 #include "Minijuegos/Minijuego.h"
 #include "Tablero.h"
+
+using namespace std;
 
 enum class GameState {
     MENU,
@@ -275,11 +280,6 @@ void mostrarVentanaVictoria(int jugadorGanador, int numeroSecreto, Tablero& tabl
         ventanaVictoria.draw(txtCerrar);
         ventanaVictoria.display();
     }
-
-    // Verificar victoria en el tablero principal
-    /*if (tablero.getEstadoJuego() != EstadoJuego::EN_CURSO) {
-        mostrarVentanaVictoriaTablero(tablero.getEstadoJuego() == EstadoJuego::GANADOR_J1 ? 'X' : 'O');
-    }*/
 }
 
 // Función para abrir ventana de Hex
@@ -435,8 +435,6 @@ void abrirHex(int casilla, Tablero& tablero) {
     }
 }
 
-
-// Función para abrir ventana de "Adivina el número" (modificada para recibir la casilla)
 // Función para abrir ventana de "Adivina el número" (modificada para recibir la casilla)
 void abrirAdivinaNumero(int casilla,Tablero& tablero) {
     casillaMiniJuego = casilla; // Guardar en qué casilla se jugó
@@ -814,6 +812,64 @@ void abrirBatallaCartas(int casilla, Tablero& tablero) {
     tablero.verificarVictoria();
 }
 
+void inicializarMinijuegosAleatorios(Tablero& tablero) {
+    random_device rd;
+    mt19937 gen(rd());
+
+    cout << "\nInicializando minijuegos en cada casilla..." << endl;
+
+    // Crear un vector con exactamente 3 de cada tipo de minijuego
+    vector<TipoMiniJuego> minijuegos = {
+        TipoMiniJuego::ADIVINA_NUMERO, TipoMiniJuego::ADIVINA_NUMERO, TipoMiniJuego::ADIVINA_NUMERO,
+        TipoMiniJuego::HEX, TipoMiniJuego::HEX, TipoMiniJuego::HEX,
+        TipoMiniJuego::BATALLA_CARTAS, TipoMiniJuego::BATALLA_CARTAS, TipoMiniJuego::BATALLA_CARTAS
+    };
+
+    // Mezclar aleatoriamente el vector
+    shuffle(minijuegos.begin(), minijuegos.end(), gen);
+
+    // Asignar los minijuegos mezclados al tablero
+    int indice = 0;
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            Nodo& nodo = tablero.getNodo(i, j);
+
+            // Asignar el minijuego desde el vector mezclado
+            nodo.asignarMiniJuego(minijuegos[indice]);
+
+            // Mostrar qué se asignó
+            cout << "Casilla [" << i << "][" << j << "]: ";
+            switch(minijuegos[indice]) {
+                case TipoMiniJuego::ADIVINA_NUMERO:
+                    cout << "Adivina el Numero" << endl;
+                    break;
+                case TipoMiniJuego::HEX:
+                    cout << "Hex" << endl;
+                    break;
+                case TipoMiniJuego::BATALLA_CARTAS:
+                    cout << "Batalla de Cartas" << endl;
+                    break;
+            }
+
+            indice++;
+        }
+    }
+    cout << "Minijuegos inicializados! (3 de cada tipo)" << endl;
+}
+
+// Función helper para obtener el símbolo basado en el tipo de minijuego
+std::string obtenerSimboloMinijuego(TipoMiniJuego tipo) {
+    switch(tipo) {
+        case TipoMiniJuego::ADIVINA_NUMERO:
+            return "?";
+        case TipoMiniJuego::HEX:
+            return "H";
+        case TipoMiniJuego::BATALLA_CARTAS:
+            return "C";
+        default:
+            return "?";
+    }
+}
 
 int main() {
     // Crear ventana
@@ -856,7 +912,6 @@ int main() {
         sf::Text(fuente, ""), sf::Text(fuente, ""), sf::Text(fuente, ""),
         sf::Text(fuente, ""), sf::Text(fuente, ""), sf::Text(fuente, "")
     };
-    std::string symbols[9] = {"?", "H", "C", "H", "?", "C", "C", "H", "?"};
 
     // Crear símbolos para las fichas del tablero principal (X y O)
     sf::Text fichasTablero[9] = {
@@ -875,7 +930,6 @@ int main() {
 
     for(int i = 0; i < 9; i++) {
         simbolos[i].setFont(fuente);
-        simbolos[i].setString(symbols[i]);
         simbolos[i].setCharacterSize(50);
         simbolos[i].setFillColor(sf::Color::Black);
 
@@ -906,10 +960,16 @@ int main() {
     Tablero tablero;
 
     // Asignar minijuegos a los nodos
-    tablero.getNodo(0, 0).asignarMiniJuego(TipoMiniJuego::ADIVINA_NUMERO);
-    tablero.getNodo(0, 1).asignarMiniJuego(TipoMiniJuego::HEX);
-    tablero.getNodo(0, 2).asignarMiniJuego(TipoMiniJuego::BATALLA_CARTAS);
-    // Asignar otros minijuegos según sea necesario
+    inicializarMinijuegosAleatorios(tablero);
+
+    // AQUÍ ESTÁ LA CORRECCIÓN: Actualizar símbolos basándose en los minijuegos asignados
+    for(int i = 0; i < 9; i++) {
+        int fila = i / 3;
+        int columna = i % 3;
+        TipoMiniJuego tipoMinijuego = tablero.getNodo(fila, columna).getTipoMiniJuego();
+        std::string simbolo = obtenerSimboloMinijuego(tipoMinijuego);
+        simbolos[i].setString(simbolo);
+    }
 
     bool victoriaMostrada = false;
 
@@ -944,16 +1004,18 @@ int main() {
 
                         // Solo permitir jugar en casillas que no tengan ficha
                         if (tablero.getNodo(fila, columna).estaVacio()) {
-                            std::string symbol = symbols[index];
-                            if (symbol == "H") {
+                            // CAMBIO: Obtener el tipo de minijuego directamente del tablero
+                            TipoMiniJuego tipoMinijuego = tablero.getNodo(fila, columna).getTipoMiniJuego();
+                            
+                            if (tipoMinijuego == TipoMiniJuego::HEX) {
                                 std::cout << "H en casilla " << index << std::endl;
                                 // Iniciar juego Hex
                                 abrirHex(index, tablero);
-                            } else if (symbol == "C") {
+                            } else if (tipoMinijuego == TipoMiniJuego::BATALLA_CARTAS) {
                                 std::cout << "C en casilla " << index << std::endl;
                                 // Iniciar Batalla de Cartas
                                 abrirBatallaCartas(index, tablero);
-                            } else if (symbol == "?") {
+                            } else if (tipoMinijuego == TipoMiniJuego::ADIVINA_NUMERO) {
                                 std::cout << "Abriendo Adivina el Numero en casilla " << index << std::endl;
                                 // Abrir ventana de Adivina el Número
                                 abrirAdivinaNumero(index, tablero);

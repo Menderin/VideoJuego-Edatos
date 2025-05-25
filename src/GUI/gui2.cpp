@@ -2,6 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include <string>
 #include <iostream>
+#include <random>
 
 //minijuegos
 
@@ -18,11 +19,6 @@ enum class AdivinaState {
     JUGANDO_TURNO_J2
 };
 
-// Variables globales para el tablero principal
-char tableroPrincipal[9] = {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '};
-int casillaMiniJuego = -1; // Para saber en qué casilla se jugó el minijuego
-
-// Función para verificar victoria en el tablero principal
 bool verificarVictoriaTablero(char tablero[9]) {
     // Combinaciones ganadoras
     int combinaciones[8][3] = {
@@ -30,7 +26,7 @@ bool verificarVictoriaTablero(char tablero[9]) {
         {0, 3, 6}, {1, 4, 7}, {2, 5, 8}, // Columnas
         {0, 4, 8}, {2, 4, 6}             // Diagonales
     };
-    
+
     for (int i = 0; i < 8; i++) {
         if (tablero[combinaciones[i][0]] != ' ' &&
             tablero[combinaciones[i][0]] == tablero[combinaciones[i][1]] &&
@@ -40,6 +36,64 @@ bool verificarVictoriaTablero(char tablero[9]) {
     }
     return false;
 }
+
+
+// Función para mostrar la ventana del ganador
+void mostrarVentanaGanador(int puntosJ1, int puntosJ2) {
+    sf::RenderWindow ventanaGanador(sf::VideoMode({600, 300}), "Resultado Final");
+    sf::Font fuente("c:/WINDOWS/Fonts/ARIALI.TTF");
+    
+    // Título
+    sf::Text titulo(fuente, "Fin del Juego", 36);
+    titulo.setPosition({200, 30});
+    titulo.setFillColor(sf::Color::Black);
+    
+    // Puntuaciones
+    sf::Text txtPuntosJ1(fuente, "Jugador 1: " + std::to_string(puntosJ1) + " pts", 24);
+    txtPuntosJ1.setPosition({50, 100});
+    txtPuntosJ1.setFillColor(sf::Color::Blue);
+    
+    sf::Text txtPuntosJ2(fuente, "Jugador 2: " + std::to_string(puntosJ2) + " pts", 24);
+    txtPuntosJ2.setPosition({50, 140});
+    txtPuntosJ2.setFillColor(sf::Color::Red);
+    
+    // Mensaje ganador
+    sf::Text mensajeGanador(fuente, "", 50);
+    mensajeGanador.setPosition({50, 180});
+    
+    if (puntosJ1 > puntosJ2) {
+        mensajeGanador.setString("Jugador 1 gana");
+        mensajeGanador.setFillColor(sf::Color::Blue);
+    } else if (puntosJ2 > puntosJ1) {
+        mensajeGanador.setString("Jugador 2 gana");
+        mensajeGanador.setFillColor(sf::Color::Red);
+    } else {
+        mensajeGanador.setString("Empate");
+        mensajeGanador.setFillColor(sf::Color::Green);
+    }
+
+    
+    while (ventanaGanador.isOpen()) {
+        while (const std::optional event = ventanaGanador.pollEvent()) {
+            if (event->is<sf::Event::Closed>()) {
+                ventanaGanador.close();
+            }
+        }
+        
+        ventanaGanador.clear(sf::Color::White);
+        ventanaGanador.draw(titulo);
+        ventanaGanador.draw(txtPuntosJ1);
+        ventanaGanador.draw(txtPuntosJ2);
+        ventanaGanador.draw(mensajeGanador);
+        ventanaGanador.display();
+    }
+}
+
+
+
+// Variables globales para el tablero principal
+char tableroPrincipal[9] = {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '};
+int casillaMiniJuego = -1; // Para saber en qué casilla se jugó el minijuego
 
 // Función para mostrar ventana de victoria del tablero principal
 void mostrarVentanaVictoriaTablero(char simboloGanador) {
@@ -519,6 +573,200 @@ void abrirAdivinaNumero(int casilla) {
     }
 }
 
+// Función para la ventana de cada jugador
+bool ventanaJugador(bool esJugador1, std::vector<int>& valoresCartas, int& cartaSeleccionada, int puntosJ1, int puntosJ2) {
+    std::string titulo = esJugador1 ? "Turno Jugador 1" : "Turno Jugador 2";
+    sf::Color colorJugador = esJugador1 ? sf::Color::Blue : sf::Color::Red;
+    
+    sf::RenderWindow ventana(sf::VideoMode({600, 400}), titulo);
+    sf::Font fuente("c:/WINDOWS/Fonts/ARIALI.TTF");
+    
+    // Título
+    sf::Text tituloTexto(fuente, titulo, 24);
+    tituloTexto.setPosition({50, 30});
+    tituloTexto.setFillColor(colorJugador);
+    
+    // Mostrar cartas
+    std::vector<sf::Text> cartasTexto;
+    for(int i = 0; i < valoresCartas.size(); i++) {
+        sf::Text carta(fuente, std::to_string(valoresCartas[i]), 30);
+        carta.setPosition({80.f + (i * 60), 100});
+        carta.setFillColor(sf::Color::Black);
+        cartasTexto.push_back(carta);
+    }
+    
+    // Campo de selección
+    sf::RectangleShape campoSeleccion({60, 40});
+    campoSeleccion.setPosition({50, 200});
+    campoSeleccion.setFillColor(sf::Color::White);
+    campoSeleccion.setOutlineThickness(2);
+    campoSeleccion.setOutlineColor(sf::Color::Black);
+    
+    std::string numeroSeleccionado = "";
+    sf::Text textoSeleccion(fuente, numeroSeleccionado, 24);
+    textoSeleccion.setPosition({60, 205});
+    textoSeleccion.setFillColor(sf::Color::Black);
+    
+    // Botón confirmar
+    sf::RectangleShape btnConfirmar({120, 40});
+    btnConfirmar.setPosition({150, 200});
+    btnConfirmar.setFillColor(colorJugador);
+    
+    sf::Text txtConfirmar(fuente, "Confirmar", 18);
+    txtConfirmar.setPosition({165, 210});
+    txtConfirmar.setFillColor(sf::Color::White);
+    
+    // Instrucciones
+    sf::Text instrucciones(fuente, "Selecciona una carta (1-" + 
+                          std::to_string(valoresCartas.size()) + "):", 18);
+    instrucciones.setPosition({50, 160});
+    instrucciones.setFillColor(sf::Color::Black);
+    
+    // Textos de puntuación
+    sf::Text txtPuntosJ1(fuente, "Puntos J1: " + std::to_string(puntosJ1), 20);
+    txtPuntosJ1.setPosition({350, 30}); // Arriba a la derecha
+    txtPuntosJ1.setFillColor(sf::Color::Blue);
+    
+    sf::Text txtPuntosJ2(fuente, "Puntos J2: " + std::to_string(puntosJ2), 20);
+    txtPuntosJ2.setPosition({350, 60}); // Debajo del puntaje J1
+    txtPuntosJ2.setFillColor(sf::Color::Red);
+    
+    while (ventana.isOpen()) {
+        while (const std::optional event = ventana.pollEvent()) {
+            if (event->is<sf::Event::Closed>()) {
+                ventana.close();
+                return false;
+            }
+            
+            if (auto* textEvent = event->getIf<sf::Event::TextEntered>()) {
+                char c = static_cast<char>(textEvent->unicode);
+                if (c >= '1' && c <= '5' && numeroSeleccionado.empty()) {
+                    int indice = c - '1';
+                    if (indice >= 0 && indice < valoresCartas.size()) {
+                        numeroSeleccionado += c;
+                        textoSeleccion.setString(numeroSeleccionado);
+                    }
+                }
+                else if (c == 8 && !numeroSeleccionado.empty()) {
+                    numeroSeleccionado.pop_back();
+                    textoSeleccion.setString(numeroSeleccionado);
+                }
+            }
+            
+            if (event->is<sf::Event::MouseButtonPressed>()) {
+                sf::Vector2i mousePos = sf::Mouse::getPosition(ventana);
+                if (mousePos.x >= 150 && mousePos.x <= 270 &&
+                    mousePos.y >= 200 && mousePos.y <= 240) {
+                    if (!numeroSeleccionado.empty()) {
+                        int indice = std::stoi(numeroSeleccionado) - 1;
+                        if (indice >= 0 && indice < valoresCartas.size()) {
+                            cartaSeleccionada = valoresCartas[indice];
+                            valoresCartas.erase(valoresCartas.begin() + indice);
+                            ventana.close();
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        
+        ventana.clear(sf::Color::White);
+        ventana.draw(tituloTexto);
+        ventana.draw(txtPuntosJ1); // Dibujar puntuación J1
+        ventana.draw(txtPuntosJ2); // Dibujar puntuación J2
+        for(const auto& carta : cartasTexto) {
+            ventana.draw(carta);
+        }
+        ventana.draw(campoSeleccion);
+        ventana.draw(textoSeleccion);
+        ventana.draw(btnConfirmar);
+        ventana.draw(txtConfirmar);
+        ventana.draw(instrucciones);
+        ventana.display();
+    }
+    
+    return false;
+}
+
+void abrirBatallaCartas(int casilla) {
+    // Verificar si la casilla ya está ocupada
+
+    casillaMiniJuego = casilla;
+    
+    // Crear vector con todos los números posibles
+    std::vector<int> numerosDisponibles;
+    for(int i = 1; i <= 15; i++) {
+        numerosDisponibles.push_back(i);
+    }
+    
+    // Generar mazos para ambos jugadores
+    std::vector<int> mazoJ1, mazoJ2;
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    
+    // Repartir cartas J1 sin repetición
+    for(int i = 0; i < 5; i++) {
+        std::uniform_int_distribution<> dis(0, numerosDisponibles.size() - 1);
+        int indiceAleatorio = dis(gen);
+        int valorCarta = numerosDisponibles[indiceAleatorio];
+        numerosDisponibles.erase(numerosDisponibles.begin() + indiceAleatorio);
+        mazoJ1.push_back(valorCarta);
+    }
+    
+    // Repartir cartas J2 sin repetición
+    for(int i = 0; i < 5; i++) {
+        std::uniform_int_distribution<> dis(0, numerosDisponibles.size() - 1);
+        int indiceAleatorio = dis(gen);
+        int valorCarta = numerosDisponibles[indiceAleatorio];
+        numerosDisponibles.erase(numerosDisponibles.begin() + indiceAleatorio);
+        mazoJ2.push_back(valorCarta);
+    }
+    
+    int puntosJ1 = 0, puntosJ2 = 0;
+    
+    // Loop principal del juego
+    while (!mazoJ1.empty() && !mazoJ2.empty()) {
+        int cartaJ1 = -1, cartaJ2 = -1;
+        
+        // Turno J1
+        if (!ventanaJugador(true, mazoJ1, cartaJ1, puntosJ1, puntosJ2)) break;
+        
+        // Turno J2
+        if (!ventanaJugador(false, mazoJ2, cartaJ2, puntosJ1, puntosJ2)) break;
+        
+        // Comparar cartas y actualizar puntos
+        if (cartaJ1 > cartaJ2) {
+            puntosJ1++;
+            std::cout << "J1 gana la ronda! (" << cartaJ1 << " vs " << cartaJ2 << ")" << std::endl;
+        } else if (cartaJ2 > cartaJ1) {
+            puntosJ2++;
+            std::cout << "J2 gana la ronda! (" << cartaJ1 << " vs " << cartaJ2 << ")" << std::endl;
+        } else {
+            std::cout << "Empate! (" << cartaJ1 << " vs " << cartaJ2 << ")" << std::endl;
+        }
+    }
+
+    // Determinar ganador y colocar ficha
+    if (puntosJ1 > puntosJ2) {
+        tableroPrincipal[casilla] = 'X';  // Marcar X para Jugador 1
+        std::cout << "Jugador 1 gana - Marcando X en casilla " << casilla << std::endl;
+    } else if (puntosJ2 > puntosJ1) {
+        tableroPrincipal[casilla] = 'O';  // Marcar O para Jugador 2
+        std::cout << "Jugador 2 gana - Marcando O en casilla " << casilla << std::endl;
+    } else {
+        std::cout << "Empate - No se marca la casilla" << std::endl;
+    }
+    
+    // Mostrar resultado final
+    mostrarVentanaGanador(puntosJ1, puntosJ2);
+    
+    // Verificar victoria en el tablero principal
+    if (verificarVictoriaTablero(tableroPrincipal)) {
+        char simboloGanador = (puntosJ1 > puntosJ2) ? 'X' : 'O';
+        mostrarVentanaVictoriaTablero(simboloGanador);
+    }
+}
+
 int main() {
     // Crear ventana
     sf::RenderWindow window(sf::VideoMode({800, 800}), "MendeWing");
@@ -661,6 +909,8 @@ int main() {
                                 // Iniciar Batalla de Cartas
                                 // TODO: Implementar redirección a Batalla de Cartas
                                 std::cout<<"C en casilla " << index << std::endl;
+                                // abrirBatallaCartas(index);
+                                abrirBatallaCartas(index);
                             }
                             else if (symbol == "?") {
                                 // Abrir ventana de Adivina el Número
@@ -712,3 +962,12 @@ int main() {
 
     return 0;
 }
+
+
+
+
+
+
+
+
+

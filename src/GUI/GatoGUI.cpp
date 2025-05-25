@@ -1,11 +1,18 @@
+//versión funcional del tablero 
 #include <SFML/Graphics.hpp>
 #include <string>
 #include <iostream>
 
+//minijuegos}
+
+
 enum class GameState {
     MENU,
-    GAME
+    GAME, //para que no de errores
+    
 };
+
+// Clase auxiliar para manejar input de texto
 
 int main() {
     // Crear ventana
@@ -97,10 +104,12 @@ lineas[3].setPosition({50, 400});  // Horizontal inferior
                     if (mousePos.x >= 300 && mousePos.x <= 500 &&
                         mousePos.y >= 400 && mousePos.y <= 450) {
                         currentState = GameState::GAME;
+                        std::cout<<"iniciando"<<std::endl;
                     }
                     // Verificar click en botón Salir
                     else if (mousePos.x >= 300 && mousePos.x <= 500 &&
                              mousePos.y >= 500 && mousePos.y <= 550) {
+                                std::cout<<"salir"<<std::endl;
                         window.close();
                     }
                 }
@@ -112,15 +121,22 @@ lineas[3].setPosition({50, 400});  // Horizontal inferior
                         int index = fila * 3 + columna;
                         std::string symbol = symbols[index];
                         if (symbol == "H") {
+                            std::cout<<"H"<< std::endl;
                             // Iniciar juego Hex
                             // TODO: Implementar redirección a Hex
                         }
                         else if (symbol == "C") {
                             // Iniciar Batalla de Cartas
                             // TODO: Implementar redirección a Batalla de Cartas
+                            std::cout<<"C"<< std::endl;
                         }
                         else if (symbol == "?") {
                             // TODO: Mostrar input para Adivina el Número
+                            
+                            
+
+
+                            std::cout<<"?"<< std::endl;
                         }
                     }
                 }

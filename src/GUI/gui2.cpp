@@ -210,7 +210,6 @@ void mostrarVentanaVictoriaFichas(char simboloGanador) {
 }
 
 // Función para mostrar ventana de victoria del minijuego (modificada)
-// Función para mostrar ventana de victoria del minijuego (simplificada)
 void mostrarVentanaVictoria(int jugadorGanador, int numeroSecreto, Tablero& tablero) {
     sf::RenderWindow ventanaVictoria(sf::VideoMode({500, 300}), "Victoria!");
 
@@ -278,9 +277,9 @@ void mostrarVentanaVictoria(int jugadorGanador, int numeroSecreto, Tablero& tabl
     }
 
     // Verificar victoria en el tablero principal
-    if (tablero.getEstadoJuego() != EstadoJuego::EN_CURSO) {
+    /*if (tablero.getEstadoJuego() != EstadoJuego::EN_CURSO) {
         mostrarVentanaVictoriaTablero(tablero.getEstadoJuego() == EstadoJuego::GANADOR_J1 ? 'X' : 'O');
-    }
+    }*/
 }
 
 // Función para abrir ventana de Hex

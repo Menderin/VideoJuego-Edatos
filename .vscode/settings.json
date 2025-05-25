@@ -3,7 +3,6 @@
         "main": "cpp",
         "iostream": "cpp",
         "ostream": "cpp",
-//<<<<<<< HEAD
         "array": "cpp",
         "atomic": "cpp",
         "bit": "cpp",
@@ -65,8 +64,6 @@
         "thread": "cpp",
         "typeinfo": "cpp",
         "variant": "cpp",
-//=======
-        
-//>>>>>>> f8b5f19284811fb598502605c0f751e36db62362
+        "ranges": "cpp"
     }
 }

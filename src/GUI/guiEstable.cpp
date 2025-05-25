@@ -41,7 +41,6 @@ bool verificarVictoriaTablero(char tablero[9]) {
     return false;
 }
 
-
 // Función para mostrar la ventana del ganador
 void mostrarVentanaGanador(int puntosJ1, int puntosJ2) {
     sf::RenderWindow ventanaGanador(sf::VideoMode({600, 300}), "Resultado Final");
@@ -92,8 +91,6 @@ void mostrarVentanaGanador(int puntosJ1, int puntosJ2) {
         ventanaGanador.display();
     }
 }
-
-
 
 // Variables globales para el tablero principal
 char tableroPrincipal[9] = {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '};
@@ -240,8 +237,6 @@ void mostrarVentanaVictoria(int jugadorGanador, int numeroSecreto) {
     }
 }
 
-
-
 // Función para abrir ventana de Hex
 sf::CircleShape crearHexagono(float radio, sf::Vector2f posicion) {
     sf::CircleShape hexagono(radio, 6); // 6 lados para hacer un hexágono
@@ -251,7 +246,6 @@ sf::CircleShape crearHexagono(float radio, sf::Vector2f posicion) {
     hexagono.setOutlineColor(sf::Color::Black);
     return hexagono;
 }
-
 
 // Función para abrir ventana de Hex
 // Función para abrir ventana de Hex
@@ -393,11 +387,6 @@ void abrirHex(int casilla) {
         ventanaHex.display();
     }
 }
-
-
-
-
-
 
 // Función para abrir ventana de "Adivina el número" (modificada para recibir la casilla)
 void abrirAdivinaNumero(int casilla) {

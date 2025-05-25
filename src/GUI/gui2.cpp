@@ -3,6 +3,7 @@
 #include <string>
 #include <iostream>
 #include <random>
+#include "MiniJuegos/Hex/Hex.h"
 
 //minijuegos
 
@@ -265,56 +266,56 @@ sf::CircleShape crearHexagono(float radio, sf::Vector2f posicion) {
 // Función para abrir ventana de Hex
 void abrirHex(int casilla) {
     casillaMiniJuego = casilla;
-    
-    sf::RenderWindow ventanaHex(sf::VideoMode({800, 700}), "Juego Hex");
-    
+
+    sf::RenderWindow ventanaHex(sf::VideoMode({1000, 900}), "Juego Hex");
+
     // Cargar fuente
     sf::Font fuente("c:/WINDOWS/Fonts/ARIALI.TTF");
-    
+
     // Crear título
     sf::Text titulo(fuente, "Juego Hex", 36);
-    titulo.setPosition({350, 20});
+    titulo.setPosition({450, 20});
     titulo.setFillColor(sf::Color::Black);
-    
+
     // Instrucciones
-    sf::Text instrucciones(fuente, "Jugador 1 (Azul) vs Jugador 2 (Rojo)", 20);
-    instrucciones.setPosition({250, 60});
+    sf::Text instrucciones(fuente, "Jugador 1 (Rojo) vs Jugador 2 (Azul)", 20);
+    instrucciones.setPosition({400, 60});
     instrucciones.setFillColor(sf::Color::Blue);
-    
+
     // Botón de cerrar
     sf::RectangleShape btnCerrar({100, 40});
-    btnCerrar.setPosition({350, 620});
+    btnCerrar.setPosition({450, 820});
     btnCerrar.setFillColor(sf::Color::Red);
-    
+
     sf::Text txtCerrar(fuente, "Cerrar", 20);
-    txtCerrar.setPosition({375, 630});
+    txtCerrar.setPosition({475, 830});
     txtCerrar.setFillColor(sf::Color::White);
-    
-    // Crear el tablero hexagonal (11x11 como en la imagen)
+
+    // Crear el tablero hexagonal (15x15 para un tablero más grande)
     const int TABLERO_SIZE = 11;
-    const float HEX_RADIO = 15.0f;
-    const float HEX_SPACING = 26.0f;
-    
-    std::vector<std::vector<sf::CircleShape>> tableroHex(TABLERO_SIZE);
-    
+    const float HEX_RADIO = 20.0f; // Aumentar el radio del hexágono
+    const float HEX_SPACING = 35.0f; // Aumentar el espaciado entre hexágonos
+
+    std::vector<std::vector<sf::CircleShape>> tableroHex(TABLERO_SIZE, std::vector<sf::CircleShape>(TABLERO_SIZE));
+
     // Crear los hexágonos del tablero
     for(int fila = 0; fila < TABLERO_SIZE; fila++) {
         for(int col = 0; col < TABLERO_SIZE; col++) {
             // Calcular posición con offset para crear forma de diamante
-            float x = 150 + col * HEX_SPACING + (fila * HEX_SPACING * 0.5f);
-            float y = 120 + fila * (HEX_SPACING * 0.866f); // 0.866 ≈ sqrt(3)/2 para spacing hexagonal
-            
+            float x = 100 + col * HEX_SPACING + (fila * HEX_SPACING * 0.5f); // Ajustar la posición inicial en x
+            float y = 150 + fila * (HEX_SPACING * 0.866f); // 0.866 ≈ sqrt(3)/2 para spacing hexagonal
+
             sf::CircleShape hex = crearHexagono(HEX_RADIO, {x, y});
-            tableroHex[fila].push_back(hex);
+            tableroHex[fila][col] = hex;
         }
     }
-    
+
     // Crear bordes coloreados (simplificado para visualización inicial)
     // Borde superior e inferior (azul)
     std::vector<sf::CircleShape> bordeAzul;
-    // Borde izquierdo y derecho (rojo) 
+    // Borde izquierdo y derecho (rojo)
     std::vector<sf::CircleShape> bordeRojo;
-    
+
     // Colorear bordes
     for(int i = 0; i < TABLERO_SIZE; i++) {
         // Bordes superior e inferior (azul)
@@ -322,50 +323,89 @@ void abrirHex(int casilla) {
         tableroHex[0][i].setOutlineThickness(4);
         tableroHex[TABLERO_SIZE-1][i].setOutlineColor(sf::Color::Blue);
         tableroHex[TABLERO_SIZE-1][i].setOutlineThickness(4);
-        
+
         // Bordes izquierdo y derecho (rojo)
         tableroHex[i][0].setOutlineColor(sf::Color::Red);
         tableroHex[i][0].setOutlineThickness(4);
         tableroHex[i][TABLERO_SIZE-1].setOutlineColor(sf::Color::Red);
         tableroHex[i][TABLERO_SIZE-1].setOutlineThickness(4);
     }
-    
+
+    // Crear una instancia del juego Hex
+    Hex juegoHex;
+
     // Loop de la ventana
     while (ventanaHex.isOpen()) {
         while (const std::optional event = ventanaHex.pollEvent()) {
             if (event->is<sf::Event::Closed>()) {
                 ventanaHex.close();
             }
-            
+
             if (event->is<sf::Event::MouseButtonPressed>()) {
                 sf::Vector2i mousePos = sf::Mouse::getPosition(ventanaHex);
-                
+
                 // Verificar click en botón cerrar
-                if (mousePos.x >= 350 && mousePos.x <= 450 &&
-                    mousePos.y >= 620 && mousePos.y <= 660) {
+                if (mousePos.x >= 450 && mousePos.x <= 550 &&
+                    mousePos.y >= 820 && mousePos.y <= 860) {
                     ventanaHex.close();
                 }
-                
-                // TODO: Detectar clicks en hexágonos del tablero
+
+                // Detectar clicks en hexágonos del tablero
+                bool movimientoRealizado = false;
+                for(int fila = 0; fila < TABLERO_SIZE && !movimientoRealizado; fila++) {
+                    for(int col = 0; col < TABLERO_SIZE && !movimientoRealizado; col++) {
+                        sf::Vector2f hexCenter = tableroHex[fila][col].getPosition() + sf::Vector2f(HEX_RADIO, HEX_RADIO);
+                        float distance = std::sqrt(std::pow(mousePos.x - hexCenter.x, 2) + std::pow(mousePos.y - hexCenter.y, 2));
+
+                        if (distance <= HEX_RADIO) {
+                            // Lógica para manejar el clic en el hexágono
+                            if (juegoHex.hacerMovimiento(fila, col)) {
+                                // Actualizar el tablero gráficamente
+                                EstadoCasilla estado = juegoHex.getCasilla(fila, col);
+                                if (estado == EstadoCasilla::JUGADOR1) {
+                                    tableroHex[fila][col].setFillColor(sf::Color::Red); // Rojo para Jugador 1
+                                } else if (estado == EstadoCasilla::JUGADOR2) {
+                                    tableroHex[fila][col].setFillColor(sf::Color::Blue); // Azul para Jugador 2
+                                }
+
+                                // Verificar si hay un ganador
+                                if (juegoHex.estaTerminado()) {
+                                    int ganador = juegoHex.getGanador();
+                                    std::cout << "¡Jugador " << ganador << " ha ganado!" << std::endl;
+                                    // Mostrar mensaje de victoria
+                                    sf::Text mensajeVictoria(fuente, "¡Jugador " + std::to_string(ganador) + " ha ganado!", 36);
+                                    mensajeVictoria.setPosition({400, 450});
+                                    mensajeVictoria.setFillColor(ganador == 1 ? sf::Color::Red : sf::Color::Blue);
+                                    ventanaHex.draw(mensajeVictoria);
+                                    ventanaHex.display();
+                                    sf::sleep(sf::seconds(2)); // Esperar 2 segundos
+                                    ventanaHex.close();
+                                }
+                                movimientoRealizado = true; // Evitar múltiples movimientos
+                            }
+                        }
+                    }
+                }
             }
         }
-        
+
         ventanaHex.clear(sf::Color::White);
         ventanaHex.draw(titulo);
         ventanaHex.draw(instrucciones);
-        
+
         // Dibujar todos los hexágonos del tablero
         for(int fila = 0; fila < TABLERO_SIZE; fila++) {
             for(int col = 0; col < TABLERO_SIZE; col++) {
                 ventanaHex.draw(tableroHex[fila][col]);
             }
         }
-        
+
         ventanaHex.draw(btnCerrar);
         ventanaHex.draw(txtCerrar);
         ventanaHex.display();
     }
 }
+
 
 // Función para abrir ventana de "Adivina el número" (modificada para recibir la casilla)
 void abrirAdivinaNumero(int casilla) {

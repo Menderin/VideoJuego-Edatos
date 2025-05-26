@@ -200,7 +200,7 @@ int casillaMiniJuego = -1; // Para saber en qué casilla se jugó el minijuego
 // Función para mostrar ventana de victoria del tablero principal
 void mostrarVentanaVictoriaTablero(char simboloGanador) {
     sf::RenderWindow ventanaVictoria(sf::VideoMode({500, 300}), "Victoria del Tablero Principal!");
-    
+
     // Cargar fuente
     sf::Font fuente("c:/WINDOWS/Fonts/ARIALI.TTF");
 
@@ -219,66 +219,63 @@ void mostrarVentanaVictoriaTablero(char simboloGanador) {
         static_cast<float>(ventanaVictoria.getSize().y) / fondo.getSize().y
     );
     spriteFondo.setScale(scale);
-    
+
     // Título de victoria
-    sf::Text tituloVictoria(fuente, "VICTORIA TOTAL!", 48);
-    tituloVictoria.setPosition({80, 50});
+    sf::Text tituloVictoria(fuente, "VICTORIA TOTAL!", 40);
+    tituloVictoria.setPosition({100, 10});
     tituloVictoria.setFillColor(sf::Color::Yellow);
-    
+
     // Mensaje del ganador
     std::string jugadorGanador = (simboloGanador == 'X') ? "Jugador 1 (X)" : "Jugador 2 (O)";
     std::string mensajeGanador = jugadorGanador + " ha ganado el 3 en raya!";
     sf::Text textoGanador(fuente, mensajeGanador, 24);
-    textoGanador.setPosition({60, 120});
+    textoGanador.setPosition({80, 50});
     textoGanador.setFillColor(sf::Color::Blue);
-    
+
     // Mensaje adicional
-    sf::Text textoAdicional(fuente, "Consiguio 3 en linea en el tablero principal", 18);
-    textoAdicional.setPosition({80, 160});
-    textoAdicional.setFillColor(sf::Color::Black);
-    
-    // Botón para cerrar
+    //sf::Text textoAdicional(fuente, "Consiguio 3 en linea en el tablero principal", 18);
+    //textoAdicional.setPosition({80, 160});
+    //textoAdicional.setFillColor(sf::Color::Black);
+
+    // Botón para cerrar - POSICIÓN AJUSTADA A LA ESQUINA INFERIOR DERECHA
     sf::RectangleShape btnCerrar({120, 40});
-    btnCerrar.setPosition({190, 220});
+    btnCerrar.setPosition({ventanaVictoria.getSize().x - 130, ventanaVictoria.getSize().y - 50}); // Posición ajustada
     btnCerrar.setFillColor(sf::Color::Red);
-    
+
     sf::Text txtCerrar(fuente, "Cerrar", 20);
-    txtCerrar.setPosition({225, 230});
+    txtCerrar.setPosition({ventanaVictoria.getSize().x - 100, ventanaVictoria.getSize().y - 40}); // Posición ajustada
     txtCerrar.setFillColor(sf::Color::White);
-    
+
     // Loop de la ventana de victoria
     while (ventanaVictoria.isOpen()) {
         while (const std::optional event = ventanaVictoria.pollEvent()) {
             if (event->is<sf::Event::Closed>()) {
                 ventanaVictoria.close();
             }
-            
+
             if (event->is<sf::Event::MouseButtonPressed>()) {
                 sf::Vector2i mousePos = sf::Mouse::getPosition(ventanaVictoria);
-                
-                // Verificar click en botón cerrar
-                if (mousePos.x >= 190 && mousePos.x <= 310 &&
-                    mousePos.y >= 220 && mousePos.y <= 260) {
+
+                // Verificar click en botón cerrar - COORDENADAS AJUSTADAS
+                if (mousePos.x >= ventanaVictoria.getSize().x - 130 && mousePos.x <= ventanaVictoria.getSize().x - 10 &&
+                    mousePos.y >= ventanaVictoria.getSize().y - 50 && mousePos.y <= ventanaVictoria.getSize().y - 10) {
                     ventanaVictoria.close();
                 }
             }
-            
-            // También permitir cerrar con cualquier tecla
-            if (event->is<sf::Event::KeyPressed>()) {
-                ventanaVictoria.close();
-            }
+
         }
-        
+
         ventanaVictoria.clear(sf::Color::White);
         ventanaVictoria.draw(spriteFondo);
         ventanaVictoria.draw(tituloVictoria);
         ventanaVictoria.draw(textoGanador);
-        ventanaVictoria.draw(textoAdicional);
         ventanaVictoria.draw(btnCerrar);
         ventanaVictoria.draw(txtCerrar);
         ventanaVictoria.display();
     }
 }
+
+
 
 void mostrarVentanaVictoriaFichas(char simboloGanador) {
     sf::RenderWindow ventanaVictoria(sf::VideoMode({500, 300}), "Victoria por Fichas!");

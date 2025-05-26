@@ -40,18 +40,18 @@ enum class OpcionJuego {
 // Función para mostrar ventana de opciones después de la victoria
 OpcionJuego mostrarVentanaOpciones() {
     // Crear ventana de opciones
-<<<<<<< HEAD
-    sf::RenderWindow ventanaOpciones(sf::VideoMode({400, 300}), "Quieres volver a jugar?");
-=======
-    sf::RenderWindow ventanaOpciones(sf::VideoMode({600, 600}), "Que deseas hacer?");
->>>>>>> 128b0336350aefb2033e7dbaff12e1fca4459a2f
+
+    //sf::RenderWindow ventanaOpciones(sf::VideoMode({400, 300}), "Quieres volver a jugar?");
+
+    sf::RenderWindow ventanaOpciones(sf::VideoMode({600, 600}), "Quieres volver a jugar?");
+
     
     // Crear fuente
     sf::Font fuente("c:/WINDOWS/Fonts/ARIALI.TTF");
     
-<<<<<<< HEAD
+
     // Elementos de la ventana
-    sf::Text textoPregunta(fuente, "Quieres volver a jugar?", 25);
+    /*sf::Text textoPregunta(fuente, "Quieres volver a jugar?", 25);
     sf::RectangleShape btnVolverJugar({180, 50});
     sf::RectangleShape btnSalir({120, 50});
     sf::Text txtVolverJugar(fuente, "Volver a Jugar", 20);
@@ -60,14 +60,14 @@ OpcionJuego mostrarVentanaOpciones() {
     // Configurar posiciones y colores
     // Alternative way using getSize()
     textoPregunta.setPosition({110,60});
-    textoPregunta.setFillColor(sf::Color::Black);
-=======
+    textoPregunta.setFillColor(sf::Color::Black);*/
+
     // Cargar la imagen de fondo
     sf::Texture textureFondo;
     if (!textureFondo.loadFromFile("assets/Fondos/Fondo espacio exterior.jpg")) {
         std::cerr << "Error al cargar la imagen de fondo de opciones" << std::endl;
     }
->>>>>>> 128b0336350aefb2033e7dbaff12e1fca4459a2f
+
 
 
         // Crear sprite para el fondo y ajustar escala
@@ -80,7 +80,7 @@ OpcionJuego mostrarVentanaOpciones() {
 
 
     // Elementos de la ventana - Reposicionados para la nueva ventana
-    sf::Text textoPregunta(fuente, "Que deseas hacer?", 40);
+    sf::Text textoPregunta(fuente, "Quieres volver a jugar?", 40);
     sf::RectangleShape btnVolverJugar({250, 80});
     sf::RectangleShape btnSalir({250, 80});
     sf::Text txtVolverJugar(fuente, "Volver a Jugar", 30);
@@ -999,13 +999,13 @@ void abrirAdivinaNumero(int casilla,Tablero& tablero,sf::Music& musicaFondo) {
 
                                     // Cambiar turno manualmente
                                     turnoActual = (turnoActual == 1) ? 2 : 1;
-<<<<<<< HEAD
+
                                     mensajeJugador.setString("Jugador " + std::to_string(turnoActual) + ": Adivina el numero del J" + std::to_string(turnoActual == 1 ? 2 : 1));
                                     mensajeJugador.setFillColor(turnoActual == 1 ? sf::Color::White : sf::Color::White);
-=======
+
                                     mensajeJugador.setString("J" + std::to_string(turnoActual) + ": Adivina el numero del J" + std::to_string(turnoActual == 1 ? 2 : 1));
                                     mensajeJugador.setFillColor(turnoActual == 1 ? sf::Color::Blue : sf::Color::White);
->>>>>>> 128b0336350aefb2033e7dbaff12e1fca4459a2f
+
                                 }
                                 // Limpiar campo
                                 numeroIngresado = "";

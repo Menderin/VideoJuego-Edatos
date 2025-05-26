@@ -40,13 +40,13 @@ enum class OpcionJuego {
 // Función para mostrar ventana de opciones después de la victoria
 OpcionJuego mostrarVentanaOpciones() {
     // Crear ventana de opciones
-    sf::RenderWindow ventanaOpciones(sf::VideoMode({400, 300}), "Que deseas hacer?");
+    sf::RenderWindow ventanaOpciones(sf::VideoMode({400, 300}), "Quieres volver a jugar?");
     
     // Crear fuente
     sf::Font fuente("c:/WINDOWS/Fonts/ARIALI.TTF");
     
     // Elementos de la ventana
-    sf::Text textoPregunta(fuente, "Que deseas hacer?", 25);
+    sf::Text textoPregunta(fuente, "Quieres volver a jugar?", 25);
     sf::RectangleShape btnVolverJugar({180, 50});
     sf::RectangleShape btnSalir({120, 50});
     sf::Text txtVolverJugar(fuente, "Volver a Jugar", 20);
@@ -244,7 +244,7 @@ void mostrarVentanaVictoriaTablero(char simboloGanador) {
 
     sf::Text txtCerrar(fuente, "Cerrar", 20);
     txtCerrar.setPosition({ventanaVictoria.getSize().x - 100, ventanaVictoria.getSize().y - 40}); // Posición ajustada
-    txtCerrar.setFillColor(sf::Color::White);
+    txtCerrar.setFillColor(sf::Color::Black);
 
     // Loop de la ventana de victoria
     while (ventanaVictoria.isOpen()) {
@@ -269,7 +269,7 @@ void mostrarVentanaVictoriaTablero(char simboloGanador) {
         ventanaVictoria.draw(spriteFondo);
         ventanaVictoria.draw(tituloVictoria);
         ventanaVictoria.draw(textoGanador);
-        ventanaVictoria.draw(btnCerrar);
+        //ventanaVictoria.draw(btnCerrar);
         ventanaVictoria.draw(txtCerrar);
         ventanaVictoria.display();
     }
@@ -323,7 +323,7 @@ void mostrarVentanaVictoriaFichas(char simboloGanador) {
     
     sf::Text txtCerrar(fuente, "Cerrar", 20);
     txtCerrar.setPosition({225, 230});
-    txtCerrar.setFillColor(sf::Color::White);
+    txtCerrar.setFillColor(sf::Color::Black);
     
     // Loop de la ventana de victoria
     while (ventanaVictoria.isOpen()) {
@@ -353,7 +353,7 @@ void mostrarVentanaVictoriaFichas(char simboloGanador) {
         ventanaVictoria.draw(tituloVictoria);
         ventanaVictoria.draw(textoGanador);
         ventanaVictoria.draw(textoAdicional);
-        ventanaVictoria.draw(btnCerrar);
+        //ventanaVictoria.draw(btnCerrar);
         ventanaVictoria.draw(txtCerrar);
         ventanaVictoria.display();
     }
@@ -840,7 +840,7 @@ void abrirAdivinaNumero(int casilla,Tablero& tablero,sf::Music& musicaFondo) {
     // Mensaje de resultado
     sf::Text mensajeResultado(fuente, "", 18);
     mensajeResultado.setPosition({125, 240});
-    mensajeResultado.setFillColor(sf::Color::Magenta);
+    mensajeResultado.setFillColor(sf::Color::White);
 
     // Botón de confirmar
     sf::RectangleShape btnConfirmar({120, 40});
@@ -968,7 +968,7 @@ void abrirAdivinaNumero(int casilla,Tablero& tablero,sf::Music& musicaFondo) {
                                     // Cambiar turno manualmente
                                     turnoActual = (turnoActual == 1) ? 2 : 1;
                                     mensajeJugador.setString("Jugador " + std::to_string(turnoActual) + ": Adivina el numero del J" + std::to_string(turnoActual == 1 ? 2 : 1));
-                                    mensajeJugador.setFillColor(turnoActual == 1 ? sf::Color::Blue : sf::Color::White);
+                                    mensajeJugador.setFillColor(turnoActual == 1 ? sf::Color::White : sf::Color::White);
                                 }
                                 // Limpiar campo
                                 numeroIngresado = "";
@@ -1854,12 +1854,12 @@ int main() {
                 EstadoNodo estado = tablero.getNodo(i / 3, i % 3).getEstado();
                 if (estado == EstadoNodo::JUGADOR1) {
                     fichasTablero[i].setString("X");
-                    window.draw(fichasTablero[i]);
+                    //window.draw(fichasTablero[i]);
                     // Dibujar imagen encima de la X
                     window.draw(spritesImagenX[i]);
                 } else if (estado == EstadoNodo::JUGADOR2) {
                     fichasTablero[i].setString("O");
-                    window.draw(fichasTablero[i]);
+                    //window.draw(fichasTablero[i]);
                     window.draw(spritesImagenY[i]);
                 }
             }

@@ -390,10 +390,6 @@ sf::CircleShape crearHexagono(float radio, sf::Vector2f posicion) {
     hexagono.setOutlineColor(sf::Color::Black);
     return hexagono;
 }
-
-
-
-
 // Agregar esta nueva función para mostrar la ayuda específica del Hex
 void mostrarVentanaAyudaHex() {
     sf::RenderWindow ventanaAyuda(sf::VideoMode({500, 300}), "Ayuda - Juego Hex");

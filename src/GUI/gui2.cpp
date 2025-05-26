@@ -1508,8 +1508,12 @@ std::string obtenerSimboloMinijuego(TipoMiniJuego tipo) {
     }
 }
 
-
 int main() {
+    // CENTRADO DEL TABLERO - Calcular offset para centrar
+    const int CELL_SIZE = 160; // Tamaño de cada celda
+    const int BOARD_SIZE = CELL_SIZE * 3; // 480 píxeles
+    const int OFFSET_X = (800 - BOARD_SIZE) / 2; // (800 - 480) / 2 = 160
+    const int OFFSET_Y = (800 - BOARD_SIZE) / 2; // (800 - 480) / 2 = 160
 
     // Crear ventana
     sf::RenderWindow window(sf::VideoMode({800, 800}), "MendeWing");
@@ -1556,6 +1560,79 @@ int main() {
     btnIniciar.setFillColor(sf::Color::Green);
     btnSalir.setFillColor(sf::Color::Red);
 
+
+    // Cargar textura para la imagen que va sobre las O
+    sf::Texture texturaImagenY;
+    if (!texturaImagenY.loadFromFile("assets/Fondos/hot dog fondo tablero.png")) {
+        std::cerr << "Error al cargar la imagen para X" << std::endl;
+        return -1;
+    }
+
+    std::cout << "Textura cargada correctamente. Tamaño: " << texturaImagenY.getSize().x << "x" << texturaImagenY.getSize().y << std::endl;
+
+        // Crear sprites para las imágenes sobre las O
+    sf::Sprite spritesImagenY[9] = {
+        sf::Sprite(texturaImagenY), sf::Sprite(texturaImagenY), sf::Sprite(texturaImagenY),
+        sf::Sprite(texturaImagenY), sf::Sprite(texturaImagenY), sf::Sprite(texturaImagenY),
+        sf::Sprite(texturaImagenY), sf::Sprite(texturaImagenY), sf::Sprite(texturaImagenY)
+    };
+
+    for(int i = 0; i < 9; i++) {
+        std::cout << "Creando sprite " << i << std::endl;
+        spritesImagenY[i] = sf::Sprite(texturaImagenY); // Asignar la textura al sprite
+
+        // Posicionar cada sprite en la casilla correspondiente (centrado)
+        int x = OFFSET_X + (i % 3) * CELL_SIZE + 20; // Ajustar posición dentro de la celda
+        int y = OFFSET_Y + (i / 3) * CELL_SIZE + 20; // Ajustar posición dentro de la celda
+        spritesImagenY[i].setPosition({x, y});
+
+        // Ajustar tamaño para que encaje en la casilla
+        sf::Vector2f escala(
+            (CELL_SIZE - 40) / static_cast<float>(texturaImagenY.getSize().x),
+            (CELL_SIZE - 40) / static_cast<float>(texturaImagenY.getSize().y)
+        );
+        spritesImagenY[i].setScale(escala);
+
+        std::cout << "Sprite " << i << " creado y posicionado en (" << x << ", " << y << ") con escala (" << escala.x << ", " << escala.y << ")" << std::endl;
+    }
+
+
+
+    // Cargar textura para la imagen que va sobre las X
+    sf::Texture texturaImagenX;
+    if (!texturaImagenX.loadFromFile("assets/Fondos/Victoria absoluta.jpg")) {
+        std::cerr << "Error al cargar la imagen para X" << std::endl;
+        return -1;
+    }
+
+    std::cout << "Textura cargada correctamente. Tamaño: " << texturaImagenX.getSize().x << "x" << texturaImagenX.getSize().y << std::endl;
+
+    // Crear sprites para las imágenes sobre las X
+    sf::Sprite spritesImagenX[9] = {
+        sf::Sprite(texturaImagenX), sf::Sprite(texturaImagenX), sf::Sprite(texturaImagenX),
+        sf::Sprite(texturaImagenX), sf::Sprite(texturaImagenX), sf::Sprite(texturaImagenX),
+        sf::Sprite(texturaImagenX), sf::Sprite(texturaImagenX), sf::Sprite(texturaImagenX)
+    };
+
+    for(int i = 0; i < 9; i++) {
+        std::cout << "Creando sprite " << i << std::endl;
+        spritesImagenX[i] = sf::Sprite(texturaImagenX); // Asignar la textura al sprite
+
+        // Posicionar cada sprite en la casilla correspondiente (centrado)
+        int x = OFFSET_X + (i % 3) * CELL_SIZE + 20; // Ajustar posición dentro de la celda
+        int y = OFFSET_Y + (i / 3) * CELL_SIZE + 20; // Ajustar posición dentro de la celda
+        spritesImagenX[i].setPosition({x, y});
+
+        // Ajustar tamaño para que encaje en la casilla
+        sf::Vector2f escala(
+            (CELL_SIZE - 40) / static_cast<float>(texturaImagenX.getSize().x),
+            (CELL_SIZE - 40) / static_cast<float>(texturaImagenX.getSize().y)
+        );
+        spritesImagenX[i].setScale(escala);
+
+        std::cout << "Sprite " << i << " creado y posicionado en (" << x << ", " << y << ") con escala (" << escala.x << ", " << escala.y << ")" << std::endl;
+    }
+
     // Crear fuente para el texto
     sf::Font fuente("c:/WINDOWS/Fonts/ARIALI.TTF");
     sf::Text texto(fuente, "Bienvenidos al videojuego kuliao mas bomba", 50);
@@ -1568,11 +1645,7 @@ int main() {
     txtIniciar.setPosition({350, 410});
     txtSalir.setPosition({370, 510});
 
-    // CENTRADO DEL TABLERO - Calcular offset para centrar
-    const int CELL_SIZE = 160; // Tamaño de cada celda
-    const int BOARD_SIZE = CELL_SIZE * 3; // 480 píxeles
-    const int OFFSET_X = (800 - BOARD_SIZE) / 2; // (800 - 480) / 2 = 160
-    const int OFFSET_Y = (800 - BOARD_SIZE) / 2; // (800 - 480) / 2 = 160
+
 
     // Crear las líneas del tablero (CENTRADAS)
     sf::RectangleShape lineas[4];
@@ -1768,9 +1841,12 @@ int main() {
                 if (estado == EstadoNodo::JUGADOR1) {
                     fichasTablero[i].setString("X");
                     window.draw(fichasTablero[i]);
+                    // Dibujar imagen encima de la X
+                    window.draw(spritesImagenX[i]);
                 } else if (estado == EstadoNodo::JUGADOR2) {
                     fichasTablero[i].setString("O");
                     window.draw(fichasTablero[i]);
+                    window.draw(spritesImagenY[i]);
                 }
             }
 

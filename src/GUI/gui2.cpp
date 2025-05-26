@@ -1563,7 +1563,7 @@ int main() {
 
     // Cargar textura para la imagen que va sobre las O
     sf::Texture texturaImagenY;
-    if (!texturaImagenY.loadFromFile("assets/Fondos/hot dog fondo tablero.png")) {
+    if (!texturaImagenY.loadFromFile("assets/Fichas/ficha paolini.jpg")) {
         std::cerr << "Error al cargar la imagen para X" << std::endl;
         return -1;
     }
@@ -1600,7 +1600,7 @@ int main() {
 
     // Cargar textura para la imagen que va sobre las X
     sf::Texture texturaImagenX;
-    if (!texturaImagenX.loadFromFile("assets/Fondos/Victoria absoluta.jpg")) {
+    if (!texturaImagenX.loadFromFile("assets/Fichas/Ross sin fondo definitivo.png")) {
         std::cerr << "Error al cargar la imagen para X" << std::endl;
         return -1;
     }

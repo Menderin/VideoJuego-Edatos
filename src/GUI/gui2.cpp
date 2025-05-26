@@ -1,5 +1,6 @@
 //versión funcional del tablero con sistema de 3 en raya principal
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 #include <string>
 #include <iostream>
 #include <random>
@@ -33,6 +34,7 @@ enum class OpcionJuego {
     SALIR,
     NINGUNO
 };
+
 
 // Función para mostrar ventana de opciones después de la victoria
 OpcionJuego mostrarVentanaOpciones() {
@@ -122,7 +124,6 @@ OpcionJuego mostrarVentanaOpciones() {
     
     return resultado;
 }
-
 
 // Función para mostrar la ventana del ganador
 void mostrarVentanaGanador(int puntosJ1, int puntosJ2) {
@@ -448,13 +449,26 @@ void mostrarVentanaAyudaHex() {
     }
 }
 
-
-
 // Función para abrir ventana de Hex
 void abrirHex(int casilla, Tablero& tablero) {
     casillaMiniJuego = casilla;
 
     sf::RenderWindow ventanaHex(sf::VideoMode({800, 700}), "Juego Hex");
+
+    // Cargar la imagen de fondo
+    sf::Texture textureFondo;
+    if (!textureFondo.loadFromFile("assets/Fondos/Fondo espacio futurista.jpg")) {
+        // Manejar el error si la imagen no se puede cargar
+        std::cerr << "Error al cargar la imagen de fondo" << std::endl;
+    }
+    // Crear un sprite para el fondo
+    sf::Sprite spriteFondo(textureFondo);
+    // Ajustar el sprite al tamaño de la ventana
+    sf::Vector2f scale(
+    static_cast<float>(ventanaHex.getSize().x) / textureFondo.getSize().x,
+    static_cast<float>(ventanaHex.getSize().y) / textureFondo.getSize().y
+    );
+    spriteFondo.setScale(scale);
 
     // Cargar fuente
     sf::Font fuente("c:/WINDOWS/Fonts/ARIALI.TTF");
@@ -502,10 +516,11 @@ void abrirHex(int casilla, Tablero& tablero) {
     for(int fila = 0; fila < TABLERO_SIZE; fila++) {
         for(int col = 0; col < TABLERO_SIZE; col++) {
             // Calcular posición con offset para crear forma de diamante
-            float x = 150 + col * HEX_SPACING + (fila * HEX_SPACING * 0.5f);
+            float x = 100 + col * HEX_SPACING + (fila * HEX_SPACING * 0.5f);
             float y = 200 + fila * (HEX_SPACING * 0.866f);
 
             sf::CircleShape hex = crearHexagono(HEX_RADIO, {x, y});
+             hex.setFillColor(sf::Color(255, 255, 255, 128)); // 128 es el valor de transparencia (alfa)
             tableroHex[fila][col] = hex;
         }
     }
@@ -598,6 +613,7 @@ void abrirHex(int casilla, Tablero& tablero) {
         }
 
         ventanaHex.clear(sf::Color::White);
+        ventanaHex.draw(spriteFondo); // Dibujar el fondo
         ventanaHex.draw(titulo);
         ventanaHex.draw(instrucciones);
 
@@ -614,8 +630,6 @@ void abrirHex(int casilla, Tablero& tablero) {
         ventanaHex.display();
     }
 }
-
-
 // Nueva función para mostrar ayuda específica del juego Adivina el Número
 void mostrarVentanaAyudaAdivinaNumero() {
     sf::RenderWindow ventanaAyuda(sf::VideoMode({500, 300}), "Ayuda - Adivina el Numero");
@@ -676,8 +690,6 @@ void mostrarVentanaAyudaAdivinaNumero() {
         ventanaAyuda.display();
     }
 }
-
-
 
 // Función para abrir ventana de "Adivina el número" (modificada para recibir la casilla)
 void abrirAdivinaNumero(int casilla,Tablero& tablero) {
@@ -879,11 +891,6 @@ void abrirAdivinaNumero(int casilla,Tablero& tablero) {
         ventanaAdivina.display();
     }
 }
-
-
-
-
-
 // Agregar esta nueva función para mostrar la ayuda específica de Batalla de Cartas
 void mostrarVentanaAyudaBatallaCartas() {
     sf::RenderWindow ventanaAyuda(sf::VideoMode({500, 300}), "Ayuda - Batalla de Cartas");
@@ -952,6 +959,22 @@ bool ventanaJugador(bool esJugador1, std::vector<int>& valoresCartas, int& carta
     
     sf::RenderWindow ventana(sf::VideoMode({600, 400}), titulo);
     sf::Font fuente("c:/WINDOWS/Fonts/ARIALI.TTF");
+
+     // Cargar la imagen de fondo
+    sf::Texture textureFondo;
+    if (!textureFondo.loadFromFile("assets/Fondos/Fondo batalla de cartas.jpg")) {
+        std::cerr << "Error al cargar la imagen de fondo" << std::endl;
+    }
+
+    // Crear un sprite para el fondo
+    sf::Sprite spriteFondo(textureFondo);
+
+    // Ajustar el sprite al tamaño de la ventana
+    sf::Vector2f scale(
+        static_cast<float>(ventana.getSize().x) / textureFondo.getSize().x,
+        static_cast<float>(ventana.getSize().y) / textureFondo.getSize().y
+    );
+    spriteFondo.setScale(scale);
     
     // Título
     sf::Text tituloTexto(fuente, titulo, 24);
@@ -1065,6 +1088,7 @@ bool ventanaJugador(bool esJugador1, std::vector<int>& valoresCartas, int& carta
         }
         
         ventana.clear(sf::Color::White);
+        ventana.draw(spriteFondo); // Dibujar el fondo
         ventana.draw(tituloTexto);
         ventana.draw(txtPuntosJ1); // Dibujar puntuación J1
         ventana.draw(txtPuntosJ2); // Dibujar puntuación J2
@@ -1083,9 +1107,6 @@ bool ventanaJugador(bool esJugador1, std::vector<int>& valoresCartas, int& carta
     
     return false;
 }
-
-
-
 
 // Agregar esta función junto con las otras funciones de ventanas
 void mostrarVentanaAyuda() {
@@ -1153,15 +1174,10 @@ void mostrarVentanaAyuda() {
     }
 }
 
-
-
-
 void abrirBatallaCartas(int casilla, Tablero& tablero) {
     casillaMiniJuego = casilla;
 
-    // ELIMINADA la creación innecesaria de ventanaCartas
-    // sf::RenderWindow ventanaCartas(sf::VideoMode({600, 450}), "Batalla de Cartas");
-
+    
     // Cargar fuente
     sf::Font fuente("c:/WINDOWS/Fonts/ARIALI.TTF");
 
@@ -1305,6 +1321,16 @@ std::string obtenerSimboloMinijuego(TipoMiniJuego tipo) {
 int main() {
     // Crear ventana
     sf::RenderWindow window(sf::VideoMode({800, 800}), "MendeWing");
+
+    // Cargar música de fondo
+    sf::Music musicaFondo;
+    if (!musicaFondo.openFromFile("assets/Audios/backgrounds/musica1.ogg")) {
+        std::cerr << "Error al cargar la música de fondo" << std::endl;
+    } else {
+        musicaFondo.setLooping(true); // Configurar la música para que se repita en bucle
+        musicaFondo.setVolume(10.0f); // Ajustar el volumen
+        musicaFondo.play(); // Reproducir la música
+    }
 
     // Estado actual del juego
     GameState currentState = GameState::MENU;

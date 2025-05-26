@@ -6,6 +6,8 @@
 #include <random>
 #include <vector>
 #include <algorithm>
+#include <SFML/Audio.hpp>
+
 
 #include "MiniJuegos/AdivinaNumero/AdivinaNumero.h" 
 #include "MiniJuegos/BatallaDeCartas/BatallaDeCartas.h"
@@ -980,62 +982,88 @@ bool ventanaJugador(bool esJugador1, std::vector<int>& valoresCartas, int& carta
     sf::Text tituloTexto(fuente, titulo, 24);
     tituloTexto.setPosition({50, 30});
     tituloTexto.setFillColor(colorJugador);
+
+    // Crear las cartas con diseño visual
+    std::vector<sf::RectangleShape> cartasVisuales;
+    std::vector<sf::Text> numerosCartas;
     
-    // Mostrar cartas
-    std::vector<sf::Text> cartasTexto;
+    // Dimensiones de la carta
+    const float CARTA_ANCHO = 80.f;
+    const float CARTA_ALTO = 120.f;
+    const float ESPACIO_ENTRE_CARTAS = 20.f;
+    
+    // Crear las cartas
     for(int i = 0; i < valoresCartas.size(); i++) {
-        sf::Text carta(fuente, std::to_string(valoresCartas[i]), 30);
-        carta.setPosition({80.f + (i * 60), 100});
-        carta.setFillColor(sf::Color::Black);
-        cartasTexto.push_back(carta);
+        // Crear el rectángulo de la carta
+        sf::RectangleShape carta(sf::Vector2f(CARTA_ANCHO, CARTA_ALTO));
+        carta.setPosition({50.f + (i * (CARTA_ANCHO + ESPACIO_ENTRE_CARTAS)), 100.f});
+        carta.setFillColor(sf::Color::White);
+        carta.setOutlineThickness(2);
+        carta.setOutlineColor(sf::Color::Black);
+        cartasVisuales.push_back(carta);
+        
+        // Crear el número de la carta
+        sf::Text numero(fuente, std::to_string(valoresCartas[i]), 30);
+        // Centrar el número en la carta
+        auto bounds = numero.getLocalBounds();
+        float xPos = carta.getPosition().x + (CARTA_ANCHO/2) - (bounds.position.x/2);
+        float yPos = carta.getPosition().y + (CARTA_ALTO/2) - (bounds.position.y/2);
+        
+        numero.setPosition({xPos, yPos});
+        numero.setFillColor(sf::Color::Black);
+        numerosCartas.push_back(numero);
+        
+        // Número pequeño en la esquina superior izquierda
+        sf::Text numeroEsquina(fuente, std::to_string(valoresCartas[i]), 15);
+        numeroEsquina.setPosition({carta.getPosition().x + 5, carta.getPosition().y + 5});
+        numeroEsquina.setFillColor(sf::Color::Black);
+        numerosCartas.push_back(numeroEsquina);
     }
-    
-    // Campo de selección
-    sf::RectangleShape campoSeleccion({60, 40});
-    campoSeleccion.setPosition({50, 200});
-    campoSeleccion.setFillColor(sf::Color::White);
-    campoSeleccion.setOutlineThickness(2);
-    campoSeleccion.setOutlineColor(sf::Color::Black);
     
     std::string numeroSeleccionado = "";
     sf::Text textoSeleccion(fuente, numeroSeleccionado, 24);
-    textoSeleccion.setPosition({60, 205});
+    textoSeleccion.setPosition({60, 305});
     textoSeleccion.setFillColor(sf::Color::Black);
     
+    // Campo de selección
+    sf::RectangleShape campoSeleccion({60, 40});
+    campoSeleccion.setPosition({50, 300});
+    campoSeleccion.setFillColor(sf::Color::White);
+    campoSeleccion.setOutlineThickness(2);
+    campoSeleccion.setOutlineColor(sf::Color::Black);
+
     // Botón confirmar
     sf::RectangleShape btnConfirmar({120, 40});
-    btnConfirmar.setPosition({150, 200});
+    btnConfirmar.setPosition({150, 300});
     btnConfirmar.setFillColor(colorJugador);
 
-    // Agregar botón de ayuda circular
+    // Botón de ayuda circular
     sf::CircleShape btnAyuda(20);
-    btnAyuda.setPosition({20, 340}); // Posición en esquina inferior izquierda
+    btnAyuda.setPosition({20, 340});
     btnAyuda.setFillColor(sf::Color::White);
     btnAyuda.setOutlineThickness(2);
     btnAyuda.setOutlineColor(sf::Color::Black);
 
-    // Texto del signo de interrogación
     sf::Text txtAyuda(fuente, "?", 20);
     txtAyuda.setPosition({33, 348});
     txtAyuda.setFillColor(sf::Color::Black);
     
     sf::Text txtConfirmar(fuente, "Confirmar", 18);
-    txtConfirmar.setPosition({165, 210});
+    txtConfirmar.setPosition({165, 310});
     txtConfirmar.setFillColor(sf::Color::White);
     
     // Instrucciones
     sf::Text instrucciones(fuente, "Selecciona una carta (1-" + 
-                          std::to_string(valoresCartas.size()) + "):", 18);
-    instrucciones.setPosition({50, 160});
-    instrucciones.setFillColor(sf::Color::Black);
+                        std::to_string(valoresCartas.size()) + "):", 18);
+    instrucciones.setPosition({50, 260});
     
     // Textos de puntuación
     sf::Text txtPuntosJ1(fuente, "Puntos J1: " + std::to_string(puntosJ1), 20);
-    txtPuntosJ1.setPosition({350, 30}); // Arriba a la derecha
+    txtPuntosJ1.setPosition({350, 30});
     txtPuntosJ1.setFillColor(sf::Color::Blue);
     
     sf::Text txtPuntosJ2(fuente, "Puntos J2: " + std::to_string(puntosJ2), 20);
-    txtPuntosJ2.setPosition({350, 60}); // Debajo del puntaje J1
+    txtPuntosJ2.setPosition({350, 60});
     txtPuntosJ2.setFillColor(sf::Color::Red);
     
     while (ventana.isOpen()) {
@@ -1072,8 +1100,9 @@ bool ventanaJugador(bool esJugador1, std::vector<int>& valoresCartas, int& carta
                     continue;
                 }
 
+                // Click en botón confirmar
                 if (mousePos.x >= 150 && mousePos.x <= 270 &&
-                    mousePos.y >= 200 && mousePos.y <= 240) {
+                    mousePos.y >= 300 && mousePos.y <= 340) {
                     if (!numeroSeleccionado.empty()) {
                         int indice = std::stoi(numeroSeleccionado) - 1;
                         if (indice >= 0 && indice < valoresCartas.size()) {
@@ -1090,11 +1119,17 @@ bool ventanaJugador(bool esJugador1, std::vector<int>& valoresCartas, int& carta
         ventana.clear(sf::Color::White);
         ventana.draw(spriteFondo); // Dibujar el fondo
         ventana.draw(tituloTexto);
-        ventana.draw(txtPuntosJ1); // Dibujar puntuación J1
-        ventana.draw(txtPuntosJ2); // Dibujar puntuación J2
-        for(const auto& carta : cartasTexto) {
-            ventana.draw(carta);
+        ventana.draw(txtPuntosJ1);
+        ventana.draw(txtPuntosJ2);
+        
+        // Dibujar las cartas y números
+        for(size_t i = 0; i < cartasVisuales.size(); i++) {
+            ventana.draw(cartasVisuales[i]);
         }
+        for(const auto& numero : numerosCartas) {
+            ventana.draw(numero);
+        }
+        
         ventana.draw(campoSeleccion);
         ventana.draw(textoSeleccion);
         ventana.draw(btnConfirmar);
@@ -1318,7 +1353,10 @@ std::string obtenerSimboloMinijuego(TipoMiniJuego tipo) {
     }
 }
 
+
 int main() {
+
+
     // Crear ventana
     sf::RenderWindow window(sf::VideoMode({800, 800}), "MendeWing");
 
@@ -1441,8 +1479,10 @@ int main() {
     }
 
     bool victoriaMostrada = false;
+    
 
     while (window.isOpen()) {
+       
         while (const std::optional event = window.pollEvent()) {
             if (event->is<sf::Event::Closed>()) {
                 window.close();
@@ -1450,6 +1490,8 @@ int main() {
 
             if (event->is<sf::Event::MouseButtonPressed>()) {
                 sf::Vector2i mousePos = sf::Mouse::getPosition(window);
+                
+
 
                 if (currentState == GameState::MENU) {
                     // Verificar click en botón Iniciar

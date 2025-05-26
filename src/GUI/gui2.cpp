@@ -28,6 +28,99 @@ enum class AdivinaState {
     JUGANDO_TURNO_J2
 };
 
+enum class OpcionJuego {
+    VOLVER_A_JUGAR,
+    SALIR,
+    NINGUNO
+};
+
+// Función para mostrar ventana de opciones después de la victoria
+OpcionJuego mostrarVentanaOpciones() {
+    // Crear ventana de opciones
+    sf::RenderWindow ventanaOpciones(sf::VideoMode({400, 300}), "Que deseas hacer?");
+    
+    // Crear fuente
+    sf::Font fuente("c:/WINDOWS/Fonts/ARIALI.TTF");
+    
+    // Elementos de la ventana
+    sf::Text textoPregunta(fuente, "Que deseas hacer?", 25);
+    sf::RectangleShape btnVolverJugar({180, 50});
+    sf::RectangleShape btnSalir({120, 50});
+    sf::Text txtVolverJugar(fuente, "Volver a Jugar", 20);
+    sf::Text txtSalir(fuente, "Salir", 25);
+    
+    // Configurar posiciones y colores
+    // Alternative way using getSize()
+    textoPregunta.setPosition({110,60});
+    textoPregunta.setFillColor(sf::Color::Black);
+
+    btnVolverJugar.setPosition({60, 150});
+    btnVolverJugar.setFillColor(sf::Color::Green);
+    txtVolverJugar.setPosition({70, 160});
+    txtVolverJugar.setFillColor(sf::Color::White);
+    
+    btnSalir.setPosition({260, 150});
+    btnSalir.setFillColor(sf::Color::Red);
+    txtSalir.setPosition({290, 160});
+    txtSalir.setFillColor(sf::Color::White);
+    
+    OpcionJuego resultado = OpcionJuego::NINGUNO;
+    
+    while (ventanaOpciones.isOpen()) {
+        while (const std::optional event = ventanaOpciones.pollEvent()) {
+            if (event->is<sf::Event::Closed>()) {
+                ventanaOpciones.close();
+                resultado = OpcionJuego::SALIR;
+            }
+            
+            if (event->is<sf::Event::MouseButtonPressed>()) {
+                sf::Vector2i mousePos = sf::Mouse::getPosition(ventanaOpciones);
+                
+                // Verificar click en Volver a Jugar
+                if (mousePos.x >= 60 && mousePos.x <= 240 &&
+                    mousePos.y >= 150 && mousePos.y <= 200) {
+                    resultado = OpcionJuego::VOLVER_A_JUGAR;
+                    ventanaOpciones.close();
+                    std::cout << "Volver a jugar seleccionado" << std::endl;
+                }
+                // Verificar click en Salir
+                else if (mousePos.x >= 260 && mousePos.x <= 380 &&
+                         mousePos.y >= 150 && mousePos.y <= 200) {
+                    resultado = OpcionJuego::SALIR;
+                    ventanaOpciones.close();
+                    std::cout << "Salir seleccionado" << std::endl;
+                }
+            }
+            
+            // Controles de teclado opcionales
+            if (event->is<sf::Event::KeyPressed>()) {
+                if (event->getIf<sf::Event::KeyPressed>()->code == sf::Keyboard::Key::Enter ||
+                    event->getIf<sf::Event::KeyPressed>()->code == sf::Keyboard::Key::Space) {
+                    resultado = OpcionJuego::VOLVER_A_JUGAR;
+                    ventanaOpciones.close();
+                } else if (event->getIf<sf::Event::KeyPressed>()->code == sf::Keyboard::Key::Escape) {
+                    resultado = OpcionJuego::SALIR;
+                    ventanaOpciones.close();
+                }
+            }
+        }
+        
+        ventanaOpciones.clear(sf::Color::White);
+        
+        // Dibujar elementos
+        ventanaOpciones.draw(textoPregunta);
+        ventanaOpciones.draw(btnVolverJugar);
+        ventanaOpciones.draw(btnSalir);
+        ventanaOpciones.draw(txtVolverJugar);
+        ventanaOpciones.draw(txtSalir);
+        
+        ventanaOpciones.display();
+    }
+    
+    return resultado;
+}
+
+
 // Función para mostrar la ventana del ganador
 void mostrarVentanaGanador(int puntosJ1, int puntosJ2) {
     sf::RenderWindow ventanaGanador(sf::VideoMode({600, 300}), "Resultado Final");
@@ -1069,6 +1162,20 @@ int main() {
                 } else {
                     mostrarVentanaVictoriaTablero(tablero.getEstadoJuego() == EstadoJuego::GANADOR_J1 ? 'X' : 'O');
                 }
+
+                 // Después de cerrar la ventana de victoria, mostrar opciones
+                OpcionJuego opcion = mostrarVentanaOpciones();
+                
+                if (opcion == OpcionJuego::VOLVER_A_JUGAR) {
+                    // Por ahora solo mostramos mensaje, después añadimos funcionalidad
+                    std::cout << "El jugador quiere volver a jugar (funcionalidad pendiente)" << std::endl;
+                    // Aquí después añadiremos el código para reiniciar
+                } else if (opcion == OpcionJuego::SALIR) {
+                    // Volver al menú principal
+                    currentState = GameState::MENU;
+                    std::cout << "Regresando al menú principal" << std::endl;
+                }
+
                 victoriaMostrada = true;
             }
         }

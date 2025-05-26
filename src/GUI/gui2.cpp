@@ -1883,6 +1883,7 @@ int main() {
                 } else if (opcion == OpcionJuego::SALIR) {
                     // Volver al menú principal
                     currentState = GameState::MENU;
+                    
                     std::cout << "Regresando al menú principal" << std::endl;
                     exit(0);
                 }
@@ -1892,7 +1893,10 @@ int main() {
         }
 
         window.display();
+
     }
 
     return 0;
+
 }
+

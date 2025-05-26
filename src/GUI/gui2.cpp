@@ -1164,7 +1164,11 @@ bool ventanaJugador(bool esJugador1, std::vector<int>& valoresCartas, int& carta
     sf::Text instrucciones(fuente, "Selecciona una carta (1-" + 
                         std::to_string(valoresCartas.size()) + "):", 22);
     instrucciones.setPosition({80, 370});
+
     instrucciones.setFillColor(sf::Color::White);
+
+    //instrucciones.setFillColor(sf::Color::Cyan);
+
     
     // Textos de puntuación más grandes y mejor posicionados
     sf::Text txtPuntosJ1(fuente, "Puntos J1: " + std::to_string(puntosJ1), 24);

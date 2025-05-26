@@ -40,11 +40,16 @@ enum class OpcionJuego {
 // Función para mostrar ventana de opciones después de la victoria
 OpcionJuego mostrarVentanaOpciones() {
     // Crear ventana de opciones
+<<<<<<< HEAD
     sf::RenderWindow ventanaOpciones(sf::VideoMode({400, 300}), "Quieres volver a jugar?");
+=======
+    sf::RenderWindow ventanaOpciones(sf::VideoMode({600, 600}), "Que deseas hacer?");
+>>>>>>> 128b0336350aefb2033e7dbaff12e1fca4459a2f
     
     // Crear fuente
     sf::Font fuente("c:/WINDOWS/Fonts/ARIALI.TTF");
     
+<<<<<<< HEAD
     // Elementos de la ventana
     sf::Text textoPregunta(fuente, "Quieres volver a jugar?", 25);
     sf::RectangleShape btnVolverJugar({180, 50});
@@ -56,15 +61,43 @@ OpcionJuego mostrarVentanaOpciones() {
     // Alternative way using getSize()
     textoPregunta.setPosition({110,60});
     textoPregunta.setFillColor(sf::Color::Black);
+=======
+    // Cargar la imagen de fondo
+    sf::Texture textureFondo;
+    if (!textureFondo.loadFromFile("assets/Fondos/Fondo espacio exterior.jpg")) {
+        std::cerr << "Error al cargar la imagen de fondo de opciones" << std::endl;
+    }
+>>>>>>> 128b0336350aefb2033e7dbaff12e1fca4459a2f
 
-    btnVolverJugar.setPosition({60, 150});
+
+        // Crear sprite para el fondo y ajustar escala
+    sf::Sprite spriteFondo(textureFondo);
+    sf::Vector2f scale(
+        static_cast<float>(ventanaOpciones.getSize().x) / textureFondo.getSize().x,
+        static_cast<float>(ventanaOpciones.getSize().y) / textureFondo.getSize().y
+    );
+    spriteFondo.setScale(scale);
+
+
+    // Elementos de la ventana - Reposicionados para la nueva ventana
+    sf::Text textoPregunta(fuente, "Que deseas hacer?", 40);
+    sf::RectangleShape btnVolverJugar({250, 80});
+    sf::RectangleShape btnSalir({250, 80});
+    sf::Text txtVolverJugar(fuente, "Volver a Jugar", 30);
+    sf::Text txtSalir(fuente, "Salir", 30);
+    
+    // Configurar posiciones y colores para la nueva ventana
+    textoPregunta.setPosition({150, 100});
+    textoPregunta.setFillColor(sf::Color::White);
+
+    btnVolverJugar.setPosition({175, 250});
     btnVolverJugar.setFillColor(sf::Color::Green);
-    txtVolverJugar.setPosition({70, 160});
+    txtVolverJugar.setPosition({205, 270});
     txtVolverJugar.setFillColor(sf::Color::White);
     
-    btnSalir.setPosition({260, 150});
+    btnSalir.setPosition({175, 400});
     btnSalir.setFillColor(sf::Color::Red);
-    txtSalir.setPosition({290, 160});
+    txtSalir.setPosition({270, 420});
     txtSalir.setFillColor(sf::Color::White);
     
     OpcionJuego resultado = OpcionJuego::NINGUNO;
@@ -80,19 +113,17 @@ OpcionJuego mostrarVentanaOpciones() {
             if (event->is<sf::Event::MouseButtonPressed>()) {
                 sf::Vector2i mousePos = sf::Mouse::getPosition(ventanaOpciones);
                 
-                // Verificar click en Volver a Jugar
-                if (mousePos.x >= 60 && mousePos.x <= 240 &&
-                    mousePos.y >= 150 && mousePos.y <= 200) {
+                // Actualizar áreas de click para los nuevos botones
+                if (mousePos.x >= 175 && mousePos.x <= 425 &&
+                    mousePos.y >= 250 && mousePos.y <= 330) {
                     resultado = OpcionJuego::VOLVER_A_JUGAR;
                     ventanaOpciones.close();
                 }
-                // Verificar click en Salir
-                else if (mousePos.x >= 260 && mousePos.x <= 380 &&
-                         mousePos.y >= 150 && mousePos.y <= 200) {
+                else if (mousePos.x >= 175 && mousePos.x <= 425 &&
+                         mousePos.y >= 400 && mousePos.y <= 480) {
                     resultado = OpcionJuego::SALIR;
                     ventanaOpciones.close();
-                    exit(0); // Salir del programa si se cierra la ventana
-                    
+                    exit(0); // Salir del programa si se hace click en salir
                 }
             }
             
@@ -114,6 +145,7 @@ OpcionJuego mostrarVentanaOpciones() {
         ventanaOpciones.clear(sf::Color::White);
         
         // Dibujar elementos
+        ventanaOpciones.draw(spriteFondo);
         ventanaOpciones.draw(textoPregunta);
         ventanaOpciones.draw(btnVolverJugar);
         ventanaOpciones.draw(btnSalir);
@@ -967,8 +999,13 @@ void abrirAdivinaNumero(int casilla,Tablero& tablero,sf::Music& musicaFondo) {
 
                                     // Cambiar turno manualmente
                                     turnoActual = (turnoActual == 1) ? 2 : 1;
+<<<<<<< HEAD
                                     mensajeJugador.setString("Jugador " + std::to_string(turnoActual) + ": Adivina el numero del J" + std::to_string(turnoActual == 1 ? 2 : 1));
                                     mensajeJugador.setFillColor(turnoActual == 1 ? sf::Color::White : sf::Color::White);
+=======
+                                    mensajeJugador.setString("J" + std::to_string(turnoActual) + ": Adivina el numero del J" + std::to_string(turnoActual == 1 ? 2 : 1));
+                                    mensajeJugador.setFillColor(turnoActual == 1 ? sf::Color::Blue : sf::Color::White);
+>>>>>>> 128b0336350aefb2033e7dbaff12e1fca4459a2f
                                 }
                                 // Limpiar campo
                                 numeroIngresado = "";

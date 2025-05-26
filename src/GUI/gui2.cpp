@@ -1555,61 +1555,70 @@ int main() {
     txtIniciar.setPosition({350, 410});
     txtSalir.setPosition({370, 510});
 
-    // Crear las líneas del tablero
+    // CENTRADO DEL TABLERO - Calcular offset para centrar
+    const int CELL_SIZE = 160; // Tamaño de cada celda
+    const int BOARD_SIZE = CELL_SIZE * 3; // 480 píxeles
+    const int OFFSET_X = (800 - BOARD_SIZE) / 2; // (800 - 480) / 2 = 160
+    const int OFFSET_Y = (800 - BOARD_SIZE) / 2; // (800 - 480) / 2 = 160
+
+    // Crear las líneas del tablero (CENTRADAS)
     sf::RectangleShape lineas[4];
 
-    // Crear símbolos para el tablero
+    for (auto& linea : lineas) {
+        linea.setFillColor(sf::Color::White);
+    }
+
+    // Configuración de líneas verticales (CENTRADAS)
+    lineas[0].setSize({2, BOARD_SIZE});  // Vertical izquierda
+    lineas[1].setSize({2, BOARD_SIZE});  // Vertical derecha
+
+    // Configuración de líneas horizontales (CENTRADAS)
+    lineas[2].setSize({BOARD_SIZE, 2});  // Horizontal superior
+    lineas[3].setSize({BOARD_SIZE, 2});  // Horizontal inferior
+
+    // Posicionamiento de líneas (CENTRADAS)
+    lineas[0].setPosition({OFFSET_X + CELL_SIZE, OFFSET_Y});     // Vertical izquierda
+    lineas[1].setPosition({OFFSET_X + CELL_SIZE * 2, OFFSET_Y}); // Vertical derecha
+    lineas[2].setPosition({OFFSET_X, OFFSET_Y + CELL_SIZE});     // Horizontal superior
+    lineas[3].setPosition({OFFSET_X, OFFSET_Y + CELL_SIZE * 2}); // Horizontal inferior
+
+    // Crear símbolos para el tablero (CENTRADOS)
     sf::Text simbolos[9] = {
         sf::Text(fuente, ""), sf::Text(fuente, ""), sf::Text(fuente, ""),
         sf::Text(fuente, ""), sf::Text(fuente, ""), sf::Text(fuente, ""),
         sf::Text(fuente, ""), sf::Text(fuente, ""), sf::Text(fuente, "")
     };
 
-    // Crear símbolos para las fichas del tablero principal (X y O)
+    // Crear símbolos para las fichas del tablero principal (X y O) (CENTRADOS)
     sf::Text fichasTablero[9] = {
         sf::Text(fuente, ""), sf::Text(fuente, ""), sf::Text(fuente, ""),
         sf::Text(fuente, ""), sf::Text(fuente, ""), sf::Text(fuente, ""),
         sf::Text(fuente, ""), sf::Text(fuente, ""), sf::Text(fuente, "")
     };
+
+    // Posicionar fichas del tablero (CENTRADAS)
     for(int i = 0; i < 9; i++) {
         fichasTablero[i].setCharacterSize(80);
         fichasTablero[i].setFillColor(sf::Color::Red);
 
-        int x = (i % 3) * 200 + 85;
-        int y = (i / 3) * 200 + 60;
+        int x = OFFSET_X + (i % 3) * CELL_SIZE + 60; // Centrado en cada celda
+        int y = OFFSET_Y + (i / 3) * CELL_SIZE + 40; // Centrado en cada celda
         fichasTablero[i].setPosition({x, y});
     }
 
+    // Posicionar símbolos de minijuegos (CENTRADOS)
     for(int i = 0; i < 9; i++) {
         simbolos[i].setFont(fuente);
         simbolos[i].setCharacterSize(50);
         simbolos[i].setFillColor(sf::Color::White);
 
-        int x = (i % 3) * 200 + 85;
-        int y = (i / 3) * 200 + 60;
+        int x = OFFSET_X + (i % 3) * CELL_SIZE + 60; // Centrado en cada celda
+        int y = OFFSET_Y + (i / 3) * CELL_SIZE + 40; // Centrado en cada celda
         simbolos[i].setPosition({x, y});
     }
 
-    for (auto& linea : lineas) {
-        linea.setFillColor(sf::Color::White);
-    }
-
-    // Configuración de líneas verticales
-    lineas[0].setSize({2, 500});  // Vertical izquierda
-    lineas[1].setSize({2, 500});  // Vertical derecha
-
-    // Configuración de líneas horizontales
-    lineas[2].setSize({500, 2});  // Horizontal superior
-    lineas[3].setSize({500, 2});  // Horizontal inferior
-
-    // Posicionamiento de líneas
-    lineas[0].setPosition({200, 50});  // Vertical izquierda
-    lineas[1].setPosition({400, 50});  // Vertical derecha
-    lineas[2].setPosition({50, 200});  // Horizontal superior
-    lineas[3].setPosition({50, 400});  // Horizontal inferior
-
     // Crear botón de ayuda circular
-    sf::CircleShape btnAyuda(30); // Radio de 20 pixels
+    sf::CircleShape btnAyuda(30); // Radio de 30 pixels
     btnAyuda.setPosition({20, 740}); // Posición en esquina inferior izquierda
     btnAyuda.setFillColor(sf::Color::White);
     btnAyuda.setOutlineThickness(2);
@@ -1619,8 +1628,8 @@ int main() {
     sf::Text txtAyuda(fuente, "?", 24);
     txtAyuda.setPosition({40, 755}); // Ajustar posición para centrar en el círculo
     txtAyuda.setFillColor(sf::Color::Black);
+    
     // Crear instancia del tablero
-
     Tablero tablero;
 
     // Asignar minijuegos a los nodos
@@ -1649,7 +1658,6 @@ int main() {
                 sf::Vector2i mousePos = sf::Mouse::getPosition(window);
                 
 
-
                 if (currentState == GameState::MENU) {
                     // Verificar click en botón Iniciar
                     if (mousePos.x >= 300 && mousePos.x <= 500 &&
@@ -1672,32 +1680,43 @@ int main() {
                         mostrarVentanaAyuda();
                         continue;
                     }
-                    // Verificar clicks en el tablero
-                    int columna = mousePos.x / 200;
-                    int fila = mousePos.y / 200;
-                    if (columna < 3 && fila < 3) {
-                        int index = fila * 3 + columna;
+                    
+                    // Verificar clicks en el tablero (AJUSTADO PARA EL CENTRADO)
+                    // Calcular posición relativa al tablero centrado
+                    int relativeX = mousePos.x - OFFSET_X;
+                    int relativeY = mousePos.y - OFFSET_Y;
+                    
+                    // Verificar si el click está dentro del área del tablero
+                    if (relativeX >= 0 && relativeX < BOARD_SIZE && 
+                        relativeY >= 0 && relativeY < BOARD_SIZE) {
+                        
+                        int columna = relativeX / CELL_SIZE;
+                        int fila = relativeY / CELL_SIZE;
+                        
+                        if (columna < 3 && fila < 3) {
+                            int index = fila * 3 + columna;
 
-                        // Solo permitir jugar en casillas que no tengan ficha
-                        if (tablero.getNodo(fila, columna).estaVacio()) {
-                            // CAMBIO: Obtener el tipo de minijuego directamente del tablero
-                            TipoMiniJuego tipoMinijuego = tablero.getNodo(fila, columna).getTipoMiniJuego();
-                            
-                            if (tipoMinijuego == TipoMiniJuego::HEX) {
-                                std::cout << "H en casilla " << index << std::endl;
-                                // Iniciar juego Hex
-                                abrirHex(index, tablero,musicaFondo);
-                            } else if (tipoMinijuego == TipoMiniJuego::BATALLA_CARTAS) {
-                                std::cout << "C en casilla " << index << std::endl;
-                                // Iniciar Batalla de Cartas
-                                abrirBatallaCartas(index, tablero,musicaFondo);
-                            } else if (tipoMinijuego == TipoMiniJuego::ADIVINA_NUMERO) {
-                                std::cout << "Abriendo Adivina el Numero en casilla " << index << std::endl;
-                                // Abrir ventana de Adivina el Número
-                                abrirAdivinaNumero(index, tablero,musicaFondo);
+                            // Solo permitir jugar en casillas que no tengan ficha
+                            if (tablero.getNodo(fila, columna).estaVacio()) {
+                                // CAMBIO: Obtener el tipo de minijuego directamente del tablero
+                                TipoMiniJuego tipoMinijuego = tablero.getNodo(fila, columna).getTipoMiniJuego();
+                                
+                                if (tipoMinijuego == TipoMiniJuego::HEX) {
+                                    std::cout << "H en casilla " << index << std::endl;
+                                    // Iniciar juego Hex
+                                    abrirHex(index, tablero, musicaFondo);
+                                } else if (tipoMinijuego == TipoMiniJuego::BATALLA_CARTAS) {
+                                    std::cout << "C en casilla " << index << std::endl;
+                                    // Iniciar Batalla de Cartas
+                                    abrirBatallaCartas(index, tablero, musicaFondo);
+                                } else if (tipoMinijuego == TipoMiniJuego::ADIVINA_NUMERO) {
+                                    std::cout << "Abriendo Adivina el Numero en casilla " << index << std::endl;
+                                    // Abrir ventana de Adivina el Número
+                                    abrirAdivinaNumero(index, tablero, musicaFondo);
+                                }
+                            } else {
+                                std::cout << "Casilla " << index << " ya ocupada" << std::endl;
                             }
-                        } else {
-                            std::cout << "Casilla " << index << " ya ocupada" << std::endl;
                         }
                     }
                 }
@@ -1705,8 +1724,6 @@ int main() {
         }
 
         window.clear(sf::Color::White);
-
-
 
         if (currentState == GameState::MENU) {
             // Dibujar menú
@@ -1716,7 +1733,6 @@ int main() {
             window.draw(titulo1);
             window.draw(txtIniciar);
             window.draw(txtSalir);
-
 
         } else {
             window.draw(spriteFondoTablero); // Dibujar el fondo del tablero

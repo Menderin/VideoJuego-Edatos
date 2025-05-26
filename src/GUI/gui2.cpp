@@ -959,7 +959,7 @@ bool ventanaJugador(bool esJugador1, std::vector<int>& valoresCartas, int& carta
     std::string titulo = esJugador1 ? "Turno Jugador 1" : "Turno Jugador 2";
     sf::Color colorJugador = esJugador1 ? sf::Color::Blue : sf::Color::Red;
     
-    sf::RenderWindow ventana(sf::VideoMode({600, 400}), titulo);
+    sf::RenderWindow ventana(sf::VideoMode({800, 600}), titulo);
     sf::Font fuente("c:/WINDOWS/Fonts/ARIALI.TTF");
 
      // Cargar la imagen de fondo
@@ -978,32 +978,34 @@ bool ventanaJugador(bool esJugador1, std::vector<int>& valoresCartas, int& carta
     );
     spriteFondo.setScale(scale);
     
-    // Título
-    sf::Text tituloTexto(fuente, titulo, 24);
-    tituloTexto.setPosition({50, 30});
+    // Título más grande y mejor posicionado
+    sf::Text tituloTexto(fuente, titulo, 32);
+    tituloTexto.setPosition({80, 40});
     tituloTexto.setFillColor(colorJugador);
 
-    // Crear las cartas con diseño visual
+    // Crear las cartas con diseño visual más grandes
     std::vector<sf::RectangleShape> cartasVisuales;
     std::vector<sf::Text> numerosCartas;
     
-    // Dimensiones de la carta
-    const float CARTA_ANCHO = 80.f;
-    const float CARTA_ALTO = 120.f;
-    const float ESPACIO_ENTRE_CARTAS = 20.f;
+    // Dimensiones de la carta aumentadas
+    const float CARTA_ANCHO = 120.f;
+    const float CARTA_ALTO = 180.f;
+    const float ESPACIO_ENTRE_CARTAS = 30.f;
     
-    // Crear las cartas
+    // Crear las cartas centradas horizontalmente
+    float inicioCartas = (800 - (valoresCartas.size() * CARTA_ANCHO + (valoresCartas.size() - 1) * ESPACIO_ENTRE_CARTAS)) / 2;
+    
     for(int i = 0; i < valoresCartas.size(); i++) {
         // Crear el rectángulo de la carta
         sf::RectangleShape carta(sf::Vector2f(CARTA_ANCHO, CARTA_ALTO));
-        carta.setPosition({50.f + (i * (CARTA_ANCHO + ESPACIO_ENTRE_CARTAS)), 100.f});
+        carta.setPosition({inicioCartas + (i * (CARTA_ANCHO + ESPACIO_ENTRE_CARTAS)), 150.f});
         carta.setFillColor(sf::Color::White);
-        carta.setOutlineThickness(2);
+        carta.setOutlineThickness(3);
         carta.setOutlineColor(sf::Color::Black);
         cartasVisuales.push_back(carta);
         
-        // Crear el número de la carta
-        sf::Text numero(fuente, std::to_string(valoresCartas[i]), 30);
+        // Crear el número de la carta (grande en el centro)
+        sf::Text numero(fuente, std::to_string(valoresCartas[i]), 45);
         // Centrar el número en la carta
         auto bounds = numero.getLocalBounds();
         float xPos = carta.getPosition().x + (CARTA_ANCHO/2) - (bounds.position.x/2);
@@ -1014,57 +1016,69 @@ bool ventanaJugador(bool esJugador1, std::vector<int>& valoresCartas, int& carta
         numerosCartas.push_back(numero);
         
         // Número pequeño en la esquina superior izquierda
-        sf::Text numeroEsquina(fuente, std::to_string(valoresCartas[i]), 15);
-        numeroEsquina.setPosition({carta.getPosition().x + 5, carta.getPosition().y + 5});
+        sf::Text numeroEsquina(fuente, std::to_string(valoresCartas[i]), 18);
+        numeroEsquina.setPosition({carta.getPosition().x + 8, carta.getPosition().y + 8});
         numeroEsquina.setFillColor(sf::Color::Black);
         numerosCartas.push_back(numeroEsquina);
+        
+        // Número de posición debajo de cada carta
+        sf::Text numeroPosicion(fuente, std::to_string(i + 1), 20);
+        numeroPosicion.setPosition({carta.getPosition().x + (CARTA_ANCHO/2) - 10, carta.getPosition().y + CARTA_ALTO + 10});
+        numeroPosicion.setFillColor(colorJugador);
+        numerosCartas.push_back(numeroPosicion);
     }
     
     std::string numeroSeleccionado = "";
-    sf::Text textoSeleccion(fuente, numeroSeleccionado, 24);
-    textoSeleccion.setPosition({60, 305});
+    sf::Text textoSeleccion(fuente, numeroSeleccionado, 28);
+    textoSeleccion.setPosition({90, 420});
     textoSeleccion.setFillColor(sf::Color::Black);
     
-    // Campo de selección
-    sf::RectangleShape campoSeleccion({60, 40});
-    campoSeleccion.setPosition({50, 300});
+    // Campo de selección más grande
+    sf::RectangleShape campoSeleccion({80, 50});
+    campoSeleccion.setPosition({80, 410});
     campoSeleccion.setFillColor(sf::Color::White);
-    campoSeleccion.setOutlineThickness(2);
+    campoSeleccion.setOutlineThickness(3);
     campoSeleccion.setOutlineColor(sf::Color::Black);
 
-    // Botón confirmar
-    sf::RectangleShape btnConfirmar({120, 40});
-    btnConfirmar.setPosition({150, 300});
+    // Botón confirmar más grande
+    sf::RectangleShape btnConfirmar({150, 50});
+    btnConfirmar.setPosition({200, 410});
     btnConfirmar.setFillColor(colorJugador);
 
-    // Botón de ayuda circular
-    sf::CircleShape btnAyuda(20);
-    btnAyuda.setPosition({20, 340});
+    // Botón de ayuda circular más grande
+    sf::CircleShape btnAyuda(25);
+    btnAyuda.setPosition({30, 520});
     btnAyuda.setFillColor(sf::Color::White);
-    btnAyuda.setOutlineThickness(2);
+    btnAyuda.setOutlineThickness(3);
     btnAyuda.setOutlineColor(sf::Color::Black);
 
-    sf::Text txtAyuda(fuente, "?", 20);
-    txtAyuda.setPosition({33, 348});
+    sf::Text txtAyuda(fuente, "?", 24);
+    txtAyuda.setPosition({47, 532});
     txtAyuda.setFillColor(sf::Color::Black);
     
-    sf::Text txtConfirmar(fuente, "Confirmar", 18);
-    txtConfirmar.setPosition({165, 310});
+    sf::Text txtConfirmar(fuente, "Confirmar", 22);
+    txtConfirmar.setPosition({225, 425});
     txtConfirmar.setFillColor(sf::Color::White);
     
-    // Instrucciones
+    // Instrucciones más grandes y mejor posicionadas
     sf::Text instrucciones(fuente, "Selecciona una carta (1-" + 
-                        std::to_string(valoresCartas.size()) + "):", 18);
-    instrucciones.setPosition({50, 260});
+                        std::to_string(valoresCartas.size()) + "):", 22);
+    instrucciones.setPosition({80, 370});
+    instrucciones.setFillColor(sf::Color::Black);
     
-    // Textos de puntuación
-    sf::Text txtPuntosJ1(fuente, "Puntos J1: " + std::to_string(puntosJ1), 20);
-    txtPuntosJ1.setPosition({350, 30});
+    // Textos de puntuación más grandes y mejor posicionados
+    sf::Text txtPuntosJ1(fuente, "Puntos J1: " + std::to_string(puntosJ1), 24);
+    txtPuntosJ1.setPosition({500, 40});
     txtPuntosJ1.setFillColor(sf::Color::Blue);
     
-    sf::Text txtPuntosJ2(fuente, "Puntos J2: " + std::to_string(puntosJ2), 20);
-    txtPuntosJ2.setPosition({350, 60});
+    sf::Text txtPuntosJ2(fuente, "Puntos J2: " + std::to_string(puntosJ2), 24);
+    txtPuntosJ2.setPosition({500, 75});
     txtPuntosJ2.setFillColor(sf::Color::Red);
+    
+    // Texto adicional de ayuda
+    sf::Text ayudaExtra(fuente, "Haz clic en '?' para ver las reglas del juego", 18);
+    ayudaExtra.setPosition({400, 520});
+    ayudaExtra.setFillColor(sf::Color::Cyan);
     
     while (ventana.isOpen()) {
         while (const std::optional event = ventana.pollEvent()) {
@@ -1091,7 +1105,7 @@ bool ventanaJugador(bool esJugador1, std::vector<int>& valoresCartas, int& carta
             if (event->is<sf::Event::MouseButtonPressed>()) {
                 sf::Vector2i mousePos = sf::Mouse::getPosition(ventana);
 
-                // Verificar click en botón de ayuda
+                // Verificar click en botón de ayuda (coordenadas actualizadas)
                 sf::Vector2f posAyuda = btnAyuda.getPosition();
                 float radio = btnAyuda.getRadius();
                 if (mousePos.x >= posAyuda.x && mousePos.x <= posAyuda.x + (radio * 2) &&
@@ -1100,9 +1114,9 @@ bool ventanaJugador(bool esJugador1, std::vector<int>& valoresCartas, int& carta
                     continue;
                 }
 
-                // Click en botón confirmar
-                if (mousePos.x >= 150 && mousePos.x <= 270 &&
-                    mousePos.y >= 300 && mousePos.y <= 340) {
+                // Click en botón confirmar (coordenadas actualizadas)
+                if (mousePos.x >= 200 && mousePos.x <= 350 &&
+                    mousePos.y >= 410 && mousePos.y <= 460) {
                     if (!numeroSeleccionado.empty()) {
                         int indice = std::stoi(numeroSeleccionado) - 1;
                         if (indice >= 0 && indice < valoresCartas.size()) {
@@ -1111,6 +1125,17 @@ bool ventanaJugador(bool esJugador1, std::vector<int>& valoresCartas, int& carta
                             ventana.close();
                             return true;
                         }
+                    }
+                }
+                
+                // Click directo en las cartas
+                for(int i = 0; i < cartasVisuales.size(); i++) {
+                    sf::Vector2f posCart = cartasVisuales[i].getPosition();
+                    if (mousePos.x >= posCart.x && mousePos.x <= posCart.x + CARTA_ANCHO &&
+                        mousePos.y >= posCart.y && mousePos.y <= posCart.y + CARTA_ALTO) {
+                        numeroSeleccionado = std::to_string(i + 1);
+                        textoSeleccion.setString(numeroSeleccionado);
+                        break;
                     }
                 }
             }
@@ -1137,6 +1162,7 @@ bool ventanaJugador(bool esJugador1, std::vector<int>& valoresCartas, int& carta
         ventana.draw(instrucciones);
         ventana.draw(btnAyuda);
         ventana.draw(txtAyuda);
+        ventana.draw(ayudaExtra);
         ventana.display();
     }
     

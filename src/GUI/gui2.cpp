@@ -385,6 +385,72 @@ sf::CircleShape crearHexagono(float radio, sf::Vector2f posicion) {
     return hexagono;
 }
 
+
+
+
+// Agregar esta nueva función para mostrar la ayuda específica del Hex
+void mostrarVentanaAyudaHex() {
+    sf::RenderWindow ventanaAyuda(sf::VideoMode({500, 300}), "Ayuda - Juego Hex");
+    sf::Font fuente("c:/WINDOWS/Fonts/ARIALI.TTF");
+    
+    // Título
+    sf::Text titulo(fuente, "Como Jugar Hex", 24);
+    titulo.setPosition({150, 30});
+    titulo.setFillColor(sf::Color::Black);
+    
+    // Instrucciones específicas
+    std::vector<std::string> textos = {
+        "1. Jugador 1 (Rojo) conecta izquierda-derecha",
+        "2. Jugador 2 (Azul) conecta arriba-abajo",
+        "3. Haz click en un hexagono para marcarlo",
+        "4. Gana quien conecte primero sus lados"
+    };
+    
+    std::vector<sf::Text> instrucciones;
+    for(size_t i = 0; i < textos.size(); i++) {
+        sf::Text texto(fuente, textos[i], 18);
+        texto.setPosition({50, 90.f + (i * 35)});
+        texto.setFillColor(sf::Color::Black);
+        instrucciones.push_back(texto);
+    }
+    
+    // Botón cerrar
+    sf::RectangleShape btnCerrar({100, 40});
+    btnCerrar.setPosition({200, 240});
+    btnCerrar.setFillColor(sf::Color::Red);
+    
+    sf::Text txtCerrar(fuente, "Cerrar", 20);
+    txtCerrar.setPosition({220, 250});
+    txtCerrar.setFillColor(sf::Color::White);
+    
+    while (ventanaAyuda.isOpen()) {
+        while (const std::optional event = ventanaAyuda.pollEvent()) {
+            if (event->is<sf::Event::Closed>()) {
+                ventanaAyuda.close();
+            }
+            
+            if (event->is<sf::Event::MouseButtonPressed>()) {
+                sf::Vector2i mousePos = sf::Mouse::getPosition(ventanaAyuda);
+                if (mousePos.x >= 200 && mousePos.x <= 300 &&
+                    mousePos.y >= 240 && mousePos.y <= 280) {
+                    ventanaAyuda.close();
+                }
+            }
+        }
+        
+        ventanaAyuda.clear(sf::Color::White);
+        ventanaAyuda.draw(titulo);
+        for(const auto& texto : instrucciones) {
+            ventanaAyuda.draw(texto);
+        }
+        ventanaAyuda.draw(btnCerrar);
+        ventanaAyuda.draw(txtCerrar);
+        ventanaAyuda.display();
+    }
+}
+
+
+
 // Función para abrir ventana de Hex
 void abrirHex(int casilla, Tablero& tablero) {
     casillaMiniJuego = casilla;
@@ -412,6 +478,19 @@ void abrirHex(int casilla, Tablero& tablero) {
     sf::Text txtCerrar(fuente, "Cerrar", 20);
     txtCerrar.setPosition({375, 640});
     txtCerrar.setFillColor(sf::Color::White);
+
+    
+    // Agregar botón de ayuda circular
+    sf::CircleShape btnAyuda(20);
+    btnAyuda.setPosition({20, 650}); // Posición en esquina inferior izquierda
+    btnAyuda.setFillColor(sf::Color::White);
+    btnAyuda.setOutlineThickness(2);
+    btnAyuda.setOutlineColor(sf::Color::Black);
+
+    // Texto del signo de interrogación para el botón de ayuda
+    sf::Text txtAyuda(fuente, "?", 20);
+    txtAyuda.setPosition({33, 658});
+    txtAyuda.setFillColor(sf::Color::Black);
 
     // Crear el tablero hexagonal (11x11)
     const int TABLERO_SIZE = 11;
@@ -459,6 +538,14 @@ void abrirHex(int casilla, Tablero& tablero) {
 
             if (event->is<sf::Event::MouseButtonPressed>()) {
                 sf::Vector2i mousePos = sf::Mouse::getPosition(ventanaHex);
+
+                sf::Vector2f posAyuda = btnAyuda.getPosition();
+                float radio = btnAyuda.getRadius();
+                if (mousePos.x >= posAyuda.x && mousePos.x <= posAyuda.x + (radio * 2) &&
+                    mousePos.y >= posAyuda.y && mousePos.y <= posAyuda.y + (radio * 2)) {
+                    mostrarVentanaAyudaHex();
+                    continue;
+                }
 
                 // Verificar click en botón cerrar
                 if (mousePos.x >= 350 && mousePos.x <= 450 &&
@@ -521,12 +608,77 @@ void abrirHex(int casilla, Tablero& tablero) {
                 ventanaHex.draw(tableroHex[fila][col]);
             }
         }
-
+        ventanaHex.draw(btnAyuda);
+        ventanaHex.draw(txtAyuda);
         ventanaHex.draw(btnCerrar);
         ventanaHex.draw(txtCerrar);
         ventanaHex.display();
     }
 }
+
+
+// Nueva función para mostrar ayuda específica del juego Adivina el Número
+void mostrarVentanaAyudaAdivinaNumero() {
+    sf::RenderWindow ventanaAyuda(sf::VideoMode({500, 300}), "Ayuda - Adivina el Numero");
+    sf::Font fuente("c:/WINDOWS/Fonts/ARIALI.TTF");
+    
+    // Título
+    sf::Text titulo(fuente, "Como Jugar  Adivina el Numero", 24);
+    titulo.setPosition({100, 30});
+    titulo.setFillColor(sf::Color::Black);
+    
+    // Instrucciones específicas
+    std::vector<std::string> textos = {
+        "1 Cada jugador elige un numero secreto (1-100)",
+        "2 Por turnos intentan adivinar el numero",
+        "3 Recibiran pistas MAYOR o MENOR",
+        "4 Gana quien adivine primero"
+    };
+    
+    std::vector<sf::Text> instrucciones;
+    for(size_t i = 0; i < textos.size(); i++) {
+        sf::Text texto(fuente, textos[i], 18);
+        texto.setPosition({50, 90.f + (i * 35)});
+        texto.setFillColor(sf::Color::Black);
+        instrucciones.push_back(texto);
+    }
+    
+    // Botón cerrar
+    sf::RectangleShape btnCerrar({100, 40});
+    btnCerrar.setPosition({200, 240});
+    btnCerrar.setFillColor(sf::Color::Red);
+    
+    sf::Text txtCerrar(fuente, "Cerrar", 20);
+    txtCerrar.setPosition({220, 250});
+    txtCerrar.setFillColor(sf::Color::White);
+    
+    while (ventanaAyuda.isOpen()) {
+        while (const std::optional event = ventanaAyuda.pollEvent()) {
+            if (event->is<sf::Event::Closed>()) {
+                ventanaAyuda.close();
+            }
+            
+            if (event->is<sf::Event::MouseButtonPressed>()) {
+                sf::Vector2i mousePos = sf::Mouse::getPosition(ventanaAyuda);
+                if (mousePos.x >= 200 && mousePos.x <= 300 &&
+                    mousePos.y >= 240 && mousePos.y <= 280) {
+                    ventanaAyuda.close();
+                }
+            }
+        }
+        
+        ventanaAyuda.clear(sf::Color::White);
+        ventanaAyuda.draw(titulo);
+        for(const auto& texto : instrucciones) {
+            ventanaAyuda.draw(texto);
+        }
+        ventanaAyuda.draw(btnCerrar);
+        ventanaAyuda.draw(txtCerrar);
+        ventanaAyuda.display();
+    }
+}
+
+
 
 // Función para abrir ventana de "Adivina el número" (modificada para recibir la casilla)
 void abrirAdivinaNumero(int casilla,Tablero& tablero) {
@@ -588,6 +740,19 @@ void abrirAdivinaNumero(int casilla,Tablero& tablero) {
     txtCerrar.setPosition({275, 360});
     txtCerrar.setFillColor(sf::Color::White);
 
+
+    // Agregar botón de ayuda circular
+    sf::CircleShape btnAyuda(20);
+    btnAyuda.setPosition({20, 390}); // Posición en esquina inferior izquierda
+    btnAyuda.setFillColor(sf::Color::White);
+    btnAyuda.setOutlineThickness(2);
+    btnAyuda.setOutlineColor(sf::Color::Black);
+
+    // Texto del signo de interrogación para el botón de ayuda
+    sf::Text txtAyuda(fuente, "?", 20);
+    txtAyuda.setPosition({33, 398});
+    txtAyuda.setFillColor(sf::Color::Black);
+
     // Crear una instancia del juego AdivinaNumero
     AdivinaNumero juegoAdivina;
 
@@ -619,6 +784,15 @@ void abrirAdivinaNumero(int casilla,Tablero& tablero) {
 
             if (event->is<sf::Event::MouseButtonPressed>()) {
                 sf::Vector2i mousePos = sf::Mouse::getPosition(ventanaAdivina);
+
+                sf::Vector2f posAyuda = btnAyuda.getPosition();
+                float radio = btnAyuda.getRadius();
+                if (mousePos.x >= posAyuda.x && mousePos.x <= posAyuda.x + (radio * 2) &&
+                    mousePos.y >= posAyuda.y && mousePos.y <= posAyuda.y + (radio * 2)) {
+                    // Mostrar ventana de ayuda específica para Adivina el Número
+                    mostrarVentanaAyudaAdivinaNumero();
+                    continue;
+                }
 
                 // Verificar click en botón confirmar
                 if (mousePos.x >= 240 && mousePos.x <= 360 &&
@@ -701,7 +875,74 @@ void abrirAdivinaNumero(int casilla,Tablero& tablero) {
         ventanaAdivina.draw(btnCerrar);
         ventanaAdivina.draw(txtCerrar);
         ventanaAdivina.draw(mensajeResultado);
+        ventanaAdivina.draw(btnAyuda);
+        ventanaAdivina.draw(txtAyuda);
         ventanaAdivina.display();
+    }
+}
+
+
+
+
+
+// Agregar esta nueva función para mostrar la ayuda específica de Batalla de Cartas
+void mostrarVentanaAyudaBatallaCartas() {
+    sf::RenderWindow ventanaAyuda(sf::VideoMode({500, 300}), "Ayuda - Batalla de Cartas");
+    sf::Font fuente("c:/WINDOWS/Fonts/ARIALI.TTF");
+    
+    // Título
+    sf::Text titulo(fuente, "Como Jugar Batalla de Cartas", 24);
+    titulo.setPosition({100, 30});
+    titulo.setFillColor(sf::Color::Black);
+    
+    // Instrucciones específicas
+    std::vector<std::string> textos = {
+        "1. Cada jugador recibe 5 cartas (1-15)",
+        "2. Por turnos eligen una carta",
+        "3. La carta mas alta gana el punto",
+        "4. Gana quien tenga mas puntos al final"
+    };
+    
+    std::vector<sf::Text> instrucciones;
+    for(size_t i = 0; i < textos.size(); i++) {
+        sf::Text texto(fuente, textos[i], 18);
+        texto.setPosition({50, 90.f + (i * 35)});
+        texto.setFillColor(sf::Color::Black);
+        instrucciones.push_back(texto);
+    }
+    
+    // Botón cerrar
+    sf::RectangleShape btnCerrar({100, 40});
+    btnCerrar.setPosition({200, 240});
+    btnCerrar.setFillColor(sf::Color::Red);
+    
+    sf::Text txtCerrar(fuente, "Cerrar", 20);
+    txtCerrar.setPosition({220, 250});
+    txtCerrar.setFillColor(sf::Color::White);
+    
+    while (ventanaAyuda.isOpen()) {
+        while (const std::optional event = ventanaAyuda.pollEvent()) {
+            if (event->is<sf::Event::Closed>()) {
+                ventanaAyuda.close();
+            }
+            
+            if (event->is<sf::Event::MouseButtonPressed>()) {
+                sf::Vector2i mousePos = sf::Mouse::getPosition(ventanaAyuda);
+                if (mousePos.x >= 200 && mousePos.x <= 300 &&
+                    mousePos.y >= 240 && mousePos.y <= 280) {
+                    ventanaAyuda.close();
+                }
+            }
+        }
+        
+        ventanaAyuda.clear(sf::Color::White);
+        ventanaAyuda.draw(titulo);
+        for(const auto& texto : instrucciones) {
+            ventanaAyuda.draw(texto);
+        }
+        ventanaAyuda.draw(btnCerrar);
+        ventanaAyuda.draw(txtCerrar);
+        ventanaAyuda.display();
     }
 }
 
@@ -743,6 +984,18 @@ bool ventanaJugador(bool esJugador1, std::vector<int>& valoresCartas, int& carta
     sf::RectangleShape btnConfirmar({120, 40});
     btnConfirmar.setPosition({150, 200});
     btnConfirmar.setFillColor(colorJugador);
+
+    // Agregar botón de ayuda circular
+    sf::CircleShape btnAyuda(20);
+    btnAyuda.setPosition({20, 340}); // Posición en esquina inferior izquierda
+    btnAyuda.setFillColor(sf::Color::White);
+    btnAyuda.setOutlineThickness(2);
+    btnAyuda.setOutlineColor(sf::Color::Black);
+
+    // Texto del signo de interrogación
+    sf::Text txtAyuda(fuente, "?", 20);
+    txtAyuda.setPosition({33, 348});
+    txtAyuda.setFillColor(sf::Color::Black);
     
     sf::Text txtConfirmar(fuente, "Confirmar", 18);
     txtConfirmar.setPosition({165, 210});
@@ -787,6 +1040,16 @@ bool ventanaJugador(bool esJugador1, std::vector<int>& valoresCartas, int& carta
             
             if (event->is<sf::Event::MouseButtonPressed>()) {
                 sf::Vector2i mousePos = sf::Mouse::getPosition(ventana);
+
+                // Verificar click en botón de ayuda
+                sf::Vector2f posAyuda = btnAyuda.getPosition();
+                float radio = btnAyuda.getRadius();
+                if (mousePos.x >= posAyuda.x && mousePos.x <= posAyuda.x + (radio * 2) &&
+                    mousePos.y >= posAyuda.y && mousePos.y <= posAyuda.y + (radio * 2)) {
+                    mostrarVentanaAyudaBatallaCartas();
+                    continue;
+                }
+
                 if (mousePos.x >= 150 && mousePos.x <= 270 &&
                     mousePos.y >= 200 && mousePos.y <= 240) {
                     if (!numeroSeleccionado.empty()) {
@@ -814,11 +1077,85 @@ bool ventanaJugador(bool esJugador1, std::vector<int>& valoresCartas, int& carta
         ventana.draw(btnConfirmar);
         ventana.draw(txtConfirmar);
         ventana.draw(instrucciones);
+        ventana.draw(btnAyuda);
+        ventana.draw(txtAyuda);
         ventana.display();
     }
     
     return false;
 }
+
+
+
+
+// Agregar esta función junto con las otras funciones de ventanas
+void mostrarVentanaAyuda() {
+    sf::RenderWindow ventanaAyuda(sf::VideoMode({600, 400}), "Ayuda del Juego");
+    sf::Font fuente("c:/WINDOWS/Fonts/ARIALI.TTF");
+    
+    // Título
+    sf::Text titulo(fuente, "Ayuda Como Jugar", 30);
+    titulo.setPosition({200, 30});
+    titulo.setFillColor(sf::Color::Black);
+    
+    // Instrucciones
+    std::vector<sf::Text> instrucciones;
+    
+    std::vector<std::string> textos = {
+        "Juego de 3 en raya con minijuegos",
+        "Simbolos en el tablero:",
+        "   ? Adivina el Numero",
+        "   H Juego Hex",
+        "   C Batalla de Cartas",
+        "Gana quien consiga 3 en linea O quien tenga mas fichas"
+    };
+    
+    for(size_t i = 0; i < textos.size(); i++) {
+        sf::Text texto(fuente, textos[i], 20);
+        texto.setPosition({50, 100.f + (i * 40)});
+        texto.setFillColor(sf::Color::Black);
+        instrucciones.push_back(texto);
+    }
+    
+    // Botón cerrar
+    sf::RectangleShape btnCerrar({100, 40});
+    btnCerrar.setPosition({250, 340});
+    btnCerrar.setFillColor(sf::Color::Red);
+    
+    sf::Text txtCerrar(fuente, "Cerrar", 20);
+    txtCerrar.setPosition({270, 350});
+    txtCerrar.setFillColor(sf::Color::White);
+    
+    while (ventanaAyuda.isOpen()) {
+        while (const std::optional event = ventanaAyuda.pollEvent()) {
+            if (event->is<sf::Event::Closed>()) {
+                ventanaAyuda.close();
+            }
+            
+            if (event->is<sf::Event::MouseButtonPressed>()) {
+                sf::Vector2i mousePos = sf::Mouse::getPosition(ventanaAyuda);
+                
+                // Click en botón cerrar
+                if (mousePos.x >= 250 && mousePos.x <= 350 &&
+                    mousePos.y >= 340 && mousePos.y <= 380) {
+                    ventanaAyuda.close();
+                }
+            }
+        }
+        
+        ventanaAyuda.clear(sf::Color::White);
+        ventanaAyuda.draw(titulo);
+        for(const auto& texto : instrucciones) {
+            ventanaAyuda.draw(texto);
+        }
+        ventanaAyuda.draw(btnCerrar);
+        ventanaAyuda.draw(txtCerrar);
+        ventanaAyuda.display();
+    }
+}
+
+
+
 
 void abrirBatallaCartas(int casilla, Tablero& tablero) {
     casillaMiniJuego = casilla;
@@ -833,6 +1170,8 @@ void abrirBatallaCartas(int casilla, Tablero& tablero) {
     sf::Text titulo(fuente, "Batalla de Cartas", 36);
     titulo.setPosition({150, 30});
     titulo.setFillColor(sf::Color::Black);
+    
+    
 
     // Crear vector con todos los números posibles
     std::vector<int> numerosDisponibles;
@@ -1049,7 +1388,19 @@ int main() {
     lineas[2].setPosition({50, 200});  // Horizontal superior
     lineas[3].setPosition({50, 400});  // Horizontal inferior
 
+    // Crear botón de ayuda circular
+    sf::CircleShape btnAyuda(30); // Radio de 20 pixels
+    btnAyuda.setPosition({20, 740}); // Posición en esquina inferior izquierda
+    btnAyuda.setFillColor(sf::Color::White);
+    btnAyuda.setOutlineThickness(2);
+    btnAyuda.setOutlineColor(sf::Color::Black);
+
+    // Texto del signo de interrogación
+    sf::Text txtAyuda(fuente, "?", 24);
+    txtAyuda.setPosition({40, 755}); // Ajustar posición para centrar en el círculo
+    txtAyuda.setFillColor(sf::Color::Black);
     // Crear instancia del tablero
+
     Tablero tablero;
 
     // Asignar minijuegos a los nodos
@@ -1089,6 +1440,14 @@ int main() {
                         window.close();
                     }
                 } else if (currentState == GameState::GAME) {
+                    // Verificar click en botón de ayuda primero
+                    sf::Vector2f posAyuda = btnAyuda.getPosition();
+                    float radio = btnAyuda.getRadius();
+                    if (mousePos.x >= posAyuda.x && mousePos.x <= posAyuda.x + (radio * 2) &&
+                        mousePos.y >= posAyuda.y && mousePos.y <= posAyuda.y + (radio * 2)) {
+                        mostrarVentanaAyuda();
+                        continue;
+                    }
                     // Verificar clicks en el tablero
                     int columna = mousePos.x / 200;
                     int fila = mousePos.y / 200;
@@ -1123,6 +1482,8 @@ int main() {
 
         window.clear(sf::Color::White);
 
+
+
         if (currentState == GameState::MENU) {
             // Dibujar menú
             window.draw(titulo);
@@ -1131,7 +1492,11 @@ int main() {
             window.draw(titulo1);
             window.draw(txtIniciar);
             window.draw(txtSalir);
+
+
         } else {
+            window.draw(btnAyuda);
+            window.draw(txtAyuda);
             // Dibujar tablero
             for (int i = 0; i < 4; i++) {
                 window.draw(lineas[i]);

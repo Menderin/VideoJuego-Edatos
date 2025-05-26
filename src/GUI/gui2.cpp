@@ -71,6 +71,7 @@ OpcionJuego mostrarVentanaOpciones() {
             if (event->is<sf::Event::Closed>()) {
                 ventanaOpciones.close();
                 resultado = OpcionJuego::SALIR;
+                exit(0); // Salir del programa si se cierra la ventana 
             }
             
             if (event->is<sf::Event::MouseButtonPressed>()) {
@@ -81,14 +82,14 @@ OpcionJuego mostrarVentanaOpciones() {
                     mousePos.y >= 150 && mousePos.y <= 200) {
                     resultado = OpcionJuego::VOLVER_A_JUGAR;
                     ventanaOpciones.close();
-                    std::cout << "Volver a jugar seleccionado" << std::endl;
                 }
                 // Verificar click en Salir
                 else if (mousePos.x >= 260 && mousePos.x <= 380 &&
                          mousePos.y >= 150 && mousePos.y <= 200) {
                     resultado = OpcionJuego::SALIR;
                     ventanaOpciones.close();
-                    std::cout << "Salir seleccionado" << std::endl;
+                    exit(0); // Salir del programa si se cierra la ventana
+                    
                 }
             }
             
@@ -101,6 +102,8 @@ OpcionJuego mostrarVentanaOpciones() {
                 } else if (event->getIf<sf::Event::KeyPressed>()->code == sf::Keyboard::Key::Escape) {
                     resultado = OpcionJuego::SALIR;
                     ventanaOpciones.close();
+                    
+                    
                 }
             }
         }
@@ -1532,13 +1535,29 @@ int main() {
                 OpcionJuego opcion = mostrarVentanaOpciones();
                 
                 if (opcion == OpcionJuego::VOLVER_A_JUGAR) {
-                    // Por ahora solo mostramos mensaje, después añadimos funcionalidad
-                    std::cout << "El jugador quiere volver a jugar (funcionalidad pendiente)" << std::endl;
-                    // Aquí después añadiremos el código para reiniciar
+                    tablero = Tablero(); // Crear un nuevo tablero vacío
+                    inicializarMinijuegosAleatorios(tablero); // Reiniciar minijuegos
+                    // Actualizar símbolos de minijuegos
+                    for(int i = 0; i < 9; i++) {
+                        int fila = i / 3;
+                        int columna = i % 3;
+                        TipoMiniJuego tipoMinijuego = tablero.getNodo(fila, columna).getTipoMiniJuego();
+                        std::string simbolo = obtenerSimboloMinijuego(tipoMinijuego);
+                        simbolos[i].setString(simbolo);
+                    }
+                    
+                    // Limpiar las fichas del tablero
+                    for(int i = 0; i < 9; i++) {
+                        fichasTablero[i].setString("");
+                    }
+        
+                    victoriaMostrada = false; // Resetear el estado de victoria
+
                 } else if (opcion == OpcionJuego::SALIR) {
                     // Volver al menú principal
                     currentState = GameState::MENU;
                     std::cout << "Regresando al menú principal" << std::endl;
+                    exit(0);
                 }
 
                 victoriaMostrada = true;

@@ -37,7 +37,6 @@ enum class OpcionJuego {
     NINGUNO
 };
 
-
 // Función para mostrar ventana de opciones después de la victoria
 OpcionJuego mostrarVentanaOpciones() {
     // Crear ventana de opciones
@@ -127,15 +126,29 @@ OpcionJuego mostrarVentanaOpciones() {
     return resultado;
 }
 
-// Función para mostrar la ventana del ganador
+// Función para mostrar la ventana del ganador - batlla de cartas
 void mostrarVentanaGanador(int puntosJ1, int puntosJ2) {
     sf::RenderWindow ventanaGanador(sf::VideoMode({600, 300}), "Resultado Final");
     sf::Font fuente("c:/WINDOWS/Fonts/ARIALI.TTF");
+
+    sf::Texture Fondo;
+    if (!Fondo.loadFromFile("assets/Fondos/FondoVictoria.jpg")) {
+        // Manejar el error si la imagen no se puede cargar
+        std::cerr << "Error al cargar la imagen de fondo" << std::endl;
+    }
+    // Crear un sprite para el fondo
+    sf::Sprite spriteFondo(Fondo);
+    // Ajustar el sprite al tamaño de la ventana
+    sf::Vector2f scale(
+    static_cast<float>(ventanaGanador.getSize().x) / Fondo.getSize().x,
+    static_cast<float>(ventanaGanador.getSize().y) / Fondo.getSize().y
+    );
+    spriteFondo.setScale(scale);
     
     // Título
     sf::Text titulo(fuente, "Fin del Juego", 36);
     titulo.setPosition({200, 30});
-    titulo.setFillColor(sf::Color::Black);
+    titulo.setFillColor(sf::Color::White);
     
     // Puntuaciones
     sf::Text txtPuntosJ1(fuente, "Jugador 1: " + std::to_string(puntosJ1) + " pts", 24);
@@ -170,6 +183,8 @@ void mostrarVentanaGanador(int puntosJ1, int puntosJ2) {
         }
         
         ventanaGanador.clear(sf::Color::White);
+        ventanaGanador.draw(spriteFondo);
+        ventanaGanador.draw(titulo);
         ventanaGanador.draw(titulo);
         ventanaGanador.draw(txtPuntosJ1);
         ventanaGanador.draw(txtPuntosJ2);
@@ -188,6 +203,22 @@ void mostrarVentanaVictoriaTablero(char simboloGanador) {
     
     // Cargar fuente
     sf::Font fuente("c:/WINDOWS/Fonts/ARIALI.TTF");
+
+    // Cargar la imagen de fondo
+    sf::Texture fondo;
+    if (!fondo.loadFromFile("assets/Fondos/Victoria absoluta.jpg")) {
+        std::cerr << "Error al cargar la imagen de fondo" << std::endl;
+    }
+
+    // Crear un sprite para el fondo
+    sf::Sprite spriteFondo(fondo);
+
+    // Ajustar el sprite al tamaño de la ventana
+    sf::Vector2f scale(
+        static_cast<float>(ventanaVictoria.getSize().x) / fondo.getSize().x,
+        static_cast<float>(ventanaVictoria.getSize().y) / fondo.getSize().y
+    );
+    spriteFondo.setScale(scale);
     
     // Título de victoria
     sf::Text tituloVictoria(fuente, "VICTORIA TOTAL!", 48);
@@ -239,6 +270,7 @@ void mostrarVentanaVictoriaTablero(char simboloGanador) {
         }
         
         ventanaVictoria.clear(sf::Color::White);
+        ventanaVictoria.draw(spriteFondo);
         ventanaVictoria.draw(tituloVictoria);
         ventanaVictoria.draw(textoGanador);
         ventanaVictoria.draw(textoAdicional);
@@ -254,6 +286,22 @@ void mostrarVentanaVictoriaFichas(char simboloGanador) {
     // Cargar fuente
     sf::Font fuente("c:/WINDOWS/Fonts/ARIALI.TTF");
     
+    // Cargar la imagen de fondo
+    sf::Texture fondo;
+    if (!fondo.loadFromFile("assets/Fondos/Victoria absoluta.jpg")) {
+        std::cerr << "Error al cargar la imagen de fondo" << std::endl;
+    }
+
+    // Crear un sprite para el fondo
+    sf::Sprite spriteFondo(fondo);
+
+    // Ajustar el sprite al tamaño de la ventana
+    sf::Vector2f scale(
+        static_cast<float>(ventanaVictoria.getSize().x) / fondo.getSize().x,
+        static_cast<float>(ventanaVictoria.getSize().y) / fondo.getSize().y
+    );
+    spriteFondo.setScale(scale);
+
     // Título de victoria
     sf::Text tituloVictoria(fuente, "VICTORIA TOTAL!", 48);
     tituloVictoria.setPosition({80, 50});
@@ -304,6 +352,7 @@ void mostrarVentanaVictoriaFichas(char simboloGanador) {
         }
         
         ventanaVictoria.clear(sf::Color::White);
+        ventanaVictoria.draw(spriteFondo);
         ventanaVictoria.draw(tituloVictoria);
         ventanaVictoria.draw(textoGanador);
         ventanaVictoria.draw(textoAdicional);
@@ -452,14 +501,27 @@ void mostrarVentanaAyudaHex() {
 }
 
 // Función para abrir ventana de Hex
-void abrirHex(int casilla, Tablero& tablero) {
+void abrirHex(int casilla, Tablero& tablero,sf::Music& musicaFondo) {
     casillaMiniJuego = casilla;
 
     sf::RenderWindow ventanaHex(sf::VideoMode({800, 700}), "Juego Hex");
 
+    // Detener música de fondo actual
+    musicaFondo.stop();
+    
+    // Cargar y reproducir música de Batalla de Cartas
+    sf::Music musicHex;
+    if (!musicHex.openFromFile("assets/Audios/Backgrounds/hex.ogg")) {
+        std::cerr << "Error al cargar la música de Adivinar el numero" << std::endl;
+    } else {
+        musicHex.setLooping(true);
+        musicHex.setVolume(30.0f);
+        musicHex.play();
+    }
+
     // Cargar la imagen de fondo
     sf::Texture textureFondo;
-    if (!textureFondo.loadFromFile("assets/Fondos/Fondo espacio futurista.jpg")) {
+    if (!textureFondo.loadFromFile("assets/Fondos/Fondo espacio exterior.jpg")) {
         // Manejar el error si la imagen no se puede cargar
         std::cerr << "Error al cargar la imagen de fondo" << std::endl;
     }
@@ -477,21 +539,21 @@ void abrirHex(int casilla, Tablero& tablero) {
 
     // Crear título
     sf::Text titulo(fuente, "Juego Hex", 36);
-    titulo.setPosition({350, 20});
-    titulo.setFillColor(sf::Color::Black);
+    titulo.setPosition({300, 20});
+    titulo.setFillColor(sf::Color::White);
 
     // Instrucciones
     sf::Text instrucciones(fuente, "Jugador 1 (Rojo) vs Jugador 2 (Azul)", 20);
-    instrucciones.setPosition({300, 60});
-    instrucciones.setFillColor(sf::Color::Blue);
+    instrucciones.setPosition({220, 60});
+    instrucciones.setFillColor(sf::Color::White);
 
     // Botón de cerrar
-    sf::RectangleShape btnCerrar({100, 40});
+    /*sf::RectangleShape btnCerrar({100, 40});
     btnCerrar.setPosition({350, 630});
-    btnCerrar.setFillColor(sf::Color::Red);
+    btnCerrar.setFillColor(sf::Color::Red);*/
 
-    sf::Text txtCerrar(fuente, "Cerrar", 20);
-    txtCerrar.setPosition({375, 640});
+    sf::Text txtCerrar(fuente, "Cerrar", 25);
+    txtCerrar.setPosition({360, 640});
     txtCerrar.setFillColor(sf::Color::White);
 
     
@@ -505,7 +567,7 @@ void abrirHex(int casilla, Tablero& tablero) {
     // Texto del signo de interrogación para el botón de ayuda
     sf::Text txtAyuda(fuente, "?", 20);
     txtAyuda.setPosition({33, 658});
-    txtAyuda.setFillColor(sf::Color::Black);
+    txtAyuda.setFillColor(sf::Color::White);
 
     // Crear el tablero hexagonal (11x11)
     const int TABLERO_SIZE = 11;
@@ -604,6 +666,8 @@ void abrirHex(int casilla, Tablero& tablero) {
 
                                     // Mostrar ventana de victoria
                                     mostrarVentanaVictoria(ganador, -1,tablero);
+                                    musicHex.stop();
+                                    musicaFondo.play();
                                     ventanaHex.close();
                                 }
                                 movimientoRealizado = true;
@@ -625,9 +689,9 @@ void abrirHex(int casilla, Tablero& tablero) {
                 ventanaHex.draw(tableroHex[fila][col]);
             }
         }
-        ventanaHex.draw(btnAyuda);
+        //ventanaHex.draw(btnAyuda);
         ventanaHex.draw(txtAyuda);
-        ventanaHex.draw(btnCerrar);
+        //ventanaHex.draw(btnCerrar);
         ventanaHex.draw(txtCerrar);
         ventanaHex.display();
     }
@@ -694,7 +758,7 @@ void mostrarVentanaAyudaAdivinaNumero() {
 }
 
 // Función para abrir ventana de "Adivina el número" (modificada para recibir la casilla)
-void abrirAdivinaNumero(int casilla,Tablero& tablero) {
+void abrirAdivinaNumero(int casilla,Tablero& tablero,sf::Music& musicaFondo) {
     casillaMiniJuego = casilla; // Guardar en qué casilla se jugó
 
     sf::RenderWindow ventanaAdivina(sf::VideoMode({600, 450}), "Adivina el Numero");
@@ -702,15 +766,48 @@ void abrirAdivinaNumero(int casilla,Tablero& tablero) {
     // Cargar fuente
     sf::Font fuente("c:/WINDOWS/Fonts/ARIALI.TTF");
 
+    // Detener música de fondo actual
+    musicaFondo.stop();
+    
+    // Cargar y reproducir música de Batalla de Cartas
+    sf::Music musicaAdivinarNumero;
+    if (!musicaAdivinarNumero.openFromFile("assets/Audios/Backgrounds/AdivinaNumero.ogg")) {
+        std::cerr << "Error al cargar la música de Adivinar el numero" << std::endl;
+    } else {
+        musicaAdivinarNumero.setLooping(true);
+        musicaAdivinarNumero.setVolume(25.0f);
+        musicaAdivinarNumero.play();
+    }
+
+     // Cargar la imagen de fondo
+    sf::Texture textureFondo;
+    if (!textureFondo.loadFromFile("assets/Fondos/Fondo adivina numero.png")) {
+        std::cerr << "Error al cargar la imagen de fondo" << std::endl;
+    }
+
+    // Crear un sprite para el fondo
+    sf::Sprite spriteFondo(textureFondo);
+
+    // Ajustar el sprite al tamaño de la ventana
+    sf::Vector2f scale(
+        static_cast<float>(ventanaAdivina.getSize().x) / textureFondo.getSize().x,
+        static_cast<float>(ventanaAdivina.getSize().y) / textureFondo.getSize().y
+    );
+    spriteFondo.setScale(scale);
+
     // Crear título
     sf::Text titulo(fuente, "Adivina el Numero", 36);
     titulo.setPosition({150, 30});
     titulo.setFillColor(sf::Color::Black);
 
+    sf::RectangleShape RectanguloTitulo({320, 50});
+    RectanguloTitulo.setPosition({140, 25});
+    RectanguloTitulo.setFillColor(sf::Color::White);
+    RectanguloTitulo.setFillColor(sf::Color(255, 255, 255, 128)); // 128 es el valor de transparencia (alfa)
     // Mensaje para jugador (se actualizará según el estado)
     sf::Text mensajeJugador(fuente, "Jugador 1: Elige tu numero", 24);
     mensajeJugador.setPosition({150, 90});
-    mensajeJugador.setFillColor(sf::Color::Blue);
+    mensajeJugador.setFillColor(sf::Color::White);
 
     // Campo de entrada de número
     sf::RectangleShape campoNumero({200, 40});
@@ -728,11 +825,11 @@ void abrirAdivinaNumero(int casilla,Tablero& tablero) {
     // Instrucciones
     sf::Text instrucciones(fuente, "Ingresa un numero entre 1 y 100", 18);
     instrucciones.setPosition({170, 200});
-    instrucciones.setFillColor(sf::Color::Green);
+    instrucciones.setFillColor(sf::Color::White);
 
     // Mensaje de resultado
     sf::Text mensajeResultado(fuente, "", 18);
-    mensajeResultado.setPosition({150, 240});
+    mensajeResultado.setPosition({125, 240});
     mensajeResultado.setFillColor(sf::Color::Magenta);
 
     // Botón de confirmar
@@ -824,12 +921,12 @@ void abrirAdivinaNumero(int casilla,Tablero& tablero) {
                                 // Actualizar textos para el siguiente jugador
                                 if (juegoAdivina.ambosNumerosElegidos()) {
                                     mensajeJugador.setString("Jugador 1: Adivina el numero del J2");
-                                    mensajeJugador.setFillColor(sf::Color::Blue);
+                                    mensajeJugador.setFillColor(sf::Color::White);
                                     instrucciones.setString("Intenta adivinar el numero secreto");
                                     mensajeResultado.setString("");
                                 } else {
                                     mensajeJugador.setString("Jugador 2: Elige tu numero");
-                                    mensajeJugador.setFillColor(sf::Color::Red);
+                                    mensajeJugador.setFillColor(sf::Color::White);
                                     instrucciones.setString("Ingresa un numero entre 1 y 100");
                                 }
 
@@ -845,6 +942,8 @@ void abrirAdivinaNumero(int casilla,Tablero& tablero) {
                                     tablero.verificarVictoria();
                                     // Mostrar ventana de victoria y cerrar juego
                                     mostrarVentanaVictoria(turnoActual, numero,tablero);
+                                    musicaAdivinarNumero.stop();
+                                    musicaFondo.play();
                                     ventanaAdivina.close();
                                 } else {
                                     // Dar pista y cambiar turno
@@ -859,7 +958,7 @@ void abrirAdivinaNumero(int casilla,Tablero& tablero) {
                                     // Cambiar turno manualmente
                                     turnoActual = (turnoActual == 1) ? 2 : 1;
                                     mensajeJugador.setString("Jugador " + std::to_string(turnoActual) + ": Adivina el numero del J" + std::to_string(turnoActual == 1 ? 2 : 1));
-                                    mensajeJugador.setFillColor(turnoActual == 1 ? sf::Color::Blue : sf::Color::Red);
+                                    mensajeJugador.setFillColor(turnoActual == 1 ? sf::Color::Blue : sf::Color::White);
                                 }
                                 // Limpiar campo
                                 numeroIngresado = "";
@@ -876,19 +975,20 @@ void abrirAdivinaNumero(int casilla,Tablero& tablero) {
                 }
             }
         }
-
         ventanaAdivina.clear(sf::Color::White);
+        ventanaAdivina.draw(spriteFondo); // Dibujar el fondo
+        ventanaAdivina.draw(RectanguloTitulo);
         ventanaAdivina.draw(titulo);
         ventanaAdivina.draw(mensajeJugador);
         ventanaAdivina.draw(campoNumero);
         ventanaAdivina.draw(textoNumero);
         ventanaAdivina.draw(instrucciones);
-        ventanaAdivina.draw(btnConfirmar);
+        //ventanaAdivina.draw(btnConfirmar);
         ventanaAdivina.draw(txtConfirmar);
-        ventanaAdivina.draw(btnCerrar);
+       // ventanaAdivina.draw(btnCerrar);
         ventanaAdivina.draw(txtCerrar);
         ventanaAdivina.draw(mensajeResultado);
-        ventanaAdivina.draw(btnAyuda);
+        //ventanaAdivina.draw(btnAyuda);
         ventanaAdivina.draw(txtAyuda);
         ventanaAdivina.display();
     }
@@ -1064,7 +1164,7 @@ bool ventanaJugador(bool esJugador1, std::vector<int>& valoresCartas, int& carta
     sf::Text instrucciones(fuente, "Selecciona una carta (1-" + 
                         std::to_string(valoresCartas.size()) + "):", 22);
     instrucciones.setPosition({80, 370});
-    instrucciones.setFillColor(sf::Color::Black);
+    instrucciones.setFillColor(sf::Color::White);
     
     // Textos de puntuación más grandes y mejor posicionados
     sf::Text txtPuntosJ1(fuente, "Puntos J1: " + std::to_string(puntosJ1), 24);
@@ -1235,12 +1335,23 @@ void mostrarVentanaAyuda() {
     }
 }
 
-void abrirBatallaCartas(int casilla, Tablero& tablero) {
+void abrirBatallaCartas(int casilla, Tablero& tablero,sf::Music& musicaFondo) {
     casillaMiniJuego = casilla;
-
-    
     // Cargar fuente
     sf::Font fuente("c:/WINDOWS/Fonts/ARIALI.TTF");
+
+    // Detener música de fondo actual
+    musicaFondo.stop();
+    
+    // Cargar y reproducir música de Batalla de Cartas
+    sf::Music musicaBatallaCartas;
+    if (!musicaBatallaCartas.openFromFile("assets/Audios/Backgrounds/BatallaCartas.ogg")) {
+        std::cerr << "Error al cargar la música de Batalla de Cartas" << std::endl;
+    } else {
+        musicaBatallaCartas.setLooping(true);
+        musicaBatallaCartas.setVolume(10.0f);
+        musicaBatallaCartas.play();
+    }
 
     // Crear título
     sf::Text titulo(fuente, "Batalla de Cartas", 36);
@@ -1315,7 +1426,8 @@ void abrirBatallaCartas(int casilla, Tablero& tablero) {
 
     // Mostrar resultado final
     mostrarVentanaGanador(puntosJ1, puntosJ2);
-
+    musicaBatallaCartas.stop();
+    musicaFondo.play();
     // Verificar victoria en el tablero principal
     tablero.verificarVictoria();
 }
@@ -1382,7 +1494,6 @@ std::string obtenerSimboloMinijuego(TipoMiniJuego tipo) {
 
 int main() {
 
-
     // Crear ventana
     sf::RenderWindow window(sf::VideoMode({800, 800}), "MendeWing");
 
@@ -1395,6 +1506,22 @@ int main() {
         musicaFondo.setVolume(10.0f); // Ajustar el volumen
         musicaFondo.play(); // Reproducir la música
     }
+
+    // Cargar la imagen de fondo para el tablero principal
+    sf::Texture textureFondoTablero;
+    if (!textureFondoTablero.loadFromFile("assets/Fondos/hot dog fondo tablero.png")) {
+        std::cerr << "Error al cargar la imagen de fondo del tablero" << std::endl;
+    }
+
+    // Crear un sprite para el fondo del tablero
+    sf::Sprite spriteFondoTablero(textureFondoTablero);
+
+    // Ajustar el sprite al tamaño de la ventana
+    sf::Vector2f scale(
+        static_cast<float>(window.getSize().x) / textureFondoTablero.getSize().x,
+        static_cast<float>(window.getSize().y) / textureFondoTablero.getSize().y
+    );
+    spriteFondoTablero.setScale(scale);
 
     // Estado actual del juego
     GameState currentState = GameState::MENU;
@@ -1452,7 +1579,7 @@ int main() {
     for(int i = 0; i < 9; i++) {
         simbolos[i].setFont(fuente);
         simbolos[i].setCharacterSize(50);
-        simbolos[i].setFillColor(sf::Color::Black);
+        simbolos[i].setFillColor(sf::Color::White);
 
         int x = (i % 3) * 200 + 85;
         int y = (i / 3) * 200 + 60;
@@ -1460,7 +1587,7 @@ int main() {
     }
 
     for (auto& linea : lineas) {
-        linea.setFillColor(sf::Color::Black);
+        linea.setFillColor(sf::Color::White);
     }
 
     // Configuración de líneas verticales
@@ -1555,15 +1682,15 @@ int main() {
                             if (tipoMinijuego == TipoMiniJuego::HEX) {
                                 std::cout << "H en casilla " << index << std::endl;
                                 // Iniciar juego Hex
-                                abrirHex(index, tablero);
+                                abrirHex(index, tablero,musicaFondo);
                             } else if (tipoMinijuego == TipoMiniJuego::BATALLA_CARTAS) {
                                 std::cout << "C en casilla " << index << std::endl;
                                 // Iniciar Batalla de Cartas
-                                abrirBatallaCartas(index, tablero);
+                                abrirBatallaCartas(index, tablero,musicaFondo);
                             } else if (tipoMinijuego == TipoMiniJuego::ADIVINA_NUMERO) {
                                 std::cout << "Abriendo Adivina el Numero en casilla " << index << std::endl;
                                 // Abrir ventana de Adivina el Número
-                                abrirAdivinaNumero(index, tablero);
+                                abrirAdivinaNumero(index, tablero,musicaFondo);
                             }
                         } else {
                             std::cout << "Casilla " << index << " ya ocupada" << std::endl;
@@ -1588,6 +1715,7 @@ int main() {
 
 
         } else {
+            window.draw(spriteFondoTablero); // Dibujar el fondo del tablero
             window.draw(btnAyuda);
             window.draw(txtAyuda);
             // Dibujar tablero
@@ -1659,7 +1787,3 @@ int main() {
 
     return 0;
 }
-
-
-
-

@@ -1514,9 +1514,24 @@ int main() {
     const int BOARD_SIZE = CELL_SIZE * 3; // 480 píxeles
     const int OFFSET_X = (800 - BOARD_SIZE) / 2; // (800 - 480) / 2 = 160
     const int OFFSET_Y = (800 - BOARD_SIZE) / 2; // (800 - 480) / 2 = 160
-
+    
     // Crear ventana
     sf::RenderWindow window(sf::VideoMode({800, 800}), "MendeWing");
+
+    sf::Texture textureFondoPortada;
+    if (!textureFondoPortada.loadFromFile("assets/Fondos/Portada Juego.png")) {
+        std::cerr << "Error al cargar la imagen de fondo del tablero" << std::endl;
+    }
+
+    // Crear un sprite para el fondo del tablero
+    sf::Sprite spriteFondoPortada(textureFondoPortada);
+
+    // Ajustar el sprite al tamaño de la ventana
+    sf::Vector2f scalePortada(
+        static_cast<float>(window.getSize().x) / textureFondoPortada.getSize().x,
+        static_cast<float>(window.getSize().y) / textureFondoPortada.getSize().y
+    );
+    spriteFondoPortada.setScale(scalePortada);    
 
     // Cargar música de fondo
     sf::Music musicaFondo;
@@ -1548,11 +1563,11 @@ int main() {
     GameState currentState = GameState::MENU;
 
     // Crear botones del menú
-    sf::RectangleShape titulo({300, 50});
+    sf::RectangleShape titulo({500, 60});
     sf::RectangleShape btnIniciar({200, 50});
     sf::RectangleShape btnSalir({200, 50});
 
-    titulo.setPosition({250, 100});
+    titulo.setPosition({350, 100});
     btnIniciar.setPosition({300, 400});
     btnSalir.setPosition({300, 500});
 
@@ -1563,7 +1578,7 @@ int main() {
 
     // Cargar textura para la imagen que va sobre las O
     sf::Texture texturaImagenY;
-    if (!texturaImagenY.loadFromFile("assets/Fichas/ficha paolini.jpg")) {
+    if (!texturaImagenY.loadFromFile("assets/Fichas/Paolini ficha definitiva.png")) {
         std::cerr << "Error al cargar la imagen para X" << std::endl;
         return -1;
     }
@@ -1637,11 +1652,11 @@ int main() {
     sf::Font fuente("c:/WINDOWS/Fonts/ARIALI.TTF");
     sf::Text texto(fuente, "Bienvenidos al videojuego kuliao mas bomba", 50);
 
-    sf::Text titulo1(fuente, "MendenWing", 30);
+    sf::Text titulo1(fuente, "MendenWing", 70);
     sf::Text txtIniciar(fuente, "iniciar", 30);
     sf::Text txtSalir(fuente, "salir", 30);
 
-    titulo1.setPosition({310, 110});
+    titulo1.setPosition({210, 260});
     txtIniciar.setPosition({350, 410});
     txtSalir.setPosition({370, 510});
 
@@ -1713,7 +1728,7 @@ int main() {
     // Texto del signo de interrogación
     sf::Text txtAyuda(fuente, "?", 24);
     txtAyuda.setPosition({40, 755}); // Ajustar posición para centrar en el círculo
-    txtAyuda.setFillColor(sf::Color::Black);
+    txtAyuda.setFillColor(sf::Color::White);
     
     // Crear instancia del tablero
     Tablero tablero;
@@ -1812,17 +1827,19 @@ int main() {
         window.clear(sf::Color::White);
 
         if (currentState == GameState::MENU) {
+            window.draw(spriteFondoPortada);
             // Dibujar menú
             window.draw(titulo);
-            window.draw(btnIniciar);
-            window.draw(btnSalir);
+            
+            //window.draw(btnIniciar);
+            //window.draw(btnSalir);
             window.draw(titulo1);
             window.draw(txtIniciar);
             window.draw(txtSalir);
 
         } else {
             window.draw(spriteFondoTablero); // Dibujar el fondo del tablero
-            window.draw(btnAyuda);
+            //window.draw(btnAyuda);
             window.draw(txtAyuda);
             // Dibujar tablero
             for (int i = 0; i < 4; i++) {
@@ -1840,12 +1857,12 @@ int main() {
                 EstadoNodo estado = tablero.getNodo(i / 3, i % 3).getEstado();
                 if (estado == EstadoNodo::JUGADOR1) {
                     fichasTablero[i].setString("X");
-                    window.draw(fichasTablero[i]);
+                    //window.draw(fichasTablero[i]); ya no se dibujen
                     // Dibujar imagen encima de la X
                     window.draw(spritesImagenX[i]);
                 } else if (estado == EstadoNodo::JUGADOR2) {
                     fichasTablero[i].setString("O");
-                    window.draw(fichasTablero[i]);
+                    //window.draw(fichasTablero[i]);
                     window.draw(spritesImagenY[i]);
                 }
             }

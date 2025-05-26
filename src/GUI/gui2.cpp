@@ -368,7 +368,19 @@ void mostrarVentanaVictoria(int jugadorGanador, int numeroSecreto, Tablero& tabl
 
     // Cargar fuente
     sf::Font fuente("c:/WINDOWS/Fonts/ARIALI.TTF");
-
+    sf::Texture Fondo;
+    if (!Fondo.loadFromFile("assets/Fondos/FondoVictoria.jpg")) {
+        // Manejar el error si la imagen no se puede cargar
+        std::cerr << "Error al cargar la imagen de fondo" << std::endl;
+    }
+    // Crear un sprite para el fondo
+    sf::Sprite spriteFondo(Fondo);
+    // Ajustar el sprite al tamaño de la ventana
+    sf::Vector2f scale(
+    static_cast<float>(ventanaVictoria.getSize().x) / Fondo.getSize().x,
+    static_cast<float>(ventanaVictoria.getSize().y) / Fondo.getSize().y
+    );
+    spriteFondo.setScale(scale);
     // Título de victoria
     sf::Text tituloVictoria(fuente, "VICTORIA!", 48);
     tituloVictoria.setPosition({120, 50});
@@ -422,6 +434,7 @@ void mostrarVentanaVictoria(int jugadorGanador, int numeroSecreto, Tablero& tabl
         }
 
         ventanaVictoria.clear(sf::Color::White);
+        ventanaVictoria.draw(spriteFondo);
         ventanaVictoria.draw(tituloVictoria);
         ventanaVictoria.draw(textoGanador);
         ventanaVictoria.draw(btnCerrar);

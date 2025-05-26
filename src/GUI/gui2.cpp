@@ -382,14 +382,14 @@ void mostrarVentanaVictoria(int jugadorGanador, int numeroSecreto, Tablero& tabl
     );
     spriteFondo.setScale(scale);
     // Título de victoria
-    sf::Text tituloVictoria(fuente, "VICTORIA!", 48);
-    tituloVictoria.setPosition({120, 50});
-    tituloVictoria.setFillColor(sf::Color::Green);
+    sf::Text tituloVictoria(fuente, "VICTORIA!", 40);
+    tituloVictoria.setPosition({140, 170});
+    tituloVictoria.setFillColor(sf::Color::Cyan);
 
     // Mensaje del ganador
     std::string mensajeGanador = "Jugador " + std::to_string(jugadorGanador) + " ha ganado!";
     sf::Text textoGanador(fuente, mensajeGanador, 28);
-    textoGanador.setPosition({80, 120});
+    textoGanador.setPosition({120, 10});
     textoGanador.setFillColor(jugadorGanador == 1 ? sf::Color::Blue : sf::Color::Red);
 
     // Mensaje del número secreto (solo para Adivina el Número)
@@ -933,7 +933,7 @@ void abrirAdivinaNumero(int casilla,Tablero& tablero,sf::Music& musicaFondo) {
 
                                 // Actualizar textos para el siguiente jugador
                                 if (juegoAdivina.ambosNumerosElegidos()) {
-                                    mensajeJugador.setString("Jugador 1: Adivina el numero del J2");
+                                    mensajeJugador.setString("J1 Adivina el numero del J2");
                                     mensajeJugador.setFillColor(sf::Color::White);
                                     instrucciones.setString("Intenta adivinar el numero secreto");
                                     mensajeResultado.setString("");
@@ -1563,7 +1563,7 @@ int main() {
 
     // Cargar textura para la imagen que va sobre las O
     sf::Texture texturaImagenY;
-    if (!texturaImagenY.loadFromFile("assets/Fichas/ficha paolini.jpg")) {
+    if (!texturaImagenY.loadFromFile("assets/Fichas/Paolini ficha definitiva.png")) {
         std::cerr << "Error al cargar la imagen para X" << std::endl;
         return -1;
     }
@@ -1839,12 +1839,12 @@ int main() {
             for(int i = 0; i < 9; i++) {
                 EstadoNodo estado = tablero.getNodo(i / 3, i % 3).getEstado();
                 if (estado == EstadoNodo::JUGADOR1) {
-                    fichasTablero[i].setString("X");
+                    fichasTablero[i].setString("");
                     window.draw(fichasTablero[i]);
                     // Dibujar imagen encima de la X
                     window.draw(spritesImagenX[i]);
                 } else if (estado == EstadoNodo::JUGADOR2) {
-                    fichasTablero[i].setString("O");
+                    fichasTablero[i].setString("");
                     window.draw(fichasTablero[i]);
                     window.draw(spritesImagenY[i]);
                 }
@@ -1883,7 +1883,7 @@ int main() {
                 } else if (opcion == OpcionJuego::SALIR) {
                     // Volver al menú principal
                     currentState = GameState::MENU;
-                    
+
                     std::cout << "Regresando al menú principal" << std::endl;
                     exit(0);
                 }

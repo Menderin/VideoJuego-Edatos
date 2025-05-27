@@ -1303,7 +1303,7 @@ bool ventanaJugador(bool esJugador1, std::vector<int>& valoresCartas, int& carta
     // Modificar el botón cerrar para que sea rectangular
     sf::RectangleShape btnCerrar({120, 40}); 
     btnCerrar.setPosition({250, 520}); // Movido más a la derecha (antes era 80)
-    btnCerrar.setFillColor(colorJugador);
+    btnCerrar.setFillColor(sf::Color::Transparent);
 
     // Texto para el botón cerrar
     sf::Text txtCerrar(fuente, "Cerrar", 22);

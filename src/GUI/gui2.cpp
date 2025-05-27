@@ -91,12 +91,12 @@ OpcionJuego mostrarVentanaOpciones() {
     textoPregunta.setFillColor(sf::Color::White);
 
     btnVolverJugar.setPosition({175, 250});
-    btnVolverJugar.setFillColor(sf::Color::Green);
+    btnVolverJugar.setFillColor(sf::Color::Transparent);
     txtVolverJugar.setPosition({205, 270});
     txtVolverJugar.setFillColor(sf::Color::White);
     
     btnSalir.setPosition({175, 400});
-    btnSalir.setFillColor(sf::Color::Red);
+    btnSalir.setFillColor(sf::Color::Transparent);
     txtSalir.setPosition({270, 420});
     txtSalir.setFillColor(sf::Color::White);
     
@@ -201,10 +201,19 @@ void mostrarVentanaGanador(int puntosJ1, int puntosJ2) {
     } else if (puntosJ2 > puntosJ1) {
         mensajeGanador.setString("Jugador 2 gana");
         mensajeGanador.setFillColor(sf::Color::Red);
-    } else {
-        mensajeGanador.setString("Empate");
-        mensajeGanador.setFillColor(sf::Color::Green);
+    } 
+    else{
+        ventanaGanador.close();
     }
+
+    // Agregar botón cerrar
+    sf::RectangleShape btnCerrar({120, 40});
+    btnCerrar.setPosition({240, 250}); // Posición ajustada para la ventana
+    btnCerrar.setFillColor(sf::Color::Transparent);
+
+    sf::Text txtCerrar(fuente, "Cerrar", 20);
+    txtCerrar.setPosition({270, 260}); // Centrado en el botón
+    txtCerrar.setFillColor(sf::Color::White);
 
     
     while (ventanaGanador.isOpen()) {
@@ -212,15 +221,29 @@ void mostrarVentanaGanador(int puntosJ1, int puntosJ2) {
             if (event->is<sf::Event::Closed>()) {
                 ventanaGanador.close();
             }
+
+            // Agregar detección de click en botón cerrar
+            if (event->is<sf::Event::MouseButtonPressed>()) {
+                sf::Vector2i mousePos = sf::Mouse::getPosition(ventanaGanador);
+                
+                // Verificar click en botón cerrar
+                if (mousePos.x >= 240 && mousePos.x <= 360 &&
+                    mousePos.y >= 250 && mousePos.y <= 290) {
+                    ventanaGanador.close();
+                }
+            }
         }
         
         ventanaGanador.clear(sf::Color::White);
         ventanaGanador.draw(spriteFondo);
         ventanaGanador.draw(titulo);
-        ventanaGanador.draw(titulo);
+
         ventanaGanador.draw(txtPuntosJ1);
         ventanaGanador.draw(txtPuntosJ2);
+
         ventanaGanador.draw(mensajeGanador);
+        ventanaGanador.draw(btnCerrar);    // Dibujar el botón
+        ventanaGanador.draw(txtCerrar);    // Dibujar el texto del botón
         ventanaGanador.display();
     }
 }
@@ -272,11 +295,11 @@ void mostrarVentanaVictoriaTablero(char simboloGanador) {
     // Botón para cerrar - POSICIÓN AJUSTADA A LA ESQUINA INFERIOR DERECHA
     sf::RectangleShape btnCerrar({120, 40});
     btnCerrar.setPosition({ventanaVictoria.getSize().x - 130, ventanaVictoria.getSize().y - 50}); // Posición ajustada
-    btnCerrar.setFillColor(sf::Color::Red);
+    btnCerrar.setFillColor(sf::Color::Transparent);
 
     sf::Text txtCerrar(fuente, "Cerrar", 20);
     txtCerrar.setPosition({ventanaVictoria.getSize().x - 100, ventanaVictoria.getSize().y - 40}); // Posición ajustada
-    txtCerrar.setFillColor(sf::Color::Black);
+    txtCerrar.setFillColor(sf::Color::White);
 
     // Loop de la ventana de victoria
     while (ventanaVictoria.isOpen()) {
@@ -351,7 +374,7 @@ void mostrarVentanaVictoriaFichas(char simboloGanador) {
     // Botón para cerrar
     sf::RectangleShape btnCerrar({120, 40});
     btnCerrar.setPosition({190, 220});
-    btnCerrar.setFillColor(sf::Color::Red);
+    btnCerrar.setFillColor(sf::Color::Transparent);
     
     sf::Text txtCerrar(fuente, "Cerrar", 20);
     txtCerrar.setPosition({225, 230});
@@ -433,7 +456,7 @@ void mostrarVentanaVictoria(int jugadorGanador, int numeroSecreto, Tablero& tabl
     // Botón para cerrar
     sf::RectangleShape btnCerrar({120, 40});
     btnCerrar.setPosition({190, 230});
-    btnCerrar.setFillColor(sf::Color::Red);
+    btnCerrar.setFillColor(sf::Color::Transparent);
 
     sf::Text txtCerrar(fuente, "Cerrar", 20);
     txtCerrar.setPosition({225, 240});
@@ -486,11 +509,42 @@ void mostrarVentanaAyudaHex() {
     sf::RenderWindow ventanaAyuda(sf::VideoMode({500, 300}), "Ayuda - Juego Hex");
     sf::Font fuente("c:/WINDOWS/Fonts/ARIALI.TTF");
     
+
+
+    // Cargar y configurar fondo
+    sf::Texture textureFondo;
+    if (!textureFondo.loadFromFile("assets/Fondos/mesa3.jpg")) {
+        std::cerr << "Error al cargar la imagen de fondo de ayuda Hex" << std::endl;
+    }
+
+
+    // Crear sprite para el fondo y ajustar escala
+    sf::Sprite spriteFondo(textureFondo);
+    sf::Vector2f scale(
+        static_cast<float>(ventanaAyuda.getSize().x) / textureFondo.getSize().x,
+        static_cast<float>(ventanaAyuda.getSize().y) / textureFondo.getSize().y
+    );
+    spriteFondo.setScale(scale);
+
+
+    // Título con fondo semi-transparente
+    sf::RectangleShape fondoTitulo({300, 40});
+    fondoTitulo.setPosition({100, 25});
+    fondoTitulo.setFillColor(sf::Color(0, 0, 0, 128));
+
     // Título
     sf::Text titulo(fuente, "Como Jugar Hex", 24);
     titulo.setPosition({150, 30});
-    titulo.setFillColor(sf::Color::Black);
+    titulo.setFillColor(sf::Color::Cyan);
     
+
+    // Panel semi-transparente para instrucciones
+    sf::RectangleShape panelInstrucciones({400, 180});
+    panelInstrucciones.setPosition({50, 80});
+    panelInstrucciones.setFillColor(sf::Color(0, 0, 0, 128));
+
+
+
     // Instrucciones específicas
     std::vector<std::string> textos = {
         "1. Jugador 1 (Rojo) conecta izquierda-derecha",
@@ -503,14 +557,14 @@ void mostrarVentanaAyudaHex() {
     for(size_t i = 0; i < textos.size(); i++) {
         sf::Text texto(fuente, textos[i], 18);
         texto.setPosition({50, 90.f + (i * 35)});
-        texto.setFillColor(sf::Color::Black);
+        texto.setFillColor(sf::Color::Cyan);
         instrucciones.push_back(texto);
     }
     
     // Botón cerrar
     sf::RectangleShape btnCerrar({100, 40});
     btnCerrar.setPosition({200, 240});
-    btnCerrar.setFillColor(sf::Color::Red);
+    btnCerrar.setFillColor(sf::Color::Transparent);
     
     sf::Text txtCerrar(fuente, "Cerrar", 20);
     txtCerrar.setPosition({220, 250});
@@ -532,12 +586,17 @@ void mostrarVentanaAyudaHex() {
         }
         
         ventanaAyuda.clear(sf::Color::White);
+        ventanaAyuda.draw(spriteFondo);
+        ventanaAyuda.draw(fondoTitulo);
         ventanaAyuda.draw(titulo);
+        ventanaAyuda.draw(panelInstrucciones);
+
         for(const auto& texto : instrucciones) {
             ventanaAyuda.draw(texto);
         }
-        ventanaAyuda.draw(btnCerrar);
+
         ventanaAyuda.draw(txtCerrar);
+
         ventanaAyuda.display();
     }
 }
@@ -743,10 +802,33 @@ void mostrarVentanaAyudaAdivinaNumero() {
     sf::RenderWindow ventanaAyuda(sf::VideoMode({500, 300}), "Ayuda - Adivina el Numero");
     sf::Font fuente("c:/WINDOWS/Fonts/ARIALI.TTF");
     
+    // Cargar y configurar fondo
+    sf::Texture textureFondo;
+    if (!textureFondo.loadFromFile("assets/Fondos/mesa3.jpg")) {
+        std::cerr << "Error al cargar la imagen de fondo de ayuda Adivina Numero" << std::endl;
+    }
+
+    // Crear sprite para el fondo y ajustar escala
+    sf::Sprite spriteFondo(textureFondo);
+    sf::Vector2f scale(
+        static_cast<float>(ventanaAyuda.getSize().x) / textureFondo.getSize().x,
+        static_cast<float>(ventanaAyuda.getSize().y) / textureFondo.getSize().y
+    );
+    spriteFondo.setScale(scale);
+
+    // Título con fondo semi-transparente
+    sf::RectangleShape fondoTitulo({400, 40});
+    fondoTitulo.setPosition({50, 25});
+    fondoTitulo.setFillColor(sf::Color(0, 0, 0, 128));
     // Título
     sf::Text titulo(fuente, "Como Jugar  Adivina el Numero", 24);
     titulo.setPosition({100, 30});
-    titulo.setFillColor(sf::Color::Black);
+    titulo.setFillColor(sf::Color::Cyan);
+
+    // Panel semi-transparente para instrucciones
+    sf::RectangleShape panelInstrucciones({400, 180});
+    panelInstrucciones.setPosition({50, 80});
+    panelInstrucciones.setFillColor(sf::Color(0, 0, 0, 128));
     
     // Instrucciones específicas
     std::vector<std::string> textos = {
@@ -760,14 +842,14 @@ void mostrarVentanaAyudaAdivinaNumero() {
     for(size_t i = 0; i < textos.size(); i++) {
         sf::Text texto(fuente, textos[i], 18);
         texto.setPosition({50, 90.f + (i * 35)});
-        texto.setFillColor(sf::Color::Black);
+        texto.setFillColor(sf::Color::Cyan);
         instrucciones.push_back(texto);
     }
     
     // Botón cerrar
     sf::RectangleShape btnCerrar({100, 40});
     btnCerrar.setPosition({200, 240});
-    btnCerrar.setFillColor(sf::Color::Red);
+    btnCerrar.setFillColor(sf::Color::Transparent);
     
     sf::Text txtCerrar(fuente, "Cerrar", 20);
     txtCerrar.setPosition({220, 250});
@@ -788,12 +870,15 @@ void mostrarVentanaAyudaAdivinaNumero() {
             }
         }
         
-        ventanaAyuda.clear(sf::Color::White);
+        ventanaAyuda.clear();
+        ventanaAyuda.draw(spriteFondo);
+        ventanaAyuda.draw(fondoTitulo);
         ventanaAyuda.draw(titulo);
+        ventanaAyuda.draw(panelInstrucciones);
         for(const auto& texto : instrucciones) {
             ventanaAyuda.draw(texto);
         }
-        ventanaAyuda.draw(btnCerrar);
+        
         ventanaAyuda.draw(txtCerrar);
         ventanaAyuda.display();
     }
@@ -1045,10 +1130,35 @@ void mostrarVentanaAyudaBatallaCartas() {
     sf::RenderWindow ventanaAyuda(sf::VideoMode({500, 300}), "Ayuda - Batalla de Cartas");
     sf::Font fuente("c:/WINDOWS/Fonts/ARIALI.TTF");
     
+    // Cargar y configurar fondo
+    sf::Texture textureFondo;
+    if (!textureFondo.loadFromFile("assets/Fondos/mesa3.jpg")) {
+        std::cerr << "Error al cargar la imagen de fondo de ayuda Batalla de Cartas" << std::endl;
+    }
+
+    // Crear sprite para el fondo y ajustar escala
+    sf::Sprite spriteFondo(textureFondo);
+    sf::Vector2f scale(
+        static_cast<float>(ventanaAyuda.getSize().x) / textureFondo.getSize().x,
+        static_cast<float>(ventanaAyuda.getSize().y) / textureFondo.getSize().y
+    );
+    spriteFondo.setScale(scale);
+
+    // Título con fondo semi-transparente
+    sf::RectangleShape fondoTitulo({400, 40});
+    fondoTitulo.setPosition({50, 25});
+    fondoTitulo.setFillColor(sf::Color(0, 0, 0, 128));
+
+
     // Título
     sf::Text titulo(fuente, "Como Jugar Batalla de Cartas", 24);
     titulo.setPosition({100, 30});
-    titulo.setFillColor(sf::Color::Black);
+    titulo.setFillColor(sf::Color::Cyan);
+
+    // Panel semi-transparente para instrucciones
+    sf::RectangleShape panelInstrucciones({400, 180});
+    panelInstrucciones.setPosition({50, 80});
+    panelInstrucciones.setFillColor(sf::Color(0, 0, 0, 128));
     
     // Instrucciones específicas
     std::vector<std::string> textos = {
@@ -1062,14 +1172,14 @@ void mostrarVentanaAyudaBatallaCartas() {
     for(size_t i = 0; i < textos.size(); i++) {
         sf::Text texto(fuente, textos[i], 18);
         texto.setPosition({50, 90.f + (i * 35)});
-        texto.setFillColor(sf::Color::Black);
+        texto.setFillColor(sf::Color::Cyan);
         instrucciones.push_back(texto);
     }
     
     // Botón cerrar
     sf::RectangleShape btnCerrar({100, 40});
     btnCerrar.setPosition({200, 240});
-    btnCerrar.setFillColor(sf::Color::Red);
+    btnCerrar.setFillColor(sf::Color::Transparent);
     
     sf::Text txtCerrar(fuente, "Cerrar", 20);
     txtCerrar.setPosition({220, 250});
@@ -1090,12 +1200,15 @@ void mostrarVentanaAyudaBatallaCartas() {
             }
         }
         
-        ventanaAyuda.clear(sf::Color::White);
+        ventanaAyuda.clear();
+        ventanaAyuda.draw(spriteFondo);
+        ventanaAyuda.draw(fondoTitulo);
         ventanaAyuda.draw(titulo);
+        ventanaAyuda.draw(panelInstrucciones);
         for(const auto& texto : instrucciones) {
             ventanaAyuda.draw(texto);
         }
-        ventanaAyuda.draw(btnCerrar);
+
         ventanaAyuda.draw(txtCerrar);
         ventanaAyuda.display();
     }
@@ -1187,6 +1300,17 @@ bool ventanaJugador(bool esJugador1, std::vector<int>& valoresCartas, int& carta
     campoSeleccion.setOutlineThickness(3);
     campoSeleccion.setOutlineColor(sf::Color::Black);
 
+    // Modificar el botón cerrar para que sea rectangular
+    sf::RectangleShape btnCerrar({120, 40}); 
+    btnCerrar.setPosition({250, 520}); // Movido más a la derecha (antes era 80)
+    btnCerrar.setFillColor(colorJugador);
+
+    // Texto para el botón cerrar
+    sf::Text txtCerrar(fuente, "Cerrar", 22);
+    txtCerrar.setPosition({275, 528}); // Ajustado para mantener el texto centrado en el botón
+    txtCerrar.setFillColor(sf::Color::White);
+
+
     // Botón confirmar más grande
     sf::RectangleShape btnConfirmar({150, 50});
     btnConfirmar.setPosition({200, 410});
@@ -1256,6 +1380,17 @@ bool ventanaJugador(bool esJugador1, std::vector<int>& valoresCartas, int& carta
             if (event->is<sf::Event::MouseButtonPressed>()) {
                 sf::Vector2i mousePos = sf::Mouse::getPosition(ventana);
 
+                // Verificar click en botón cerrar
+                sf::Vector2f posCerrar = btnCerrar.getPosition();
+                sf::Vector2f tamañoCerrar = btnCerrar.getSize();
+
+                // Área precisa del botón
+                if (mousePos.x >= posCerrar.x && mousePos.x <= posCerrar.x + tamañoCerrar.x &&
+                    mousePos.y >= posCerrar.y && mousePos.y <= posCerrar.y + tamañoCerrar.y) {
+                    ventana.close();
+                    return false;
+                }
+
                 // Verificar click en botón de ayuda (coordenadas actualizadas)
                 sf::Vector2f posAyuda = btnAyuda.getPosition();
                 float radio = btnAyuda.getRadius();
@@ -1314,6 +1449,8 @@ bool ventanaJugador(bool esJugador1, std::vector<int>& valoresCartas, int& carta
         ventana.draw(btnAyuda);
         ventana.draw(txtAyuda);
         ventana.draw(ayudaExtra);
+        ventana.draw(btnCerrar);
+        ventana.draw(txtCerrar);
         ventana.display();
     }
     
@@ -1325,11 +1462,39 @@ void mostrarVentanaAyuda() {
     sf::RenderWindow ventanaAyuda(sf::VideoMode({600, 400}), "Ayuda del Juego");
     sf::Font fuente("c:/WINDOWS/Fonts/ARIALI.TTF");
     
+
+    // Cargar y configurar fondo
+    sf::Texture textureFondo;
+    if (!textureFondo.loadFromFile("assets/Fondos/mesa3.jpg")) {
+        std::cerr << "Error al cargar la imagen de fondo de ayuda" << std::endl;
+    }
+
+    // Crear sprite para el fondo y ajustar escala
+    sf::Sprite spriteFondo(textureFondo);
+    sf::Vector2f scale(
+        static_cast<float>(ventanaAyuda.getSize().x) / textureFondo.getSize().x,
+        static_cast<float>(ventanaAyuda.getSize().y) / textureFondo.getSize().y
+    );
+    spriteFondo.setScale(scale);
+
     // Título
     sf::Text titulo(fuente, "Ayuda Como Jugar", 30);
     titulo.setPosition({200, 30});
-    titulo.setFillColor(sf::Color::Black);
+    titulo.setFillColor(sf::Color::Cyan);
     
+
+    // Título con fondo semi-transparente
+    sf::RectangleShape fondoTitulo({400, 40});
+    fondoTitulo.setPosition({100, 25});
+    fondoTitulo.setFillColor(sf::Color(0, 0, 0, 128));
+
+
+    // Panel semi-transparente para instrucciones
+    sf::RectangleShape panelInstrucciones({500, 250});
+    panelInstrucciones.setPosition({50, 80});
+    panelInstrucciones.setFillColor(sf::Color(0, 0, 0, 128));
+
+
     // Instrucciones
     std::vector<sf::Text> instrucciones;
     
@@ -1345,7 +1510,7 @@ void mostrarVentanaAyuda() {
     for(size_t i = 0; i < textos.size(); i++) {
         sf::Text texto(fuente, textos[i], 20);
         texto.setPosition({50, 100.f + (i * 40)});
-        texto.setFillColor(sf::Color::Black);
+        texto.setFillColor(sf::Color::Cyan);
         instrucciones.push_back(texto);
     }
     
@@ -1375,12 +1540,15 @@ void mostrarVentanaAyuda() {
             }
         }
         
-        ventanaAyuda.clear(sf::Color::White);
+        ventanaAyuda.clear();
+        ventanaAyuda.draw(spriteFondo);
+        ventanaAyuda.draw(fondoTitulo);
         ventanaAyuda.draw(titulo);
+        ventanaAyuda.draw(panelInstrucciones);
         for(const auto& texto : instrucciones) {
             ventanaAyuda.draw(texto);
         }
-        ventanaAyuda.draw(btnCerrar);
+
         ventanaAyuda.draw(txtCerrar);
         ventanaAyuda.display();
     }

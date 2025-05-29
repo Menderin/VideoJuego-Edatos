@@ -79,7 +79,7 @@ OpcionJuego mostrarVentanaOpciones() {
     spriteFondo.setScale(scale);
 
 
-    // Elementos de la ventana - Reposicionados para la nueva ventana
+    // Elementos de la ventana
     sf::Text textoPregunta(fuente, "Quieres volver a jugar?", 40);
     sf::RectangleShape btnVolverJugar({250, 80});
     sf::RectangleShape btnSalir({250, 80});
@@ -208,11 +208,11 @@ void mostrarVentanaGanador(int puntosJ1, int puntosJ2) {
 
     // Agregar botón cerrar
     sf::RectangleShape btnCerrar({120, 40});
-    btnCerrar.setPosition({240, 250}); // Posición ajustada para la ventana
+    btnCerrar.setPosition({240, 250}); 
     btnCerrar.setFillColor(sf::Color::Transparent);
 
     sf::Text txtCerrar(fuente, "Cerrar", 20);
-    txtCerrar.setPosition({270, 260}); // Centrado en el botón
+    txtCerrar.setPosition({270, 260}); 
     txtCerrar.setFillColor(sf::Color::White);
 
     
@@ -616,7 +616,7 @@ void abrirHex(int casilla, Tablero& tablero,sf::Music& musicaFondo) {
         std::cerr << "Error al cargar la música de Adivinar el numero" << std::endl;
     } else {
         musicHex.setLooping(true);
-        musicHex.setVolume(30.0f);
+        musicHex.setVolume(100.0f);
         musicHex.play();
     }
 
@@ -902,7 +902,7 @@ void abrirAdivinaNumero(int casilla,Tablero& tablero,sf::Music& musicaFondo) {
         std::cerr << "Error al cargar la música de Adivinar el numero" << std::endl;
     } else {
         musicaAdivinarNumero.setLooping(true);
-        musicaAdivinarNumero.setVolume(25.0f);
+        musicaAdivinarNumero.setVolume(100.0f);
         musicaAdivinarNumero.play();
     }
 
@@ -1125,7 +1125,7 @@ void abrirAdivinaNumero(int casilla,Tablero& tablero,sf::Music& musicaFondo) {
         ventanaAdivina.display();
     }
 }
-// Agregar esta nueva función para mostrar la ayuda específica de Batalla de Cartas
+//mostrar la ayuda específica de Batalla de Cartas
 void mostrarVentanaAyudaBatallaCartas() {
     sf::RenderWindow ventanaAyuda(sf::VideoMode({500, 300}), "Ayuda - Batalla de Cartas");
     sf::Font fuente("c:/WINDOWS/Fonts/ARIALI.TTF");
@@ -1457,7 +1457,6 @@ bool ventanaJugador(bool esJugador1, std::vector<int>& valoresCartas, int& carta
     return false;
 }
 
-// Agregar esta función junto con las otras funciones de ventanas
 void mostrarVentanaAyuda() {
     sf::RenderWindow ventanaAyuda(sf::VideoMode({600, 400}), "Ayuda del Juego");
     sf::Font fuente("c:/WINDOWS/Fonts/ARIALI.TTF");
@@ -1568,7 +1567,7 @@ void abrirBatallaCartas(int casilla, Tablero& tablero,sf::Music& musicaFondo) {
         std::cerr << "Error al cargar la música de Batalla de Cartas" << std::endl;
     } else {
         musicaBatallaCartas.setLooping(true);
-        musicaBatallaCartas.setVolume(10.0f);
+        musicaBatallaCartas.setVolume(100.0f);
         musicaBatallaCartas.play();
     }
 
@@ -1741,7 +1740,7 @@ int main() {
         std::cerr << "Error al cargar la música de fondo" << std::endl;
     } else {
         musicaFondo.setLooping(true); // Configurar la música para que se repita en bucle
-        musicaFondo.setVolume(10.0f); // Ajustar el volumen
+        musicaFondo.setVolume(100.0f); // Ajustar el volumen
         musicaFondo.play(); // Reproducir la música
     }
 
@@ -1864,18 +1863,18 @@ int main() {
 
 
 
-    // Crear las líneas del tablero (CENTRADAS)
+    // Crear las líneas del tablero 
     sf::RectangleShape lineas[4];
 
     for (auto& linea : lineas) {
         linea.setFillColor(sf::Color::White);
     }
 
-    // Configuración de líneas verticales (CENTRADAS)
+    // Configuración de líneas verticales 
     lineas[0].setSize({2, BOARD_SIZE});  // Vertical izquierda
     lineas[1].setSize({2, BOARD_SIZE});  // Vertical derecha
 
-    // Configuración de líneas horizontales (CENTRADAS)
+    // Configuración de líneas horizontales
     lineas[2].setSize({BOARD_SIZE, 2});  // Horizontal superior
     lineas[3].setSize({BOARD_SIZE, 2});  // Horizontal inferior
 
@@ -1938,7 +1937,7 @@ int main() {
     // Asignar minijuegos a los nodos
     inicializarMinijuegosAleatorios(tablero);
 
-    // AQUÍ ESTÁ LA CORRECCIÓN: Actualizar símbolos basándose en los minijuegos asignados
+    //Actualizar símbolos basándose en los minijuegos asignados
     for(int i = 0; i < 9; i++) {
         int fila = i / 3;
         int columna = i % 3;

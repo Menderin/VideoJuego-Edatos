@@ -16,7 +16,7 @@ Linea de Ejecucion
 
 #Descripcion del juego
 
-El juego consistira en un tablero de 3 en raya, con la particularidad de que cada celda del tablero es un minijuego por separado, se implementaran los siguientes minijuegos de manera aleatoria en el tablero:
+El juego consiste en un tablero de 3 en raya, con la particularidad de que cada celda del tablero es un minijuego por separado, se implementaran los siguientes minijuegos de manera aleatoria en el tablero:
 
 - Hex: Consiste en lograr conectar los extremos opuestos de cada jugador en un tablero de 11x11, es un juego por turnos.
 

@@ -20,6 +20,7 @@ using namespace std;
 
 enum class GameState {
     MENU,
+    NUEVA_VENTANA,
     GAME, //para que no de errores
 };
 
@@ -1652,6 +1653,121 @@ void abrirBatallaCartas(int casilla, Tablero& tablero,sf::Music& musicaFondo) {
     tablero.verificarVictoria();
 }
 
+// Agregar esta función antes del main
+void ventanaIntermediaria(sf::RenderWindow& ventanaPrincipal, GameState& currentState, sf::Music& musicaFondo) {
+    // Crear ventana del mismo tamaño que la principal
+    sf::RenderWindow ventanaIntermedia(sf::VideoMode({800, 800}), "Seleccion de Jugadores");
+    
+    // Cargar fuente
+    sf::Font fuente("c:/WINDOWS/Fonts/ARIALI.TTF");
+
+    // Cargar fondo
+    sf::Texture textureFondo;
+    if (!textureFondo.loadFromFile("assets/Fondos/mesa3.jpg")) {
+        std::cerr << "Error al cargar el fondo" << std::endl;
+        return;
+    }
+    
+    // Configurar fondo para que cubra toda la ventana
+    sf::Sprite spriteFondo(textureFondo);
+    sf::Vector2f scale(
+        static_cast<float>(ventanaIntermedia.getSize().x) / textureFondo.getSize().x,
+        static_cast<float>(ventanaIntermedia.getSize().y) / textureFondo.getSize().y
+    );
+    spriteFondo.setScale(scale);
+
+    sf::RectangleShape fondoTitulo({600, 80});
+    fondoTitulo.setPosition({100, 100});
+    fondoTitulo.setFillColor(sf::Color(0, 0, 0, 128));
+
+    // Título
+    sf::Text titulo(fuente, "Modo de Juego", 50);
+    titulo.setPosition({270, 115});
+    titulo.setFillColor(sf::Color::White);
+
+    // Botón Jugador vs Jugador
+    sf::RectangleShape btnPvP({400, 80});
+    btnPvP.setPosition({200, 250});
+    btnPvP.setFillColor(sf::Color(0, 0, 0, 128));
+
+    sf::Text txtPvP(fuente, "Jugador vs Jugador", 35);
+    txtPvP.setPosition({270, 270});
+    txtPvP.setFillColor(sf::Color::White);
+
+    // Botón Jugador vs IA
+    sf::RectangleShape btnPvE({400, 80});
+    btnPvE.setPosition({200, 400});
+    btnPvE.setFillColor(sf::Color(0, 0, 0, 128));
+
+    sf::Text txtPvE(fuente, "Jugador vs IA", 35);
+    txtPvE.setPosition({300, 420});
+    txtPvE.setFillColor(sf::Color::White);
+
+    // Botón continuar
+    sf::RectangleShape btnContinuar({300, 80});
+    btnContinuar.setPosition({250, 650});
+    btnContinuar.setFillColor(sf::Color::Transparent);
+
+    sf::Text txtContinuar(fuente, "Continuar", 40);
+    txtContinuar.setPosition({320, 665});
+    txtContinuar.setFillColor(sf::Color::White);
+
+    bool modoJuegoSeleccionado = false;
+    bool modoPvP = false;
+
+    while (ventanaIntermedia.isOpen()) {
+        while (const std::optional event = ventanaIntermedia.pollEvent()) {
+            if (event->is<sf::Event::Closed>()) {
+                ventanaIntermedia.close();
+                currentState = GameState::MENU;
+            }
+
+            if (event->is<sf::Event::MouseButtonPressed>()) {
+                sf::Vector2i mousePos = sf::Mouse::getPosition(ventanaIntermedia);
+                
+                // Click en botón PvP
+                if (mousePos.x >= 200 && mousePos.x <= 600 &&
+                    mousePos.y >= 250 && mousePos.y <= 330) {
+                    modoJuegoSeleccionado = true;
+                    modoPvP = true;
+                    btnPvP.setFillColor(sf::Color(0, 128, 0, 128)); // Verde para seleccionado
+                    btnPvE.setFillColor(sf::Color(0, 0, 0, 128));
+                }
+                
+                // Click en botón PvE
+                if (mousePos.x >= 200 && mousePos.x <= 600 &&
+                    mousePos.y >= 400 && mousePos.y <= 480) {
+                    modoJuegoSeleccionado = true;
+                    modoPvP = false;
+                    btnPvE.setFillColor(sf::Color(0, 128, 0, 128)); // Verde para seleccionado
+                    btnPvP.setFillColor(sf::Color(0, 0, 0, 128));
+                }
+
+                // Click en botón continuar
+                if (mousePos.x >= 250 && mousePos.x <= 550 &&
+                    mousePos.y >= 650 && mousePos.y <= 730) {
+                    if (modoJuegoSeleccionado && modoPvP) {
+                        ventanaIntermedia.close();
+                        currentState = GameState::GAME;
+                    }
+                    // El modo PvE no hace nada por ahora
+                }
+            }
+        }
+
+        ventanaIntermedia.clear();
+        ventanaIntermedia.draw(spriteFondo);
+        ventanaIntermedia.draw(fondoTitulo);
+        ventanaIntermedia.draw(titulo);
+        ventanaIntermedia.draw(btnPvP);
+        ventanaIntermedia.draw(txtPvP);
+        ventanaIntermedia.draw(btnPvE);
+        ventanaIntermedia.draw(txtPvE);
+        ventanaIntermedia.draw(txtContinuar);
+        ventanaIntermedia.display();
+    }
+}
+
 void inicializarMinijuegosAleatorios(Tablero& tablero) {
     random_device rd;
     mt19937 gen(rd());
@@ -1968,6 +2084,7 @@ int main() {
                         mousePos.y >= 400 && mousePos.y <= 450) {
                         currentState = GameState::GAME;
                         std::cout << "iniciando" << std::endl;
+                        ventanaIntermediaria(window, currentState, musicaFondo);
                     }
                     // Verificar click en botón Salir
                     else if (mousePos.x >= 300 && mousePos.x <= 500 &&

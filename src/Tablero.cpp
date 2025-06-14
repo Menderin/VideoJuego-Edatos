@@ -61,7 +61,7 @@ bool Tablero::jugarNodo(int fila, int columna) {
 
 void Tablero::verificarVictoria() {
     // Verificar condiciones de victoria por líneas
-    if (verificarFilas() || verificarColumnas() || verificarDiagonales()) {
+    if ((verificarFilas() || verificarColumnas()) || verificarDiagonales()) {
         return; // Ya se estableció el ganador
     }
     
@@ -106,23 +106,23 @@ bool Tablero::verificarColumnas() {
 
 bool Tablero::verificarDiagonales() {
     // Diagonal principal (0,0) -> (1,1) -> (2,2)
-    if (!matrizNodos[0][0].estaVacio() && 
-        matrizNodos[0][0].getEstado() == matrizNodos[1][1].getEstado() && 
-        matrizNodos[1][1].getEstado() == matrizNodos[2][2].getEstado()) {
-        
-        estadoJuego = (matrizNodos[0][0].getEstado() == EstadoNodo::JUGADOR1) ? 
-                      EstadoJuego::GANADOR_J1 : EstadoJuego::GANADOR_J2;
-        return true;
+    if (!matrizNodos[0][0].estaVacio() && !matrizNodos[1][1].estaVacio() && !matrizNodos[2][2].estaVacio()) {
+        if (matrizNodos[0][0].getEstado() == matrizNodos[1][1].getEstado() &&
+            matrizNodos[1][1].getEstado() == matrizNodos[2][2].getEstado()) {
+            estadoJuego = (matrizNodos[1][1].getEstado() == EstadoNodo::JUGADOR1) ? 
+                          EstadoJuego::GANADOR_J1 : EstadoJuego::GANADOR_J2;
+            return true;
+        }
     }
     
     // Diagonal secundaria (0,2) -> (1,1) -> (2,0)
-    if (!matrizNodos[0][2].estaVacio() && 
-        matrizNodos[0][2].getEstado() == matrizNodos[1][1].getEstado() && 
-        matrizNodos[1][1].getEstado() == matrizNodos[2][0].getEstado()) {
-        
-        estadoJuego = (matrizNodos[0][2].getEstado() == EstadoNodo::JUGADOR1) ? 
-                      EstadoJuego::GANADOR_J1 : EstadoJuego::GANADOR_J2;
-        return true;
+    if (!matrizNodos[0][2].estaVacio() && !matrizNodos[1][1].estaVacio() && !matrizNodos[2][0].estaVacio()) {
+        if (matrizNodos[0][2].getEstado() == matrizNodos[1][1].getEstado() &&
+            matrizNodos[1][1].getEstado() == matrizNodos[2][0].getEstado()) {
+            estadoJuego = (matrizNodos[1][1].getEstado() == EstadoNodo::JUGADOR1) ? 
+                          EstadoJuego::GANADOR_J1 : EstadoJuego::GANADOR_J2;
+            return true;
+        }
     }
     
     return false;

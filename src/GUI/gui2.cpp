@@ -796,6 +796,7 @@ void abrirHex(int casilla, Tablero& tablero,sf::Music& musicaFondo) {
         ventanaHex.draw(txtCerrar);
         ventanaHex.display();
     }
+    musicaFondo.play();
 }
 // Nueva función para mostrar ayuda específica del juego Adivina el Número
 void mostrarVentanaAyudaAdivinaNumero() {
@@ -1124,6 +1125,7 @@ void abrirAdivinaNumero(int casilla,Tablero& tablero,sf::Music& musicaFondo) {
         ventanaAdivina.draw(txtAyuda);
         ventanaAdivina.display();
     }
+    musicaFondo.play();
 }
 //mostrar la ayuda específica de Batalla de Cartas
 void mostrarVentanaAyudaBatallaCartas() {

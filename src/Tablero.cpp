@@ -1,5 +1,6 @@
 #include "Tablero.h"
 #include <iostream>
+#include <vector>
 
 // Constructor
 Tablero::Tablero() : turnoActual(1), estadoJuego(EstadoJuego::EN_CURSO), fichasJ1(0), fichasJ2(0) {
@@ -105,21 +106,31 @@ bool Tablero::verificarColumnas() {
 }
 
 bool Tablero::verificarDiagonales() {
-    // Diagonal principal (0,0) -> (1,1) -> (2,2)
-    if (!matrizNodos[0][0].estaVacio() && !matrizNodos[1][1].estaVacio() && !matrizNodos[2][2].estaVacio()) {
-        if (matrizNodos[0][0].getEstado() == matrizNodos[1][1].getEstado() &&
-            matrizNodos[1][1].getEstado() == matrizNodos[2][2].getEstado()) {
-            estadoJuego = (matrizNodos[1][1].getEstado() == EstadoNodo::JUGADOR1) ? 
+    // Primera diagonal (0,0), (1,1), (2,2)
+    bool diagonalPrincipalLlena = !matrizNodos[0][0].estaVacio() && 
+                                 !matrizNodos[1][1].estaVacio() && 
+                                 !matrizNodos[2][2].estaVacio();
+    
+    if (diagonalPrincipalLlena) {
+        EstadoNodo estadoCentro = matrizNodos[1][1].getEstado();
+        if (matrizNodos[0][0].getEstado() == estadoCentro && 
+            matrizNodos[2][2].getEstado() == estadoCentro) {
+            estadoJuego = (estadoCentro == EstadoNodo::JUGADOR1) ? 
                           EstadoJuego::GANADOR_J1 : EstadoJuego::GANADOR_J2;
             return true;
         }
     }
     
-    // Diagonal secundaria (0,2) -> (1,1) -> (2,0)
-    if (!matrizNodos[0][2].estaVacio() && !matrizNodos[1][1].estaVacio() && !matrizNodos[2][0].estaVacio()) {
-        if (matrizNodos[0][2].getEstado() == matrizNodos[1][1].getEstado() &&
-            matrizNodos[1][1].getEstado() == matrizNodos[2][0].getEstado()) {
-            estadoJuego = (matrizNodos[1][1].getEstado() == EstadoNodo::JUGADOR1) ? 
+    // Segunda diagonal (0,2), (1,1), (2,0)
+    bool diagonalSecundariaLlena = !matrizNodos[0][2].estaVacio() && 
+                                  !matrizNodos[1][1].estaVacio() && 
+                                  !matrizNodos[2][0].estaVacio();
+    
+    if (diagonalSecundariaLlena) {
+        EstadoNodo estadoCentro = matrizNodos[1][1].getEstado();
+        if (matrizNodos[0][2].getEstado() == estadoCentro && 
+            matrizNodos[2][0].getEstado() == estadoCentro) {
+            estadoJuego = (estadoCentro == EstadoNodo::JUGADOR1) ? 
                           EstadoJuego::GANADOR_J1 : EstadoJuego::GANADOR_J2;
             return true;
         }
@@ -127,6 +138,8 @@ bool Tablero::verificarDiagonales() {
     
     return false;
 }
+
+
 
 bool Tablero::tableroLleno() {
     for (int i = 0; i < 3; i++) {

@@ -15,6 +15,7 @@
 #include "Nodo.h"
 #include "Minijuegos/Minijuego.h"
 #include "Tablero.h"
+#include "IA/IaHex.h"
 
 using namespace std;
 
@@ -1652,6 +1653,7 @@ void abrirBatallaCartas(int casilla, Tablero& tablero,sf::Music& musicaFondo) {
     // Verificar victoria en el tablero principal
     tablero.verificarVictoria();
 }
+
 void inicializarMinijuegosAleatorios(Tablero& tablero) {
     random_device rd;
     mt19937 gen(rd());
@@ -1711,6 +1713,243 @@ std::string obtenerSimboloMinijuego(TipoMiniJuego tipo) {
     }
 }
 
+
+// Nueva función para jugar Hex vs IA
+void abrirHexVsIA(int casilla, Tablero& tablero, sf::Music& musicaFondo) {
+    casillaMiniJuego = casilla;
+
+    sf::RenderWindow ventanaHex(sf::VideoMode({800, 700}), "Juego Hex vs IA");
+
+    // Detener música de fondo actual
+    musicaFondo.stop();
+    
+    // Cargar y reproducir música de Hex
+    sf::Music musicHex;
+    if (!musicHex.openFromFile("assets/Audios/Backgrounds/hex.ogg")) {
+        std::cerr << "Error al cargar la música de Hex" << std::endl;
+    } else {
+        musicHex.setLooping(true);
+        //musicHex.setVolume(100.0f);
+       // musicHex.play();
+    }
+
+    // Cargar la imagen de fondo
+    sf::Texture textureFondo;
+    if (!textureFondo.loadFromFile("assets/Fondos/Fondo espacio exterior.jpg")) {
+        std::cerr << "Error al cargar la imagen de fondo" << std::endl;
+    }
+    sf::Sprite spriteFondo(textureFondo);
+    sf::Vector2f scale(
+        static_cast<float>(ventanaHex.getSize().x) / textureFondo.getSize().x,
+        static_cast<float>(ventanaHex.getSize().y) / textureFondo.getSize().y
+    );
+    spriteFondo.setScale(scale);
+
+    // Cargar fuente
+    sf::Font fuente("c:/WINDOWS/Fonts/ARIALI.TTF");
+
+    // Crear título
+    sf::Text titulo(fuente, "Hex vs IA", 36);
+    titulo.setPosition({300, 20});
+    titulo.setFillColor(sf::Color::White);
+
+    // Instrucciones
+    sf::Text instrucciones(fuente, "Jugador (Rojo) vs IA (Azul)", 20);
+    instrucciones.setPosition({250, 60});
+    instrucciones.setFillColor(sf::Color::White);
+
+    // Botón de cerrar
+    sf::Text txtCerrar(fuente, "Cerrar", 25);
+    txtCerrar.setPosition({360, 640});
+    txtCerrar.setFillColor(sf::Color::White);
+
+    // Agregar botón de ayuda circular
+    sf::CircleShape btnAyuda(20);
+    btnAyuda.setPosition({20, 650});
+    btnAyuda.setFillColor(sf::Color::White);
+    btnAyuda.setOutlineThickness(2);
+    btnAyuda.setOutlineColor(sf::Color::Black);
+
+    // Texto del signo de interrogación para el botón de ayuda
+    sf::Text txtAyuda(fuente, "?", 20);
+    txtAyuda.setPosition({33, 658});
+    txtAyuda.setFillColor(sf::Color::White);
+
+    // Crear el tablero hexagonal (11x11)
+    const int TABLERO_SIZE = 11;
+    const float HEX_RADIO = 25.0f;
+    const float HEX_SPACING = 40.0f;
+
+    std::vector<std::vector<sf::CircleShape>> tableroHex(TABLERO_SIZE, std::vector<sf::CircleShape>(TABLERO_SIZE));
+
+    // Crear los hexágonos del tablero
+    for(int fila = 0; fila < TABLERO_SIZE; fila++) {
+        for(int col = 0; col < TABLERO_SIZE; col++) {
+            float x = 100 + col * HEX_SPACING + (fila * HEX_SPACING * 0.5f);
+            float y = 200 + fila * (HEX_SPACING * 0.866f);
+
+            sf::CircleShape hex = crearHexagono(HEX_RADIO, {x, y});
+            hex.setFillColor(sf::Color(255, 255, 255, 128));
+            tableroHex[fila][col] = hex;
+        }
+    }
+
+    // Colorear bordes
+    for(int i = 0; i < TABLERO_SIZE; i++) {
+        // Bordes superior e inferior (azul - IA)
+        tableroHex[0][i].setOutlineColor(sf::Color::Blue);
+        tableroHex[0][i].setOutlineThickness(4);
+        tableroHex[TABLERO_SIZE-1][i].setOutlineColor(sf::Color::Blue);
+        tableroHex[TABLERO_SIZE-1][i].setOutlineThickness(4);
+
+        // Bordes izquierdo y derecho (rojo - Jugador)
+        tableroHex[i][0].setOutlineColor(sf::Color::Red);
+        tableroHex[i][0].setOutlineThickness(4);
+        tableroHex[i][TABLERO_SIZE-1].setOutlineColor(sf::Color::Red);
+        tableroHex[i][TABLERO_SIZE-1].setOutlineThickness(4);
+    }
+
+    // Crear instancias del juego Hex y la IA
+    Hex juegoHex;
+    IAHex ia(20, 100); // Profundidad 4, dificultad 2
+
+    // Texto para mostrar el turno actual
+    sf::Text txtTurno(fuente, "Tu turno", 24);
+    txtTurno.setPosition({350, 90});
+    txtTurno.setFillColor(sf::Color::Yellow);
+
+    bool turnoJugador = true; // El jugador humano siempre empieza
+
+    // Loop de la ventana
+    while (ventanaHex.isOpen()) {
+        while (const std::optional event = ventanaHex.pollEvent()) {
+            if (event->is<sf::Event::Closed>()) {
+                ventanaHex.close();
+            }
+
+            if (event->is<sf::Event::MouseButtonPressed>() && turnoJugador) {
+                sf::Vector2i mousePos = sf::Mouse::getPosition(ventanaHex);
+
+                // Verificar click en botón de ayuda
+                sf::Vector2f posAyuda = btnAyuda.getPosition();
+                float radio = btnAyuda.getRadius();
+                if (mousePos.x >= posAyuda.x && mousePos.x <= posAyuda.x + (radio * 2) &&
+                    mousePos.y >= posAyuda.y && mousePos.y <= posAyuda.y + (radio * 2)) {
+                    mostrarVentanaAyudaHex();
+                    continue;
+                }
+
+                // Verificar click en botón cerrar
+                if (mousePos.x >= 350 && mousePos.x <= 450 &&
+                    mousePos.y >= 630 && mousePos.y <= 670) {
+                    ventanaHex.close();
+                }
+
+                // Detectar clicks en hexágonos del tablero
+                bool movimientoRealizado = false;
+                for(int fila = 0; fila < TABLERO_SIZE && !movimientoRealizado; fila++) {
+                    for(int col = 0; col < TABLERO_SIZE && !movimientoRealizado; col++) {
+                        sf::Vector2f hexCenter = tableroHex[fila][col].getPosition() + sf::Vector2f(HEX_RADIO, HEX_RADIO);
+                        float distance = std::sqrt(std::pow(mousePos.x - hexCenter.x, 2) + std::pow(mousePos.y - hexCenter.y, 2));
+
+                        if (distance <= HEX_RADIO) {
+                            // Intento de movimiento del jugador
+                            if (juegoHex.hacerMovimiento(fila, col)) {
+                                // Actualizar el tablero gráficamente
+                                tableroHex[fila][col].setFillColor(sf::Color::Red);
+
+                                // Verificar si el jugador ha ganado
+                                if (juegoHex.estaTerminado()) {
+                                    std::cout << "¡Jugador ha ganado!" << std::endl;
+                                    
+                                    // Marcar en el tablero principal
+                                    if (casillaMiniJuego >= 0 && casillaMiniJuego < 9) {
+                                        tablero.getNodo(casillaMiniJuego / 3, casillaMiniJuego % 3).setEstado(EstadoNodo::JUGADOR1);
+                                        std::cout << "Marcando X en casilla " << casillaMiniJuego << std::endl;
+                                    }
+
+                                    tablero.verificarVictoria();
+                                    mostrarVentanaVictoria(1, -1, tablero);
+                                    musicHex.stop();
+                                    musicaFondo.play();
+                                    ventanaHex.close();
+                                    return;
+                                }
+
+                                // Cambiar turno a la IA
+                                turnoJugador = false;
+                                txtTurno.setString("Turno de la IA");
+                                movimientoRealizado = true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Turno de la IA
+        if (!turnoJugador && !juegoHex.estaTerminado()) {
+            // Pequeña pausa para que se vea el movimiento
+            sf::sleep(sf::milliseconds(500));
+            
+            // Calcular movimiento de la IA
+            Posicion movimientoIA = ia.calcularMejorMovimiento(juegoHex);
+            
+            if (movimientoIA.fila != -1 && movimientoIA.columna != -1) {
+                // Hacer el movimiento de la IA
+                if (juegoHex.hacerMovimiento(movimientoIA.fila, movimientoIA.columna)) {
+                    // Actualizar el tablero gráficamente
+                    tableroHex[movimientoIA.fila][movimientoIA.columna].setFillColor(sf::Color::Blue);
+                    
+                    std::cout << "IA juega en posición: " << movimientoIA.fila << ", " << movimientoIA.columna << std::endl;
+
+                    // Verificar si la IA ha ganado
+                    if (juegoHex.estaTerminado()) {
+                        std::cout << "¡IA ha ganado!" << std::endl;
+                        
+                        // Marcar en el tablero principal
+                        if (casillaMiniJuego >= 0 && casillaMiniJuego < 9) {
+                            tablero.getNodo(casillaMiniJuego / 3, casillaMiniJuego % 3).setEstado(EstadoNodo::JUGADOR2);
+                            std::cout << "Marcando O en casilla " << casillaMiniJuego << std::endl;
+                        }
+
+                        tablero.verificarVictoria();
+                        mostrarVentanaVictoria(2, -1, tablero);
+                        musicHex.stop();
+                        musicaFondo.play();
+                        ventanaHex.close();
+                        return;
+                    }
+
+                    // Cambiar turno al jugador
+                    turnoJugador = true;
+                    txtTurno.setString("Tu turno");
+                }
+            }
+        }
+
+        // Dibujar todo
+        ventanaHex.clear(sf::Color::White);
+        ventanaHex.draw(spriteFondo);
+        ventanaHex.draw(titulo);
+        ventanaHex.draw(instrucciones);
+        ventanaHex.draw(txtTurno);
+
+        // Dibujar todos los hexágonos del tablero
+        for(int fila = 0; fila < TABLERO_SIZE; fila++) {
+            for(int col = 0; col < TABLERO_SIZE; col++) {
+                ventanaHex.draw(tableroHex[fila][col]);
+            }
+        }
+
+        ventanaHex.draw(txtAyuda);
+        ventanaHex.draw(txtCerrar);
+        ventanaHex.display();
+    }
+    
+    musicaFondo.play();
+}
+
 int main() {
     // CENTRADO DEL TABLERO - Calcular offset para centrar
     const int CELL_SIZE = 160; // Tamaño de cada celda
@@ -1764,6 +2003,10 @@ int main() {
 
     // Estado actual del juego
     GameState currentState = GameState::MENU;
+    
+    // Variable para el modo de juego
+    enum ModoJuego { JUGADOR_VS_JUGADOR, JUGADOR_VS_IA };
+    ModoJuego modoActual = JUGADOR_VS_JUGADOR;
 
     // Crear botones del menú
     sf::RectangleShape titulo({500, 60});
@@ -1968,16 +2211,18 @@ int main() {
                 
 
                 if (currentState == GameState::MENU) {
-                    // Verificar click en botón Iniciar
+                    // Verificar click en botón Jugador vs Jugador
                     if (mousePos.x >= 250 && mousePos.x <= 550 &&
                         mousePos.y >= 350 && mousePos.y <= 400) {
                         currentState = GameState::GAME;
+                        modoActual = JUGADOR_VS_JUGADOR;
                         std::cout << "Iniciando modo Jugador vs Jugador" << std::endl;
                     }
                     // Verificar click en botón Jugador vs IA
                     else if (mousePos.x >= 250 && mousePos.x <= 550 &&
                             mousePos.y >= 425 && mousePos.y <= 475) {
-                        // Aquí irá la lógica para el modo JvIA cuando lo implementes
+                        currentState = GameState::GAME;
+                        modoActual = JUGADOR_VS_IA;
                         std::cout << "Iniciando modo Jugador vs IA" << std::endl;
                     }
                     // Verificar click en botón Salir
@@ -2013,21 +2258,50 @@ int main() {
 
                             // Solo permitir jugar en casillas que no tengan ficha
                             if (tablero.getNodo(fila, columna).estaVacio()) {
-                                // CAMBIO: Obtener el tipo de minijuego directamente del tablero
+                                // Obtener el tipo de minijuego directamente del tablero
                                 TipoMiniJuego tipoMinijuego = tablero.getNodo(fila, columna).getTipoMiniJuego();
                                 
-                                if (tipoMinijuego == TipoMiniJuego::HEX) {
-                                    std::cout << "H en casilla " << index << std::endl;
-                                    // Iniciar juego Hex
-                                    abrirHex(index, tablero, musicaFondo);
-                                } else if (tipoMinijuego == TipoMiniJuego::BATALLA_CARTAS) {
-                                    std::cout << "C en casilla " << index << std::endl;
-                                    // Iniciar Batalla de Cartas
-                                    abrirBatallaCartas(index, tablero, musicaFondo);
-                                } else if (tipoMinijuego == TipoMiniJuego::ADIVINA_NUMERO) {
-                                    std::cout << "Abriendo Adivina el Numero en casilla " << index << std::endl;
-                                    // Abrir ventana de Adivina el Número
-                                    abrirAdivinaNumero(index, tablero, musicaFondo);
+                                // Switch para determinar el modo de juego
+                                switch (modoActual) {
+                                    case JUGADOR_VS_JUGADOR:
+                                        // Modo original Jugador vs Jugador
+                                        if (tipoMinijuego == TipoMiniJuego::HEX) {
+                                            std::cout << "H en casilla " << index << " (JvJ)" << std::endl;
+                                            // Iniciar juego Hex modo JvJ
+                                            abrirHex(index, tablero, musicaFondo);
+
+                                        } else if (tipoMinijuego == TipoMiniJuego::BATALLA_CARTAS) {
+                                            std::cout << "C en casilla " << index << " (JvJ)" << std::endl;
+                                            // Iniciar Batalla de Cartas modo JvJ
+                                            abrirBatallaCartas(index, tablero, musicaFondo);
+                                        } else if (tipoMinijuego == TipoMiniJuego::ADIVINA_NUMERO) {
+                                            std::cout << "Abriendo Adivina el Numero en casilla " << index << " (JvJ)" << std::endl;
+                                            // Abrir ventana de Adivina el Número modo JvJ
+                                            abrirAdivinaNumero(index, tablero, musicaFondo);
+                                        }
+                                        break;
+
+                                    case JUGADOR_VS_IA:
+                                        // Modo Jugador vs IA
+                                        if (tipoMinijuego == TipoMiniJuego::HEX) {
+                                            std::cout << "H en casilla " << index << " (JvIA)" << std::endl;
+                                            // Iniciar juego Hex vs IA
+                                            abrirHexVsIA(index, tablero, musicaFondo);
+
+                                        } else if (tipoMinijuego == TipoMiniJuego::BATALLA_CARTAS) {
+                                            std::cout << "C en casilla " << index << " (JvIA)" << std::endl;
+                                            // Iniciar Batalla de Cartas vs IA
+                                            // abrirBatallaCartasVsIA(index, tablero, musicaFondo);
+                                            // Por ahora usar la versión JvJ
+                                            abrirBatallaCartas(index, tablero, musicaFondo);
+                                        } else if (tipoMinijuego == TipoMiniJuego::ADIVINA_NUMERO) {
+                                            std::cout << "Abriendo Adivina el Numero en casilla " << index << " (JvIA)" << std::endl;
+                                            // Abrir ventana de Adivina el Número vs IA
+                                            // abrirAdivinaNumeroVsIA(index, tablero, musicaFondo);
+                                            // Por ahora usar la versión JvJ
+                                            abrirAdivinaNumero(index, tablero, musicaFondo);
+                                        }
+                                        break;
                                 }
                             } else {
                                 std::cout << "Casilla " << index << " ya ocupada" << std::endl;
@@ -2127,4 +2401,3 @@ int main() {
     return 0;
 
 }
-

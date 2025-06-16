@@ -1729,11 +1729,11 @@ void abrirHexVsIA(int casilla, Tablero& tablero, sf::Music& musicaFondo) {
         std::cerr << "Error al cargar la música de Hex" << std::endl;
     } else {
         musicHex.setLooping(true);
-        //musicHex.setVolume(100.0f);
-       // musicHex.play();
+        musicHex.setVolume(100.0f);
+        musicHex.play();
     }
 
-    // Cargar la imagen de fondo
+    // Configurar fondo
     sf::Texture textureFondo;
     if (!textureFondo.loadFromFile("assets/Fondos/Fondo espacio exterior.jpg")) {
         std::cerr << "Error al cargar la imagen de fondo" << std::endl;
@@ -1745,44 +1745,44 @@ void abrirHexVsIA(int casilla, Tablero& tablero, sf::Music& musicaFondo) {
     );
     spriteFondo.setScale(scale);
 
-    // Cargar fuente
+    // Configurar elementos UI
     sf::Font fuente("c:/WINDOWS/Fonts/ARIALI.TTF");
-
-    // Crear título
+    
     sf::Text titulo(fuente, "Hex vs IA", 36);
     titulo.setPosition({300, 20});
     titulo.setFillColor(sf::Color::White);
 
-    // Instrucciones
     sf::Text instrucciones(fuente, "Jugador (Rojo) vs IA (Azul)", 20);
     instrucciones.setPosition({250, 60});
     instrucciones.setFillColor(sf::Color::White);
 
-    // Botón de cerrar
     sf::Text txtCerrar(fuente, "Cerrar", 25);
     txtCerrar.setPosition({360, 640});
     txtCerrar.setFillColor(sf::Color::White);
 
-    // Agregar botón de ayuda circular
+    sf::Text txtTurno(fuente, "Tu turno", 24);
+    txtTurno.setPosition({350, 90});
+    txtTurno.setFillColor(sf::Color::Yellow);
+
+    // Botón de ayuda
     sf::CircleShape btnAyuda(20);
     btnAyuda.setPosition({20, 650});
     btnAyuda.setFillColor(sf::Color::White);
     btnAyuda.setOutlineThickness(2);
     btnAyuda.setOutlineColor(sf::Color::Black);
 
-    // Texto del signo de interrogación para el botón de ayuda
     sf::Text txtAyuda(fuente, "?", 20);
     txtAyuda.setPosition({33, 658});
     txtAyuda.setFillColor(sf::Color::White);
 
-    // Crear el tablero hexagonal (11x11)
+    // Configurar tablero hexagonal
     const int TABLERO_SIZE = 11;
-    const float HEX_RADIO = 25.0f;
+    const float HEX_RADIO = 20.0f;
     const float HEX_SPACING = 40.0f;
 
     std::vector<std::vector<sf::CircleShape>> tableroHex(TABLERO_SIZE, std::vector<sf::CircleShape>(TABLERO_SIZE));
 
-    // Crear los hexágonos del tablero
+    // Crear hexágonos
     for(int fila = 0; fila < TABLERO_SIZE; fila++) {
         for(int col = 0; col < TABLERO_SIZE; col++) {
             float x = 100 + col * HEX_SPACING + (fila * HEX_SPACING * 0.5f);
@@ -1794,7 +1794,7 @@ void abrirHexVsIA(int casilla, Tablero& tablero, sf::Music& musicaFondo) {
         }
     }
 
-    // Colorear bordes
+    // Colorear bordes del tablero
     for(int i = 0; i < TABLERO_SIZE; i++) {
         // Bordes superior e inferior (azul - IA)
         tableroHex[0][i].setOutlineColor(sf::Color::Blue);
@@ -1809,18 +1809,12 @@ void abrirHexVsIA(int casilla, Tablero& tablero, sf::Music& musicaFondo) {
         tableroHex[i][TABLERO_SIZE-1].setOutlineThickness(4);
     }
 
-    // Crear instancias del juego Hex y la IA
+    // Crear instancias del juego y la IA
     Hex juegoHex;
-    IAHex ia(20, 100); // Profundidad 4, dificultad 2
+    IAHex ia(4, 100); // Profundidad 4, dificultad 75
+    bool turnoJugador = true;
 
-    // Texto para mostrar el turno actual
-    sf::Text txtTurno(fuente, "Tu turno", 24);
-    txtTurno.setPosition({350, 90});
-    txtTurno.setFillColor(sf::Color::Yellow);
-
-    bool turnoJugador = true; // El jugador humano siempre empieza
-
-    // Loop de la ventana
+    // Loop principal
     while (ventanaHex.isOpen()) {
         while (const std::optional event = ventanaHex.pollEvent()) {
             if (event->is<sf::Event::Closed>()) {
@@ -1839,35 +1833,24 @@ void abrirHexVsIA(int casilla, Tablero& tablero, sf::Music& musicaFondo) {
                     continue;
                 }
 
-                // Verificar click en botón cerrar
+                // Verificar click en cerrar
                 if (mousePos.x >= 350 && mousePos.x <= 450 &&
                     mousePos.y >= 630 && mousePos.y <= 670) {
                     ventanaHex.close();
                 }
 
-                // Detectar clicks en hexágonos del tablero
-                bool movimientoRealizado = false;
-                for(int fila = 0; fila < TABLERO_SIZE && !movimientoRealizado; fila++) {
-                    for(int col = 0; col < TABLERO_SIZE && !movimientoRealizado; col++) {
+                // Procesar clicks en el tablero
+                for(int fila = 0; fila < TABLERO_SIZE; fila++) {
+                    for(int col = 0; col < TABLERO_SIZE; col++) {
                         sf::Vector2f hexCenter = tableroHex[fila][col].getPosition() + sf::Vector2f(HEX_RADIO, HEX_RADIO);
                         float distance = std::sqrt(std::pow(mousePos.x - hexCenter.x, 2) + std::pow(mousePos.y - hexCenter.y, 2));
 
-                        if (distance <= HEX_RADIO) {
-                            // Intento de movimiento del jugador
+                        if (distance <= HEX_RADIO && juegoHex.getCasilla(fila, col) == EstadoCasilla::VACIA) {
                             if (juegoHex.hacerMovimiento(fila, col)) {
-                                // Actualizar el tablero gráficamente
                                 tableroHex[fila][col].setFillColor(sf::Color::Red);
 
-                                // Verificar si el jugador ha ganado
                                 if (juegoHex.estaTerminado()) {
-                                    std::cout << "¡Jugador ha ganado!" << std::endl;
-                                    
-                                    // Marcar en el tablero principal
-                                    if (casillaMiniJuego >= 0 && casillaMiniJuego < 9) {
-                                        tablero.getNodo(casillaMiniJuego / 3, casillaMiniJuego % 3).setEstado(EstadoNodo::JUGADOR1);
-                                        std::cout << "Marcando X en casilla " << casillaMiniJuego << std::endl;
-                                    }
-
+                                    tablero.getNodo(casillaMiniJuego / 3, casillaMiniJuego % 3).setEstado(EstadoNodo::JUGADOR1);
                                     tablero.verificarVictoria();
                                     mostrarVentanaVictoria(1, -1, tablero);
                                     musicHex.stop();
@@ -1876,10 +1859,8 @@ void abrirHexVsIA(int casilla, Tablero& tablero, sf::Music& musicaFondo) {
                                     return;
                                 }
 
-                                // Cambiar turno a la IA
                                 turnoJugador = false;
                                 txtTurno.setString("Turno de la IA");
-                                movimientoRealizado = true;
                             }
                         }
                     }
@@ -1889,30 +1870,18 @@ void abrirHexVsIA(int casilla, Tablero& tablero, sf::Music& musicaFondo) {
 
         // Turno de la IA
         if (!turnoJugador && !juegoHex.estaTerminado()) {
-            // Pequeña pausa para que se vea el movimiento
             sf::sleep(sf::milliseconds(500));
             
-            // Calcular movimiento de la IA
             Posicion movimientoIA = ia.calcularMejorMovimiento(juegoHex);
             
-            if (movimientoIA.fila != -1 && movimientoIA.columna != -1) {
-                // Hacer el movimiento de la IA
+            if (movimientoIA.fila >= 0 && movimientoIA.columna >= 0 && 
+                juegoHex.getCasilla(movimientoIA.fila, movimientoIA.columna) == EstadoCasilla::VACIA) {
+                
                 if (juegoHex.hacerMovimiento(movimientoIA.fila, movimientoIA.columna)) {
-                    // Actualizar el tablero gráficamente
                     tableroHex[movimientoIA.fila][movimientoIA.columna].setFillColor(sf::Color::Blue);
                     
-                    std::cout << "IA juega en posición: " << movimientoIA.fila << ", " << movimientoIA.columna << std::endl;
-
-                    // Verificar si la IA ha ganado
                     if (juegoHex.estaTerminado()) {
-                        std::cout << "¡IA ha ganado!" << std::endl;
-                        
-                        // Marcar en el tablero principal
-                        if (casillaMiniJuego >= 0 && casillaMiniJuego < 9) {
-                            tablero.getNodo(casillaMiniJuego / 3, casillaMiniJuego % 3).setEstado(EstadoNodo::JUGADOR2);
-                            std::cout << "Marcando O en casilla " << casillaMiniJuego << std::endl;
-                        }
-
+                        tablero.getNodo(casillaMiniJuego / 3, casillaMiniJuego % 3).setEstado(EstadoNodo::JUGADOR2);
                         tablero.verificarVictoria();
                         mostrarVentanaVictoria(2, -1, tablero);
                         musicHex.stop();
@@ -1920,22 +1889,21 @@ void abrirHexVsIA(int casilla, Tablero& tablero, sf::Music& musicaFondo) {
                         ventanaHex.close();
                         return;
                     }
-
-                    // Cambiar turno al jugador
+                    
                     turnoJugador = true;
                     txtTurno.setString("Tu turno");
                 }
             }
         }
 
-        // Dibujar todo
+        // Renderizado
         ventanaHex.clear(sf::Color::White);
         ventanaHex.draw(spriteFondo);
         ventanaHex.draw(titulo);
         ventanaHex.draw(instrucciones);
         ventanaHex.draw(txtTurno);
 
-        // Dibujar todos los hexágonos del tablero
+        // Dibujar tablero
         for(int fila = 0; fila < TABLERO_SIZE; fila++) {
             for(int col = 0; col < TABLERO_SIZE; col++) {
                 ventanaHex.draw(tableroHex[fila][col]);

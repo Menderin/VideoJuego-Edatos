@@ -46,22 +46,27 @@ int GrafoHex::obtenerID(int fila, int col) const {
     return fila * TAMAÑO_TABLERO + col;
 }
 
+
+// Modificar la función conectarVecinos para asegurar conexiones correctas
 void GrafoHex::conectarVecinos() {
-    // Conectar casillas del tablero entre sí
+    // Conectar casillas adyacentes
     for (int i = 0; i < TAMAÑO_TABLERO; i++) {
         for (int j = 0; j < TAMAÑO_TABLERO; j++) {
             int idActual = obtenerID(i, j);
             
-            // Las 6 direcciones hexagonales
-            int direcciones[6][2] = {
-                {-1, 0}, {-1, 1},  // arriba-izquierda, arriba-derecha
-                {0, -1}, {0, 1},   // izquierda, derecha
-                {1, -1}, {1, 0}    // abajo-izquierda, abajo-derecha
+            // Direcciones para las 6 casillas adyacentes en un hexágono
+            const int direcciones[6][2] = {
+                {-1, 0},  // Arriba
+                {-1, 1},  // Arriba-derecha
+                {0, 1},   // Derecha
+                {1, 0},   // Abajo
+                {1, -1},  // Abajo-izquierda
+                {0, -1}   // Izquierda
             };
             
-            for (int d = 0; d < 6; d++) {
-                int nuevaFila = i + direcciones[d][0];
-                int nuevaCol = j + direcciones[d][1];
+            for (const auto& dir : direcciones) {
+                int nuevaFila = i + dir[0];
+                int nuevaCol = j + dir[1];
                 
                 if (esPosicionValida(nuevaFila, nuevaCol)) {
                     int idVecino = obtenerID(nuevaFila, nuevaCol);
@@ -71,29 +76,26 @@ void GrafoHex::conectarVecinos() {
         }
     }
     
-    // Conectar nodos virtuales con los bordes del tablero
+    // Conectar nodos virtuales con los bordes
     for (int i = 0; i < TAMAÑO_TABLERO; i++) {
-        // Borde izquierdo conecta con nodo virtual izquierdo
-        int idIzquierdo = obtenerID(i, 0);
-        nodos[nodoVirtualIzquierda].vecinos.push_back(idIzquierdo);
-        nodos[idIzquierdo].vecinos.push_back(nodoVirtualIzquierda);
+        // Borde izquierdo
+        nodos[nodoVirtualIzquierda].vecinos.push_back(obtenerID(i, 0));
+        nodos[obtenerID(i, 0)].vecinos.push_back(nodoVirtualIzquierda);
         
-        // Borde derecho conecta con nodo virtual derecho
-        int idDerecho = obtenerID(i, TAMAÑO_TABLERO - 1);
-        nodos[nodoVirtualDerecha].vecinos.push_back(idDerecho);
-        nodos[idDerecho].vecinos.push_back(nodoVirtualDerecha);
+        // Borde derecho
+        nodos[nodoVirtualDerecha].vecinos.push_back(obtenerID(i, TAMAÑO_TABLERO-1));
+        nodos[obtenerID(i, TAMAÑO_TABLERO-1)].vecinos.push_back(nodoVirtualDerecha);
         
-        // Borde superior conecta con nodo virtual superior
-        int idSuperior = obtenerID(0, i);
-        nodos[nodoVirtualArriba].vecinos.push_back(idSuperior);
-        nodos[idSuperior].vecinos.push_back(nodoVirtualArriba);
+        // Borde superior
+        nodos[nodoVirtualArriba].vecinos.push_back(obtenerID(0, i));
+        nodos[obtenerID(0, i)].vecinos.push_back(nodoVirtualArriba);
         
-        // Borde inferior conecta con nodo virtual inferior
-        int idInferior = obtenerID(TAMAÑO_TABLERO - 1, i);
-        nodos[nodoVirtualAbajo].vecinos.push_back(idInferior);
-        nodos[idInferior].vecinos.push_back(nodoVirtualAbajo);
+        // Borde inferior
+        nodos[nodoVirtualAbajo].vecinos.push_back(obtenerID(TAMAÑO_TABLERO-1, i));
+        nodos[obtenerID(TAMAÑO_TABLERO-1, i)].vecinos.push_back(nodoVirtualAbajo);
     }
 }
+
 
 bool GrafoHex::colocarFicha(int fila, int col, EstadoCasilla jugador) {
     if (!esPosicionValida(fila, col) || !esCasillaVacia(fila, col)) {
@@ -123,47 +125,76 @@ bool GrafoHex::esCasillaVacia(int fila, int col) const {
     return obtenerEstado(fila, col) == EstadoCasilla::VACIA;
 }
 
+// Modificar la función verificarVictoria en GrafoHex
 bool GrafoHex::verificarVictoria(EstadoCasilla jugador) {
     std::unordered_set<int> visitados;
     
+    // Para Jugador 1 (Rojo) - Conexión Izquierda-Derecha
     if (jugador == EstadoCasilla::JUGADOR1) {
-        // Jugador 1 conecta izquierda con derecha
-        return dfs(nodoVirtualIzquierda, nodoVirtualDerecha, jugador, visitados);
-    } else if (jugador == EstadoCasilla::JUGADOR2) {
-        // Jugador 2 conecta arriba con abajo
-        return dfs(nodoVirtualArriba, nodoVirtualAbajo, jugador, visitados);
+        // Primero verificar si hay fichas en los bordes izquierdo y derecho
+        bool hayFichaIzquierda = false;
+        bool hayFichaDerecha = false;
+        
+        for (int i = 0; i < TAMAÑO_TABLERO; i++) {
+            if (obtenerEstado(i, 0) == EstadoCasilla::JUGADOR1) {
+                hayFichaIzquierda = true;
+            }
+            if (obtenerEstado(i, TAMAÑO_TABLERO-1) == EstadoCasilla::JUGADOR1) {
+                hayFichaDerecha = true;
+            }
+        }
+        
+        // Solo verificar la conexión si hay fichas en ambos bordes
+        if (hayFichaIzquierda && hayFichaDerecha) {
+            return dfs(nodoVirtualIzquierda, nodoVirtualDerecha, jugador, visitados);
+        }
+    }
+    // Para Jugador 2 (Azul) - Conexión Arriba-Abajo
+    else if (jugador == EstadoCasilla::JUGADOR2) {
+        // Primero verificar si hay fichas en los bordes superior e inferior
+        bool hayFichaArriba = false;
+        bool hayFichaAbajo = false;
+        
+        for (int j = 0; j < TAMAÑO_TABLERO; j++) {
+            if (obtenerEstado(0, j) == EstadoCasilla::JUGADOR2) {
+                hayFichaArriba = true;
+            }
+            if (obtenerEstado(TAMAÑO_TABLERO-1, j) == EstadoCasilla::JUGADOR2) {
+                hayFichaAbajo = true;
+            }
+        }
+        
+        // Solo verificar la conexión si hay fichas en ambos bordes
+        if (hayFichaArriba && hayFichaAbajo) {
+            return dfs(nodoVirtualArriba, nodoVirtualAbajo, jugador, visitados);
+        }
     }
     
     return false;
 }
 
+// Modificar la función dfs para mejorar la detección de conexiones
 bool GrafoHex::dfs(int nodoActual, int nodoDestino, EstadoCasilla jugador, std::unordered_set<int>& visitados) {
+    // Si llegamos al nodo destino, hay victoria
     if (nodoActual == nodoDestino) {
         return true;
     }
     
+    // Marcar el nodo actual como visitado
     visitados.insert(nodoActual);
     
-    auto it = nodos.find(nodoActual);
-    if (it == nodos.end()) {
-        return false;
-    }
-    
-    for (int vecino : it->second.vecinos) {
-        if (visitados.find(vecino) != visitados.end()) {
-            continue;  // Ya visitado
-        }
-        
-        auto itVecino = nodos.find(vecino);
-        if (itVecino == nodos.end()) {
-            continue;
-        }
-        
-        // Solo seguir el camino si es del mismo jugador o es un nodo virtual
-        bool esNodoVirtual = (vecino == nodoVirtualIzquierda || vecino == nodoVirtualDerecha || 
-                             vecino == nodoVirtualArriba || vecino == nodoVirtualAbajo);
-        
-        if (esNodoVirtual || itVecino->second.estado == jugador) {
+    // Recorrer todos los vecinos del nodo actual
+    for (int vecino : nodos[nodoActual].vecinos) {
+        // Si el vecino no ha sido visitado y es del jugador actual o es un nodo virtual
+        if (visitados.find(vecino) == visitados.end() && 
+            (nodos[vecino].estado == jugador || 
+             vecino == nodoDestino || 
+             vecino == nodoVirtualIzquierda || 
+             vecino == nodoVirtualDerecha || 
+             vecino == nodoVirtualArriba || 
+             vecino == nodoVirtualAbajo)) {
+            
+            // Llamada recursiva para el vecino
             if (dfs(vecino, nodoDestino, jugador, visitados)) {
                 return true;
             }
@@ -172,6 +203,7 @@ bool GrafoHex::dfs(int nodoActual, int nodoDestino, EstadoCasilla jugador, std::
     
     return false;
 }
+
 
 void GrafoHex::mostrarGrafo() const {
     std::cout << "\n=== ESTRUCTURA DEL GRAFO ===" << std::endl;
@@ -238,17 +270,28 @@ void Hex::reiniciar() {
 }
 
 bool Hex::hacerMovimiento(int fila, int col) {
-    if (!grafo.esPosicionValida(fila, col) || !grafo.esCasillaVacia(fila, col) || juegoTerminado) {
+    // Validación de límites del tablero
+    if (fila < 0 || fila >= grafo.getTamañoTablero() || 
+        col < 0 || col >= grafo.getTamañoTablero()) {
+        return false;
+    }
+
+    // Validación de casilla vacía y juego no terminado
+    if (!grafo.esCasillaVacia(fila, col) || juegoTerminado) {
         return false;
     }
     
-    EstadoCasilla jugadorEstado = (jugadorActual == 1) ? EstadoCasilla::JUGADOR1 : EstadoCasilla::JUGADOR2;
+    // Determinar el estado según el jugador actual
+    EstadoCasilla jugadorEstado = (jugadorActual == 1) ? 
+                                 EstadoCasilla::JUGADOR1 : 
+                                 EstadoCasilla::JUGADOR2;
     
+    // Intentar colocar la ficha
     if (!grafo.colocarFicha(fila, col, jugadorEstado)) {
         return false;
     }
     
-    // Guardar la posición para la regla del robo
+    // Manejar el primer movimiento y la regla del robo
     if (primerMovimiento) {
         ultimaFila = fila;
         ultimaColumna = col;
@@ -258,13 +301,14 @@ bool Hex::hacerMovimiento(int fila, int col) {
         puedeRobar = false;
     }
     
-    // Verificar victoria usando el algoritmo de grafos
+    // Verificar si hay victoria
     if (grafo.verificarVictoria(jugadorEstado)) {
         juegoTerminado = true;
         ganador = jugadorActual;
         return true;
     }
     
+    // Cambiar el turno si no hay victoria
     cambiarTurno();
     return true;
 }

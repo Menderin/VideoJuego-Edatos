@@ -1,89 +1,50 @@
-#ifndef IAHEX_H
-#define IAHEX_H
-
-#include "Minijuegos/Hex/Hex.h"  // Incluir el archivo correcto
+#pragma once
+#include "MiniJuegos/Hex/Hex.h"
 #include <vector>
-#include <string>
-#include <random>
-#include <climits>
-
-// Constante para el tamaño del tablero Hex
-const int TAMAÑO_TABLERO = 11;
+#include <iostream>
 
 // Estructura para representar una posición en el tablero
 struct Posicion {
-    int fila, columna;
+    int fila;
+    int columna;
     
-    Posicion(int f = 0, int c = 0);
-    bool operator==(const Posicion& other) const;
+    Posicion(int f = -1, int c = -1) : fila(f), columna(c) {}
 };
 
 class IAHex {
 private:
-    // Constantes para las estrategias
-    static const int ESTRATEGIA_CENTRO = 0;
-    static const int ESTRATEGIA_OFENSIVA = 1;
-    static const int ESTRATEGIA_DEFENSIVA = 2;
-    static const int ESTRATEGIA_CONEXION = 3;
-
-    // Estructura del árbol de decisión
-    struct NodoDecision {
-        std::string caracteristica;
-        double umbral;
-        int estrategia;  // -1 si no es hoja
-        NodoDecision* izquierdo;
-        NodoDecision* derecho;
-        
-        NodoDecision();
-        ~NodoDecision();
-    };
-
-    // Miembros privados
     int profundidadMaxima;
-    int nivelDificultad;
-    NodoDecision* arbolDecision;
-    std::mt19937 generador;
+    int dificultad; // 1-100, afecta qué tan "inteligente" juega la IA
 
-    // Métodos privados para la IA
-    void inicializarIA();
-    void limpiarRecursos();
-    void construirArbolDecision();
-    
-    // Extracción de características del juego
-    std::vector<double> extraerCaracteristicas(const Hex& juego);
-    int determinarEstrategia(const Hex& juego);
-    int evaluarNodoDecision(NodoDecision* nodo, const std::vector<double>& caracteristicas);
-    
-    // Algoritmo minimax
-    int minimax(Hex& juego, int profundidad, bool esMaximizador, int alfa = INT_MIN, int beta = INT_MAX);
-    int evaluarPosicionHex(const Hex& juego);
-    
-    // Funciones de evaluación
-    int calcularConectividad(const Hex& juego, EstadoCasilla jugador);
-    int evaluarControlBordes(const Hex& juego);
-    int evaluarPosicionesEstrategicas(const Hex& juego);
-    
-    // Estrategias específicas
-    Posicion aplicarEstrategiaCentro(const Hex& juego);
-    Posicion aplicarEstrategiaOfensiva(const Hex& juego);
-    Posicion aplicarEstrategiaDefensiva(const Hex& juego);
-    Posicion aplicarEstrategiaConexion(const Hex& juego);
-    
-    // Funciones auxiliares
-    std::vector<Posicion> ordenarMovimientos(const Hex& juego, const std::vector<Posicion>& movimientos);
-    bool amenazaInmediata(const Hex& juego);
-    std::vector<Posicion> encontrarMovimientosCriticos(const Hex& juego);
-    int evaluarPotencialConexion(const Hex& juego, const Posicion& pos);
-    int calcularDistanciaAlObjetivo(const Posicion& pos, int tamaño);
-    std::vector<Posicion> getMovimientosValidos(const Hex& juego);
+    // Métodos privados para el algoritmo minimax
+    int minimax(Hex& estadoJuego, int profundidad, int alfa, int beta, bool esMaximizador);
+    int evaluarDefensa(const Hex& estadoJuego);
+    int evaluarAtaque(const Hex& estadoJuego);
+    int evaluarTablero(const Hex& estadoJuego);
+    std::vector<Posicion> obtenerMovimientosDisponibles(const Hex& estadoJuego);
+    bool evaluarConexion(const Hex& estadoJuego, bool esJugador1);
+    int evaluarCentro(const Hex& estadoJuego);
+    int evaluarConectividad(const Hex& estadoJuego, bool esJugador1);
 
 public:
-    // Constructor y destructor
-    IAHex(int profundidad = 4, int dificultad = 1);
-    ~IAHex();
+    IAHex(int profundidad = 4, int dificultadIA = 75);
     
-    // Función principal para calcular el mejor movimiento
-    Posicion calcularMejorMovimiento(Hex& juego);
+    // Método principal para calcular el mejor movimiento
+    Posicion calcularMejorMovimiento(Hex& estadoJuego);
+    
+    // Métodos auxiliares
+    void setDificultad(int nuevaDificultad);
+    void setProfundidadMaxima(int nuevaProfundidad);
 };
 
-#endif // IAHEX_H
+
+
+
+
+
+
+
+
+
+
+

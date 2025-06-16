@@ -17,6 +17,7 @@
 #include "Tablero.h"
 #include "IA/IaHex.h"
 #include "IA/IaAdivinaNumero.h"
+#include "IA/IaBatallaCartas.h"
 
 using namespace std;
 
@@ -2142,6 +2143,98 @@ void abrirAdivinaNumeroVsIA(int casilla, Tablero& tablero, sf::Music& musicaFond
     musicaFondo.play();
 }
 
+void abrirBatallaCartasVsIA(int casilla, Tablero& tablero, sf::Music& musicaFondo) {
+    casillaMiniJuego = casilla;
+    
+    // Cargar fuente
+    sf::Font fuente("c:/WINDOWS/Fonts/ARIALI.TTF");
+
+    // Detener música de fondo actual
+    musicaFondo.stop();
+    
+    // Cargar y reproducir música de Batalla de Cartas
+    sf::Music musicaBatallaCartas;
+    if (!musicaBatallaCartas.openFromFile("assets/Audios/Backgrounds/BatallaCartas.ogg")) {
+        std::cerr << "Error al cargar la música" << std::endl;
+    } else {
+        musicaBatallaCartas.setLooping(true);
+        musicaBatallaCartas.setVolume(100.0f);
+        musicaBatallaCartas.play();
+    }
+
+    // Crear vector con todos los números posibles
+    std::vector<int> numerosDisponibles;
+    for(int i = 1; i <= 15; i++) {
+        numerosDisponibles.push_back(i);
+    }
+
+    // Generar mazos para jugador y IA
+    std::vector<int> mazoJugador, mazoIA;
+    std::random_device rd;
+    std::mt19937 gen(rd());
+
+    // Repartir cartas al jugador
+    for(int i = 0; i < 5; i++) {
+        std::uniform_int_distribution<> dis(0, numerosDisponibles.size() - 1);
+        int indiceAleatorio = dis(gen);
+        int valorCarta = numerosDisponibles[indiceAleatorio];
+        numerosDisponibles.erase(numerosDisponibles.begin() + indiceAleatorio);
+        mazoJugador.push_back(valorCarta);
+    }
+
+    // Repartir cartas a la IA
+    for(int i = 0; i < 5; i++) {
+        std::uniform_int_distribution<> dis(0, numerosDisponibles.size() - 1);
+        int indiceAleatorio = dis(gen);
+        int valorCarta = numerosDisponibles[indiceAleatorio];
+        numerosDisponibles.erase(numerosDisponibles.begin() + indiceAleatorio);
+        mazoIA.push_back(valorCarta);
+    }
+
+    // Crear instancia de la IA
+    IaBatallaCartas ia(75); // 75 es el nivel de dificultad
+    ia.actualizarCartas(mazoIA);
+
+    int puntosJugador = 0, puntosIA = 0;
+
+    // Loop principal del juego
+    while (!mazoJugador.empty() && !mazoIA.empty()) {
+        int cartaJugador = -1;
+
+        // Turno del jugador
+        if (!ventanaJugador(true, mazoJugador, cartaJugador, puntosJugador, puntosIA)) break;
+
+        // Turno de la IA
+        sf::sleep(sf::milliseconds(1000)); // Pausa para simular que la IA está "pensando"
+        int cartaIA = ia.elegirCarta(cartaJugador);
+        ia.actualizarCartas(mazoIA);
+
+        // Comparar cartas y actualizar puntos
+        if (cartaJugador > cartaIA) {
+            puntosJugador++;
+        } else if (cartaIA > cartaJugador) {
+            puntosIA++;
+        }
+
+        ia.actualizarPuntos(puntosIA, puntosJugador);
+    }
+
+    // Determinar ganador y colocar ficha
+    if (puntosJugador > puntosIA) {
+        tablero.getNodo(casilla / 3, casilla % 3).setEstado(EstadoNodo::JUGADOR1);
+    } else if (puntosIA > puntosJugador) {
+        tablero.getNodo(casilla / 3, casilla % 3).setEstado(EstadoNodo::JUGADOR2);
+    }
+
+    // Mostrar resultado final
+    mostrarVentanaGanador(puntosJugador, puntosIA);
+    musicaBatallaCartas.stop();
+    musicaFondo.play();
+    
+    // Verificar victoria en el tablero principal
+    tablero.verificarVictoria();
+}
+
 int main() {
     // CENTRADO DEL TABLERO - Calcular offset para centrar
     const int CELL_SIZE = 160; // Tamaño de cada celda
@@ -2485,7 +2578,7 @@ int main() {
                                             // Iniciar Batalla de Cartas vs IA
                                             // abrirBatallaCartasVsIA(index, tablero, musicaFondo);
                                             // Por ahora usar la versión JvJ
-                                            abrirBatallaCartas(index, tablero, musicaFondo);
+                                            abrirBatallaCartasVsIA(index, tablero, musicaFondo);
                                         } else if (tipoMinijuego == TipoMiniJuego::ADIVINA_NUMERO) {
                                             std::cout << "Abriendo Adivina el Numero en casilla " << index << " (JvIA)" << std::endl;
                                             // Abrir ventana de Adivina el Número vs IA

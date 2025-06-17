@@ -1,5 +1,6 @@
 {
     "files.associations": {
+        "*.java": "java",
         "main": "cpp",
         "iostream": "cpp",
         "ostream": "cpp",
@@ -64,6 +65,7 @@
         "thread": "cpp",
         "typeinfo": "cpp",
         "variant": "cpp",
-        "ranges": "cpp"
+        "ranges": "cpp",
+        "set": "cpp"
     }
 }

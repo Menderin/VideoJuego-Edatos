@@ -7,6 +7,10 @@ Linea de compilacion
 
  g++ -Iinclude src/GUI/gui2.cpp src/Nodo.cpp src/Tablero.cpp src/MiniJuegos/AdivinaNumero/AdivinaNumeroV2.cpp src/MiniJuegos/BatallaDeCartas/BatallaDeCartas.cpp src/MiniJuegos/Hex/Hex.cpp -o bin/testTableroNodo.exe -I"lib/SFML-3.0.0/include" -L"lib/SFML-3.0.0/lib" -lsfml-audio-s -lsfml-graphics-s -lsfml-window-s -lsfml-system-s -lvorbisenc -lvorbisfile -lvorbis -logg -lFLAC -lopengl32 -lfreetype -lwinmm -lgdi32 -DSFML_STATIC
 
+Linea con las Ia's
+
+g++ -Iinclude src/GUI/gui2.cpp src/Nodo.cpp src/Tablero.cpp src/MiniJuegos/AdivinaNumero/AdivinaNumeroV2.cpp src/MiniJuegos/BatallaDeCartas/BatallaDeCartas.cpp src/MiniJuegos/Hex/Hex.cpp src/IA/IaHex.cpp src/IA/IaAdivinaNumero.cpp src/IA/IaBatallaCartas.cpp -o bin/testTableroNodoIa.exe -I"lib/SFML-3.0.0/include" -L"lib/SFML-3.0.0/lib" -lsfml-audio-s -lsfml-graphics-s -lsfml-window-s -lsfml-system-s -lvorbisenc -lvorbisfile -lvorbis -logg -lFLAC -lopengl32 -lfreetype -lwinmm -lgdi32 -DSFML_STATIC
+
 Linea de Ejecucion
 
 .\bin\testTableroNodo.exe  

@@ -1981,14 +1981,24 @@ void abrirAdivinaNumeroVsIA(int casilla, Tablero& tablero, sf::Music& musicaFond
     instrucciones.setPosition({170, 200});
     instrucciones.setFillColor(sf::Color::White);
 
-    // Mensaje de resultado
-    sf::Text mensajeResultado(fuente, "", 18);
-    mensajeResultado.setPosition({125, 240});
-    mensajeResultado.setFillColor(sf::Color::White);
+    // En la configuración inicial del mensajeResultado
+    sf::Text mensajeResultado(fuente, "", 24); // Aumentar tamaño de fuente
+    mensajeResultado.setPosition({150, 240}); // Ajustar posición si es necesario
+    mensajeResultado.setFillColor(sf::Color::White); // Asegurar que sea visible
+
+
+    // Botón de confirmar (alineado con cerrar)
+    sf::RectangleShape btnConfirmar({120, 40});
+    btnConfirmar.setPosition({240, 280});
+    btnConfirmar.setFillColor(sf::Color::Blue);
+
+    sf::Text txtConfirmar(fuente, "Confirmar", 20);
+    txtConfirmar.setPosition({255, 290});
+    txtConfirmar.setFillColor(sf::Color::White);
 
     // Botón de cerrar
-    sf::RectangleShape btnCerrar({100, 40});
-    btnCerrar.setPosition({250, 350});
+    sf::RectangleShape btnCerrar({120, 40});
+    btnCerrar.setPosition({240, 350});
     btnCerrar.setFillColor(sf::Color::Red);
 
     sf::Text txtCerrar(fuente, "Cerrar", 20);
@@ -2040,9 +2050,59 @@ void abrirAdivinaNumeroVsIA(int casilla, Tablero& tablero, sf::Music& musicaFond
                 }
 
                 // Verificar click en botón cerrar
-                if (mousePos.x >= 250 && mousePos.x <= 350 &&
+                if (mousePos.x >= 240 && mousePos.x <= 360 &&
                     mousePos.y >= 350 && mousePos.y <= 390) {
                     ventanaAdivina.close();
+                }
+
+                // Verificar click en botón confirmar
+                if (mousePos.x >= 240 && mousePos.x <= 360 &&
+                    mousePos.y >= 280 && mousePos.y <= 320) {
+                    if (!numeroIngresado.empty()) {
+                        int numero = std::stoi(numeroIngresado);
+                        
+                        if (numero < 1 || numero > 100) {
+                            mensajeResultado.setString("El numero debe estar entre 1 y 100");
+                            numeroIngresado = "";
+                            textoNumero.setString(numeroIngresado);
+                            continue;
+                        }
+                        
+                        if (!numeroJugadorElegido) {
+                            juegoAdivina.setNumeroJugador(1, numero);
+                            numeroJugadorElegido = true;
+                            mensajeJugador.setString("Adivina el numero de la IA");
+                            instrucciones.setString("La IA eligio un numero entre 1 y 100");
+                            numeroIngresado = "";
+                            textoNumero.setString(numeroIngresado);
+                        } 
+                        else if (turnoJugador && !juegoTerminado) {
+                            if (numero == numeroIA) {
+                                mensajeResultado.setString("¡Ganaste! Has adivinado el numero");
+                                tablero.getNodo(casilla / 3, casilla % 3).setEstado(EstadoNodo::JUGADOR1);
+                                tablero.verificarVictoria();
+                                mostrarVentanaVictoria(1, numeroIA, tablero);
+                                musicaAdivinarNumero.stop();
+                                musicaFondo.play();
+                                ventanaAdivina.close();
+                            } else {
+                                std::cout << "Numero IA: " << numeroIA << ", Intento: " << numero << std::endl;
+                                
+                                std::string mensaje;
+                                if (numero > numeroIA) {
+                                    mensaje = "El numero es mas BAJO";
+                                } else {
+                                    mensaje = "El numero es mas ALTO";
+                                }
+                                mensajeResultado.setString(mensajeResultado.getString() + mensaje);
+                                // Asegurarse que el mensaje sea visible
+                                mensajeResultado.setFillColor(sf::Color::White);
+                                numeroIngresado = "";
+                                textoNumero.setString(numeroIngresado);
+                                turnoJugador = false;
+                            }
+                        }
+                    }
                 }
             }
 
@@ -2057,64 +2117,31 @@ void abrirAdivinaNumeroVsIA(int casilla, Tablero& tablero, sf::Music& musicaFond
                     textoNumero.setString(numeroIngresado);
                 }
             }
-
-            // Procesar entrada cuando se presiona Enter
-            if (event->is<sf::Event::KeyPressed>() && event->getIf<sf::Event::KeyPressed>()->code == sf::Keyboard::Key::Enter) {
-                if (!numeroIngresado.empty()) {
-                    int numero = std::stoi(numeroIngresado);
-                    
-                    if (!numeroJugadorElegido) {
-                        if (numero >= 1 && numero <= 100) {
-                            juegoAdivina.setNumeroJugador(1, numero);
-                            numeroJugadorElegido = true;
-                            mensajeJugador.setString("Adivina el numero de la IA");
-                            instrucciones.setString("La IA eligio un numero entre 1 y 100");
-                            numeroIngresado = "";
-                            textoNumero.setString(numeroIngresado);
-                        }
-                    } else if (turnoJugador && !juegoTerminado) {
-                        if (numero == numeroIA) {
-                            mensajeResultado.setString("Ganaste Has adivinado el numero");
-                            tablero.getNodo(casilla / 3, casilla % 3).setEstado(EstadoNodo::JUGADOR1);
-                            juegoTerminado = true;
-                        } else {
-                            // Cambiar esta parte para comparar con el número de la IA
-                            if (numero < numeroIA) {
-                                mensajeResultado.setString("El numero de la IA es MAYOR que " + std::to_string(numero));
-                            } else {
-                                mensajeResultado.setString("El numero de la IA es MENOR que " + std::to_string(numero));
-                            }
-                            numeroIngresado = "";
-                            textoNumero.setString(numeroIngresado);
-                            turnoJugador = false;
-                        }
-                    }
-                }
-            }
         }
 
         // Turno de la IA
         if (!turnoJugador && !juegoTerminado && numeroJugadorElegido) {
-            sf::sleep(sf::milliseconds(1000)); // Pausa para simular que la IA está "pensando"
+            sf::sleep(sf::milliseconds(1000));
             int prediccionIA = ia.hacerPrediccion();
             
             if (prediccionIA == juegoAdivina.getNumeroJugador(1)) {
-                // La IA adivinó el número del jugador
-                mensajeResultado.setString("La IA ha ganado Tu numero era " + 
-                    std::to_string(juegoAdivina.getNumeroJugador(1)));
+                mensajeResultado.setString("La IA ha ganado. Tu numero era " + 
+                std::to_string(juegoAdivina.getNumeroJugador(1)));
                 tablero.getNodo(casilla / 3, casilla % 3).setEstado(EstadoNodo::JUGADOR2);
-                juegoTerminado = true;
+                tablero.verificarVictoria();
+                mostrarVentanaVictoria(2, juegoAdivina.getNumeroJugador(1), tablero);
+                musicaAdivinarNumero.stop();
+                musicaFondo.play();
+                ventanaAdivina.close();
             } else {
-                // La IA no adivinó, actualiza sus límites y muestra el mensaje
+                mensajeResultado.setString("IA intento: " + std::to_string(prediccionIA));
                 if (prediccionIA < juegoAdivina.getNumeroJugador(1)) {
-                    mensajeResultado.setString("IA intento " + std::to_string(prediccionIA) + 
-                                            " - Tu numero es MAYOR");
+                    //mensajeResultado.setString(mensajeResultado.getString() + " - Muy BAJO");
+                    ia.actualizarLimites(true);
                 } else {
-                    mensajeResultado.setString("IA intento " + std::to_string(prediccionIA) + 
-                                            " - Tu numero es MENOR");
+                    //mensajeResultado.setString(mensajeResultado.getString() + " - Muy ALTO");
+                    ia.actualizarLimites(false);
                 }
-                bool esMayor = prediccionIA < juegoAdivina.getNumeroJugador(1);
-                ia.actualizarLimites(esMayor);
                 turnoJugador = true;
             }
         }
@@ -2127,11 +2154,13 @@ void abrirAdivinaNumeroVsIA(int casilla, Tablero& tablero, sf::Music& musicaFond
         ventanaAdivina.draw(campoNumero);
         ventanaAdivina.draw(textoNumero);
         ventanaAdivina.draw(instrucciones);
-        ventanaAdivina.draw(mensajeResultado);
+        ventanaAdivina.draw(btnConfirmar);
+        ventanaAdivina.draw(txtConfirmar);
         ventanaAdivina.draw(btnCerrar);
         ventanaAdivina.draw(txtCerrar);
         ventanaAdivina.draw(btnAyuda);
         ventanaAdivina.draw(txtAyuda);
+        ventanaAdivina.draw(mensajeResultado);
         ventanaAdivina.display();
 
         if (juegoTerminado) {
@@ -2142,6 +2171,7 @@ void abrirAdivinaNumeroVsIA(int casilla, Tablero& tablero, sf::Music& musicaFond
     
     musicaFondo.play();
 }
+
 
 void abrirBatallaCartasVsIA(int casilla, Tablero& tablero, sf::Music& musicaFondo) {
     casillaMiniJuego = casilla;

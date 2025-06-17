@@ -16,7 +16,7 @@ void IAHex::setProfundidadMaxima(int nuevaProfundidad) {
 
 std::vector<Posicion> IAHex::obtenerMovimientosDisponibles(const Hex& estadoJuego) {
     std::vector<Posicion> movimientos;
-    const int TABLERO_SIZE = 11;
+    const int TABLERO_SIZE = 7;
     
     for(int i = 0; i < TABLERO_SIZE; i++) {
         for(int j = 0; j < TABLERO_SIZE; j++) {
@@ -33,7 +33,7 @@ std::vector<Posicion> IAHex::obtenerMovimientosDisponibles(const Hex& estadoJueg
 // Modificar la función evaluarDefensa para ser más agresiva
 int IAHex::evaluarDefensa(const Hex& estadoJuego) {
     int puntuacion = 0;
-    const int TABLERO_SIZE = 11;
+    const int TABLERO_SIZE = 7;
 
     // Aumentar la detección y valoración de amenazas
     for(int i = 0; i < TABLERO_SIZE; i++) {
@@ -41,14 +41,14 @@ int IAHex::evaluarDefensa(const Hex& estadoJuego) {
             if(estadoJuego.getCasilla(i, j) == EstadoCasilla::JUGADOR1) {
                 // Aumentar penalización por fichas consecutivas
                 if(estadoJuego.getCasilla(i, j + 1) == EstadoCasilla::JUGADOR1) {
-                    puntuacion -= 300; // Aumentado de 150 a 300
+                    puntuacion -= 300;
                 }
                 
                 // Mayor penalización por puentes
                 if(j < TABLERO_SIZE - 2 && 
                    estadoJuego.getCasilla(i, j + 1) == EstadoCasilla::VACIA &&
                    estadoJuego.getCasilla(i, j + 2) == EstadoCasilla::JUGADOR1) {
-                    puntuacion -= 250; // Aumentado de 120 a 250
+                    puntuacion -= 250;
                 }
 
                 // Nueva detección de patrones de victoria potencial
@@ -65,7 +65,7 @@ int IAHex::evaluarDefensa(const Hex& estadoJuego) {
     // Aumentar importancia de los bordes
     for(int i = 0; i < TABLERO_SIZE; i++) {
         if(estadoJuego.getCasilla(i, 0) == EstadoCasilla::JUGADOR1) 
-            puntuacion -= 250; // Aumentado de 100 a 250
+            puntuacion -= 250;
         if(estadoJuego.getCasilla(i, TABLERO_SIZE-1) == EstadoCasilla::JUGADOR1) 
             puntuacion -= 250;
     }
@@ -76,7 +76,7 @@ int IAHex::evaluarDefensa(const Hex& estadoJuego) {
 // Mejorar la función de evaluación de ataque
 int IAHex::evaluarAtaque(const Hex& estadoJuego) {
     int puntuacion = 0;
-    const int TABLERO_SIZE = 11;
+    const int TABLERO_SIZE = 7;
 
     // Aumentar valor de conexiones verticales
     for(int j = 0; j < TABLERO_SIZE; j++) {
@@ -84,17 +84,17 @@ int IAHex::evaluarAtaque(const Hex& estadoJuego) {
             if(estadoJuego.getCasilla(i, j) == EstadoCasilla::JUGADOR2) {
                 // Mayor valor a conexiones directas
                 if(estadoJuego.getCasilla(i + 1, j) == EstadoCasilla::JUGADOR2) {
-                    puntuacion += 400; // Aumentado de 200 a 400
+                    puntuacion += 400;
                 }
                 
                 // Mayor valor a puentes potenciales
                 if(i < TABLERO_SIZE - 2 && 
                    estadoJuego.getCasilla(i + 1, j) == EstadoCasilla::VACIA &&
                    estadoJuego.getCasilla(i + 2, j) == EstadoCasilla::JUGADOR2) {
-                    puntuacion += 300; // Aumentado de 150 a 300
+                    puntuacion += 300;
                 }
 
-                // Nuevo: Valorar patrones de victoria potencial
+                // Valorar patrones de victoria potencial
                 if(i < TABLERO_SIZE - 3 &&
                    estadoJuego.getCasilla(i + 1, j) == EstadoCasilla::VACIA &&
                    estadoJuego.getCasilla(i + 2, j) == EstadoCasilla::VACIA &&
@@ -108,35 +108,32 @@ int IAHex::evaluarAtaque(const Hex& estadoJuego) {
     // Aumentar valor del control de los bordes
     for(int j = 0; j < TABLERO_SIZE; j++) {
         if(estadoJuego.getCasilla(0, j) == EstadoCasilla::JUGADOR2) 
-            puntuacion += 250; // Aumentado de 120 a 250
+            puntuacion += 250;
         if(estadoJuego.getCasilla(TABLERO_SIZE-1, j) == EstadoCasilla::JUGADOR2) 
             puntuacion += 250;
     }
 
     // Control del centro más agresivo
-    for(int i = 3; i < TABLERO_SIZE - 3; i++) {
-        for(int j = 3; j < TABLERO_SIZE - 3; j++) {
+    for(int i = 2; i < TABLERO_SIZE - 2; i++) {
+        for(int j = 2; j < TABLERO_SIZE - 2; j++) {
             if(estadoJuego.getCasilla(i, j) == EstadoCasilla::JUGADOR2) {
-                puntuacion += 100; // Aumentado de 50 a 100
+                puntuacion += 100;
             }
         }
     }
 
     return puntuacion;
 }
+
 // Función principal de evaluación modificada
 int IAHex::evaluarTablero(const Hex& estadoJuego) {
-    // Si el juego está terminado, retornar valor máximo/mínimo
     if(estadoJuego.estaTerminado()) {
-        return estadoJuego.getGanador() == 2 ? 10000 : -10000;
+        return estadoJuego.getGanador() == 2 ? 7000 : -7000;
     }
 
-    // Combinar evaluaciones de defensa y ataque
     int puntuacionDefensa = evaluarDefensa(estadoJuego);
     int puntuacionAtaque = evaluarAtaque(estadoJuego);
 
-    // Ajustar el balance entre defensa y ataque según la dificultad
-    // A mayor dificultad, más énfasis en el ataque
     double factorAtaque = dificultad / 100.0;
     double factorDefensa = 1.0 - factorAtaque;
 
@@ -163,7 +160,7 @@ Posicion IAHex::calcularMejorMovimiento(Hex& estadoJuego) {
 
             // Detectar puentes horizontales potenciales
             bool amenazaHorizontal = false;
-            if(j > 0 && j < 10) {
+            if(j > 0 && j < 6) {
                 // Verificar si hay fichas del jugador a los lados
                 bool fichaIzquierda = (j > 0 && estadoJuego.getCasilla(i, j-1) == EstadoCasilla::JUGADOR1);
                 bool fichaDerecha = (j < 10 && estadoJuego.getCasilla(i, j+1) == EstadoCasilla::JUGADOR1);
@@ -177,7 +174,7 @@ Posicion IAHex::calcularMejorMovimiento(Hex& estadoJuego) {
                    estadoJuego.getCasilla(i, j-1) == EstadoCasilla::VACIA) {
                     amenazaHorizontal = true;
                 }
-                if(j < 9 && estadoJuego.getCasilla(i, j+2) == EstadoCasilla::JUGADOR1 && 
+                if(j < 5 && estadoJuego.getCasilla(i, j+2) == EstadoCasilla::JUGADOR1 && 
                    estadoJuego.getCasilla(i, j+1) == EstadoCasilla::VACIA) {
                     amenazaHorizontal = true;
                 }

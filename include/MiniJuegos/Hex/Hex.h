@@ -27,8 +27,10 @@ struct NodoHex {
 // Clase para manejar el grafo del tablero Hex
 class GrafoHex {
 private:
-    static const int TAMAÑO_TABLERO = 11;
+    static const int TAMAÑO_TABLERO = 11;      // Tamaño para juego normal
+    static const int TAMAÑO_TABLERO_IA = 7;    // Tamaño para juego vs IA
     std::unordered_map<int, NodoHex> nodos;
+    bool modoIA;
     
     // Nodos virtuales para los bordes (para facilitar detección de victoria)
     int nodoVirtualIzquierda;
@@ -41,7 +43,9 @@ private:
     bool sonVecinos(int fila1, int col1, int fila2, int col2) const;
     
 public:
-    GrafoHex();
+    GrafoHex(bool _modoIA = false);
+        
+
     void inicializar();
     void reiniciar();
     
@@ -57,7 +61,7 @@ public:
     
     // Getters
     const std::unordered_map<int, NodoHex>& getNodos() const { return nodos; }
-    int getTamañoTablero() const { return TAMAÑO_TABLERO; }
+    int getTamañoTablero() const { return modoIA ? TAMAÑO_TABLERO_IA : TAMAÑO_TABLERO; }
     
     // Para debugging
     void mostrarGrafo() const;
@@ -73,6 +77,7 @@ private:
     bool primerMovimiento;
     bool puedeRobar;
     int ultimaFila, ultimaColumna;  // Para la regla del robo
+    bool modoIA;
     
     // Métodos privados
     void mostrarTablero() const;
@@ -81,7 +86,7 @@ private:
     
 public:
     // Constructor
-    Hex();
+    Hex(bool _modoIA = false);
     
     // Métodos virtuales puros de MiniJuego
     bool procesarMovimiento(int jugador, int input) override;

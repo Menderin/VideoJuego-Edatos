@@ -6,23 +6,24 @@
 
 // ===================== IMPLEMENTACIÓN DE GrafoHex =====================
 
-GrafoHex::GrafoHex() {
+GrafoHex::GrafoHex(bool _modoIA) : modoIA(_modoIA) {
     inicializar();
 }
 
 void GrafoHex::inicializar() {
     nodos.clear();
+    int tamaño = modoIA ? TAMAÑO_TABLERO_IA : TAMAÑO_TABLERO;
     
     // Crear nodos para cada casilla del tablero
-    for (int i = 0; i < TAMAÑO_TABLERO; i++) {
-        for (int j = 0; j < TAMAÑO_TABLERO; j++) {
+    for (int i = 0; i < tamaño; i++) {
+        for (int j = 0; j < tamaño; j++) {
             int id = obtenerID(i, j);
             nodos[id] = NodoHex(id, i, j);
         }
     }
     
     // Crear nodos virtuales para los bordes
-    nodoVirtualIzquierda = TAMAÑO_TABLERO * TAMAÑO_TABLERO;
+    nodoVirtualIzquierda = tamaño * tamaño;
     nodoVirtualDerecha = nodoVirtualIzquierda + 1;
     nodoVirtualArriba = nodoVirtualDerecha + 1;
     nodoVirtualAbajo = nodoVirtualArriba + 1;
@@ -235,8 +236,10 @@ void GrafoHex::mostrarConexiones(int fila, int col) const {
 
 // ===================== IMPLEMENTACIÓN DE Hex =====================
 
-Hex::Hex() : jugadorActual(1), juegoTerminado(false), ganador(0), 
-             primerMovimiento(true), puedeRobar(false), ultimaFila(-1), ultimaColumna(-1) {
+Hex::Hex(bool _modoIA) : modoIA(_modoIA), jugadorActual(1), 
+    juegoTerminado(false), ganador(0), primerMovimiento(true), 
+    puedeRobar(false), ultimaFila(-1), ultimaColumna(-1) {
+    grafo = GrafoHex(modoIA);
 }
 
 bool Hex::procesarMovimiento(int jugador, int input) {

@@ -1718,6 +1718,7 @@ std::string obtenerSimboloMinijuego(TipoMiniJuego tipo) {
 
 // Nueva función para jugar Hex vs IA
 void abrirHexVsIA(int casilla, Tablero& tablero, sf::Music& musicaFondo) {
+    
     casillaMiniJuego = casilla;
 
     sf::RenderWindow ventanaHex(sf::VideoMode({800, 700}), "Juego Hex vs IA");
@@ -1778,17 +1779,26 @@ void abrirHexVsIA(int casilla, Tablero& tablero, sf::Music& musicaFondo) {
     txtAyuda.setFillColor(sf::Color::White);
 
     // Configurar tablero hexagonal
-    const int TABLERO_SIZE = 11;
-    const float HEX_RADIO = 20.0f;
-    const float HEX_SPACING = 40.0f;
+    const int TABLERO_SIZE = 7;
+    const float HEX_RADIO = 35.0f;
+    const float HEX_SPACING = 60.0f;
+
+    // Calcular dimensiones totales del tablero
+    const float TABLERO_ANCHO = TABLERO_SIZE * HEX_SPACING;
+    const float TABLERO_ALTO = TABLERO_SIZE * (HEX_SPACING * 0.866f);
+
+    // Calcular offsets para centrar
+    const float OFFSET_X = (800 - TABLERO_ANCHO - 150) / 2;  // 800 es el ancho de la ventana
+    const float OFFSET_Y = (700 - TABLERO_ALTO) / 2 + 50;   // 700 es el alto de la ventana
 
     std::vector<std::vector<sf::CircleShape>> tableroHex(TABLERO_SIZE, std::vector<sf::CircleShape>(TABLERO_SIZE));
 
-    // Crear hexágonos
+    // En el bucle donde se crean los hexágonos:
     for(int fila = 0; fila < TABLERO_SIZE; fila++) {
         for(int col = 0; col < TABLERO_SIZE; col++) {
-            float x = 100 + col * HEX_SPACING + (fila * HEX_SPACING * 0.5f);
-            float y = 200 + fila * (HEX_SPACING * 0.866f);
+            // Calcular posición con offset para centrado
+            float x = OFFSET_X + col * HEX_SPACING + (fila * HEX_SPACING * 0.5f);
+            float y = OFFSET_Y + fila * (HEX_SPACING * 0.866f);
 
             sf::CircleShape hex = crearHexagono(HEX_RADIO, {x, y});
             hex.setFillColor(sf::Color(255, 255, 255, 128));
@@ -1812,7 +1822,8 @@ void abrirHexVsIA(int casilla, Tablero& tablero, sf::Music& musicaFondo) {
     }
 
     // Crear instancias del juego y la IA
-    Hex juegoHex;
+    Hex juegoHex(true);
+    
     IAHex ia(4, 100); // Profundidad 4, dificultad 75
     bool turnoJugador = true;
 

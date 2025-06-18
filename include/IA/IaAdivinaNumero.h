@@ -11,21 +11,12 @@ private:
     std::vector<int> intentosAnteriores; // Historial de intentos
 
 public:
-    // Constructor que inicializa los límites de búsqueda
     IaAdivinaNumero();
-
-    // Método principal para hacer una predicción
     int hacerPrediccion();
-
-    // Método para actualizar los límites basado en la respuesta
     void actualizarLimites(bool esMayor);
-
-    // Método para reiniciar la IA
     void reiniciar();
-
-    // Método para verificar si un número ya fue intentado
     bool numeroYaIntentado(int numero) const;
 };
 
-#endif // IA_ADIVINA_NUMERO_H
+#endif
 

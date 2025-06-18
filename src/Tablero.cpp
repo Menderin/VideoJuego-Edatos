@@ -18,6 +18,20 @@ void Tablero::inicializarMatriz() {
     }
 }
 
+void Tablero::reiniciarEstadoJuego() {
+    estadoJuego = EstadoJuego::EN_CURSO;
+    turnoActual = 1;
+    fichasJ1 = 0;
+    fichasJ2 = 0;
+    
+    // Reiniciar el estado de todos los nodos
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            matrizNodos[i][j].reiniciar();
+        }
+    }
+}
+
 void Tablero::reiniciar() {
     for (int i = 0; i < 3; i++) {
         for (int j = 0; j < 3; j++) {

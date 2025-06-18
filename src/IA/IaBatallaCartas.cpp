@@ -1,10 +1,74 @@
 #include "IA/IaBatallaCartas.h"
 #include <algorithm>
 #include <random>
+#include <limits>
 
 IaBatallaCartas::IaBatallaCartas(int nivelDificultad) : 
     puntosIA(0), puntosJugador(0), dificultad(nivelDificultad) {
     reiniciar();
+}
+
+int IaBatallaCartas::evaluarEstado(const Estado& estado) {
+    int valorEstado = 0;
+    
+    // Evaluar diferencia de puntos
+    valorEstado += (estado.puntosIA - estado.puntosJugador) * 100;
+    
+    // Evaluar cartas restantes
+    if (!estado.cartasIA.empty()) {
+        int sumaCartas = 0;
+        for (int carta : estado.cartasIA) {
+            sumaCartas += carta;
+        }
+        valorEstado += sumaCartas / estado.cartasIA.size();
+    }
+    
+    return valorEstado;
+}
+
+int IaBatallaCartas::minimax(Estado estado, int profundidad, int alpha, int beta, bool esMaximizando) {
+    if (profundidad == 0 || estado.cartasIA.empty()) {
+        return evaluarEstado(estado);
+    }
+
+    if (esMaximizando) {
+        int mejorValor = std::numeric_limits<int>::min();
+        for (int carta : estado.cartasIA) {
+            Estado nuevoEstado = estado;
+            auto it = std::find(nuevoEstado.cartasIA.begin(), nuevoEstado.cartasIA.end(), carta);
+            if (it != nuevoEstado.cartasIA.end()) {
+                nuevoEstado.cartasIA.erase(it);
+            }
+            
+            if (carta > estado.ultimaCartaJugador) {
+                nuevoEstado.puntosIA++;
+            }
+
+            int valor = minimax(nuevoEstado, profundidad - 1, alpha, beta, false);
+            mejorValor = std::max(mejorValor, valor);
+            alpha = std::max(alpha, mejorValor);
+
+            if (beta <= alpha) break; // Poda alfa-beta
+        }
+        return mejorValor;
+    } else {
+        int mejorValor = std::numeric_limits<int>::max();
+        for (int posibleCarta = 1; posibleCarta <= 15; posibleCarta++) {
+            Estado nuevoEstado = estado;
+            nuevoEstado.ultimaCartaJugador = posibleCarta;
+            
+            if (posibleCarta > estado.ultimaCartaJugador) {
+                nuevoEstado.puntosJugador++;
+            }
+
+            int valor = minimax(nuevoEstado, profundidad - 1, alpha, beta, true);
+            mejorValor = std::min(mejorValor, valor);
+            beta = std::min(beta, mejorValor);
+
+            if (beta <= alpha) break; // Poda alfa-beta
+        }
+        return mejorValor;
+    }
 }
 
 int IaBatallaCartas::elegirCarta(int cartaJugador) {
@@ -12,44 +76,37 @@ int IaBatallaCartas::elegirCarta(int cartaJugador) {
         return -1;
     }
 
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_int_distribution<> dis(1, 100);
+    Estado estadoInicial;
+    estadoInicial.cartasIA = cartasDisponibles;
+    estadoInicial.puntosIA = puntosIA;
+    estadoInicial.puntosJugador = puntosJugador;
+    estadoInicial.ultimaCartaJugador = cartaJugador;
 
-    // Si la dificultad supera el número aleatorio, la IA juega de manera inteligente
-    if (dis(gen) <= dificultad) {
-        // Si conocemos la carta del jugador, intentamos ganar con la carta más baja posible
-        if (cartaJugador != -1) {
-            for (int carta : cartasDisponibles) {
-                if (carta > cartaJugador) {
-                    auto it = std::find(cartasDisponibles.begin(), cartasDisponibles.end(), carta);
-                    cartasDisponibles.erase(it);
-                    return carta;
-                }
-            }
+    int mejorValor = std::numeric_limits<int>::min();
+    int mejorCarta = cartasDisponibles[0];
+
+    for (int carta : cartasDisponibles) {
+        Estado nuevoEstado = estadoInicial;
+        auto it = std::find(nuevoEstado.cartasIA.begin(), nuevoEstado.cartasIA.end(), carta);
+        if (it != nuevoEstado.cartasIA.end()) {
+            nuevoEstado.cartasIA.erase(it);
         }
+
+        int valor = minimax(nuevoEstado, 3, std::numeric_limits<int>::min(), 
+                          std::numeric_limits<int>::max(), false);
         
-        // Si no conocemos la carta del jugador o no podemos ganar,
-        // jugamos la carta más alta si vamos perdiendo, o la más baja si vamos ganando
-        if (puntosIA <= puntosJugador) {
-            int cartaMasAlta = *std::max_element(cartasDisponibles.begin(), cartasDisponibles.end());
-            auto it = std::find(cartasDisponibles.begin(), cartasDisponibles.end(), cartaMasAlta);
-            cartasDisponibles.erase(it);
-            return cartaMasAlta;
-        } else {
-            int cartaMasBaja = *std::min_element(cartasDisponibles.begin(), cartasDisponibles.end());
-            auto it = std::find(cartasDisponibles.begin(), cartasDisponibles.end(), cartaMasBaja);
-            cartasDisponibles.erase(it);
-            return cartaMasBaja;
+        if (valor > mejorValor) {
+            mejorValor = valor;
+            mejorCarta = carta;
         }
     }
 
-    // Jugar de manera aleatoria
-    std::uniform_int_distribution<> cartaDis(0, cartasDisponibles.size() - 1);
-    int index = cartaDis(gen);
-    int cartaElegida = cartasDisponibles[index];
-    cartasDisponibles.erase(cartasDisponibles.begin() + index);
-    return cartaElegida;
+    auto it = std::find(cartasDisponibles.begin(), cartasDisponibles.end(), mejorCarta);
+    if (it != cartasDisponibles.end()) {
+        cartasDisponibles.erase(it);
+    }
+
+    return mejorCarta;
 }
 
 void IaBatallaCartas::actualizarCartas(const std::vector<int>& nuevasCartas) {

@@ -1948,8 +1948,8 @@ void abrirAdivinaNumeroVsIA(int casilla, Tablero& tablero, sf::Music& musicaFond
     titulo.setPosition({145, 30});
     titulo.setFillColor(sf::Color::Black);
 
-    sf::Text mensajeJugador(fuente, "Elige tu numero secreto (1-100)", 24);
-    mensajeJugador.setPosition({150, 90});
+    sf::Text mensajeJugador(fuente, "Elige tu numero secreto (1-100)", 22);
+    mensajeJugador.setPosition({130, 90});
     mensajeJugador.setFillColor(sf::Color::White);
 
     // Campo de entrada y número

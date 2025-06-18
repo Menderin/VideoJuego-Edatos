@@ -17,7 +17,7 @@ g++ -Iinclude src/GUI/gui2.cpp src/Nodo.cpp src/Tablero.cpp src/MiniJuegos/Adivi
 
 Linea de Ejecucion
 
-.\bin\testTableroNodo.exe  
+.\bin\testTableroNodoIa.exe  
 
 -----------------------------------------------------------------
 

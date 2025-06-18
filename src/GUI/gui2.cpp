@@ -1222,7 +1222,7 @@ void mostrarVentanaAyudaBatallaCartas() {
 
 // Función para la ventana de cada jugador bounds.position.x/2
 bool ventanaJugador(bool esJugador1, std::vector<int>& valoresCartas, int& cartaSeleccionada, int puntosJ1, int puntosJ2, bool& iaPensando) {
-    std::string titulo = esJugador1 ? "Turno Jugador 1" : "Turno IA";
+    std::string titulo = esJugador1 ? "Turno Jugador 1" : "Turno Jugador 2";
     sf::Color colorJugador = esJugador1 ? sf::Color::Blue : sf::Color::Red;
     
     sf::RenderWindow ventana(sf::VideoMode({800, 600}), titulo);

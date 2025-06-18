@@ -1945,12 +1945,12 @@ void abrirAdivinaNumeroVsIA(int casilla, Tablero& tablero, sf::Music& musicaFond
     spriteFondo.setScale(scale);
 
     // Elementos de UI
-    sf::RectangleShape RectanguloTitulo({320, 50});
+    sf::RectangleShape RectanguloTitulo({330, 65});
     RectanguloTitulo.setPosition({140, 25});
     RectanguloTitulo.setFillColor(sf::Color(255, 255, 255, 128));
 
-    sf::Text titulo(fuente, "Adivina el Numero vs IA", 36);
-    titulo.setPosition({150, 30});
+    sf::Text titulo(fuente, "Adivina el Numero vs IA", 30);
+    titulo.setPosition({145, 30});
     titulo.setFillColor(sf::Color::Black);
 
     sf::Text mensajeJugador(fuente, "Elige tu numero secreto (1-100)", 24);

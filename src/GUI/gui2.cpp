@@ -1715,7 +1715,6 @@ std::string obtenerSimboloMinijuego(TipoMiniJuego tipo) {
     }
 }
 
-
 // Nueva función para jugar Hex vs IA
 void abrirHexVsIA(int casilla, Tablero& tablero, sf::Music& musicaFondo) {
     
@@ -1728,13 +1727,13 @@ void abrirHexVsIA(int casilla, Tablero& tablero, sf::Music& musicaFondo) {
     
     // Cargar y reproducir música de Hex
     sf::Music musicHex;
-    if (!musicHex.openFromFile("assets/Audios/Backgrounds/hex.ogg")) {
+    /*if (!musicHex.openFromFile("assets/Audios/Backgrounds/hex.ogg")) {
         std::cerr << "Error al cargar la música de Hex" << std::endl;
     } else {
         musicHex.setLooping(true);
         musicHex.setVolume(100.0f);
         musicHex.play();
-    }
+    }*/
 
     // Configurar fondo
     sf::Texture textureFondo;
@@ -1822,9 +1821,9 @@ void abrirHexVsIA(int casilla, Tablero& tablero, sf::Music& musicaFondo) {
     }
 
     // Crear instancias del juego y la IA
-    Hex juegoHex(true);
+    Hex juegoHex(TABLERO_SIZE,true);
     
-    IAHex ia(4, 100); // Profundidad 4, dificultad 75
+    IAHex ia(4, 10); // Profundidad 4, dificultad 75
     bool turnoJugador = true;
 
     // Loop principal
@@ -1853,8 +1852,9 @@ void abrirHexVsIA(int casilla, Tablero& tablero, sf::Music& musicaFondo) {
                 }
 
                 // Procesar clicks en el tablero
-                for(int fila = 0; fila < TABLERO_SIZE; fila++) {
-                    for(int col = 0; col < TABLERO_SIZE; col++) {
+                bool movimientoRealizado = false;
+                for(int fila = 0; fila < TABLERO_SIZE&&!movimientoRealizado; fila++) {
+                    for(int col = 0; col < TABLERO_SIZE&&!movimientoRealizado; col++) {
                         sf::Vector2f hexCenter = tableroHex[fila][col].getPosition() + sf::Vector2f(HEX_RADIO, HEX_RADIO);
                         float distance = std::sqrt(std::pow(mousePos.x - hexCenter.x, 2) + std::pow(mousePos.y - hexCenter.y, 2));
 
@@ -1874,6 +1874,7 @@ void abrirHexVsIA(int casilla, Tablero& tablero, sf::Music& musicaFondo) {
 
                                 turnoJugador = false;
                                 txtTurno.setString("Turno de la IA");
+                                movimientoRealizado = true;
                             }
                         }
                     }
@@ -2172,9 +2173,6 @@ void abrirAdivinaNumeroVsIA(int casilla, Tablero& tablero, sf::Music& musicaFond
     musicaFondo.play();
 }
 
-
-
-
 void abrirBatallaCartasVsIA(int casilla, Tablero& tablero, sf::Music& musicaFondo) {
     casillaMiniJuego = casilla;
     
@@ -2294,13 +2292,13 @@ int main() {
 
     // Cargar música de fondo
     sf::Music musicaFondo;
-    if (!musicaFondo.openFromFile("assets/Audios/backgrounds/musica1.ogg")) {
+    /*if (!musicaFondo.openFromFile("assets/Audios/backgrounds/musica1.ogg")) {
         std::cerr << "Error al cargar la música de fondo" << std::endl;
     } else {
         musicaFondo.setLooping(true); // Configurar la música para que se repita en bucle
         musicaFondo.setVolume(100.0f); // Ajustar el volumen
         musicaFondo.play(); // Reproducir la música
-    }
+    }*/
 
     // Cargar la imagen de fondo para el tablero principal
     sf::Texture textureFondoTablero;

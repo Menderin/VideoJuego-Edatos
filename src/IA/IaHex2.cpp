@@ -1,274 +1,410 @@
-#include "IA/IaHex.h"
+#include "IA/IaHexVnegamex.h"
 #include <algorithm>
 #include <climits>
 #include <random>
 #include <iostream>
 #include <chrono>
 #include <queue>
-#include <unordered_set>
-#include <unordered_map>
-
-// Cache para distancias calculadas
-struct EstadoHash {
-    size_t operator()(const std::vector<std::vector<EstadoCasilla>>& estado) const {
-        size_t hash = 0;
-        for(const auto& fila : estado) {
-            for(const auto& casilla : fila) {
-                hash ^= std::hash<int>{}(static_cast<int>(casilla)) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
-            }
-        }
-        return hash;
-    }
-};
-
-// Cache global para distancias
-std::unordered_map<size_t, int> cacheDistancias;
+#include <set>
 
 IAHex::IAHex(int profundidad, int dificultadIA) 
     : profundidadMaxima(profundidad), dificultad(dificultadIA), nodosExploradosTemp(0) {
-    profundidadMaxima = std::min(profundidad, 3); // Reducir profundidad máxima
+    profundidadMaxima = std::min(profundidad, 4);
     std::cout << "[DEBUG] IAHex inicializada - Profundidad: " << profundidadMaxima 
               << ", Dificultad: " << dificultadIA << std::endl;
+    std::cout << "[DEBUG] IA (Jugador 2) debe conectar NORTE-SUR (vertical)" << std::endl;
+    std::cout << "[DEBUG] Humano (Jugador 1) debe conectar ESTE-OESTE (horizontal)" << std::endl;
 }
 
-// Versión optimizada con cache y early termination
-int IAHex::calcularDistanciaCaminoOptimizada(const Hex& estadoJuego, EstadoCasilla jugador, bool esVertical) {
-    const int TABLERO_SIZE = 11;
+void IAHex::setDificultad(int nuevaDificultad) {
+    int anterior = dificultad;
+    dificultad = std::clamp(nuevaDificultad, 1, 100);
+    std::cout << "[DEBUG] Dificultad cambiada de " << anterior << " a " << dificultad << std::endl;
+}
+
+void IAHex::setProfundidadMaxima(int nuevaProfundidad) {
+    int anterior = profundidadMaxima;
+    profundidadMaxima = std::clamp(nuevaProfundidad, 1, 4);
+    std::cout << "[DEBUG] Profundidad cambiada de " << anterior << " a " << profundidadMaxima << std::endl;
+}
+
+// Función auxiliar para obtener vecinos en tablero hexagonal
+std::vector<Posicion> IAHex::obtenerVecinosHex(int fila, int columna) {
+    std::vector<Posicion> vecinos;
+    const int TABLERO_SIZE = 7;
     
-    // Crear hash del estado para cache
-    size_t hashEstado = 0;
-    for(int i = 0; i < TABLERO_SIZE; i++) {
-        for(int j = 0; j < TABLERO_SIZE; j++) {
-            hashEstado ^= std::hash<int>{}(static_cast<int>(estadoJuego.getCasilla(i, j))) + 
-                         std::hash<int>{}(i * TABLERO_SIZE + j) + 0x9e3779b9;
+    // En un tablero hexagonal, cada casilla tiene hasta 6 vecinos
+    int direcciones[6][2] = {
+        {-1, 0}, {-1, 1},  // Arriba-izquierda, Arriba-derecha
+        {0, -1}, {0, 1},   // Izquierda, Derecha
+        {1, -1}, {1, 0}    // Abajo-izquierda, Abajo-derecha
+    };
+    
+    for(int i = 0; i < 6; i++) {
+        int nuevaFila = fila + direcciones[i][0];
+        int nuevaCol = columna + direcciones[i][1];
+        
+        if(nuevaFila >= 0 && nuevaFila < TABLERO_SIZE && 
+           nuevaCol >= 0 && nuevaCol < TABLERO_SIZE) {
+            vecinos.push_back(Posicion(nuevaFila, nuevaCol));
         }
     }
-    hashEstado ^= std::hash<bool>{}(esVertical) + std::hash<int>{}(static_cast<int>(jugador));
     
-    // Verificar cache
-    auto it = cacheDistancias.find(hashEstado);
-    if(it != cacheDistancias.end()) {
-        return it->second;
-    }
+    return vecinos;
+}
+
+// Calcular distancia mínima entre dos bordes usando BFS
+int IAHex::calcularDistanciaCamino(const Hex& estadoJuego, EstadoCasilla jugador, bool esVertical) {
+    const int TABLERO_SIZE = 7;
+    std::queue<std::pair<Posicion, int>> cola;
+    std::set<std::pair<int, int>> visitados;
     
-    // Usar vector<bool> más eficiente para visitados
-    std::vector<std::vector<bool>> visitados(TABLERO_SIZE, std::vector<bool>(TABLERO_SIZE, false));
-    std::queue<std::pair<std::pair<int, int>, int>> cola;
-    
-    // Agregar casillas del borde inicial
+    // Agregar todas las casillas del borde inicial
     if(esVertical) { // Norte a Sur (IA)
         for(int j = 0; j < TABLERO_SIZE; j++) {
             if(estadoJuego.getCasilla(0, j) == jugador) {
-                cola.push({{0, j}, 0});
-                visitados[0][j] = true;
+                cola.push({Posicion(0, j), 0});
+                visitados.insert({0, j});
             }
         }
     } else { // Este a Oeste (Humano)
         for(int i = 0; i < TABLERO_SIZE; i++) {
             if(estadoJuego.getCasilla(i, 0) == jugador) {
-                cola.push({{i, 0}, 0});
-                visitados[i][0] = true;
+                cola.push({Posicion(i, 0), 0});
+                visitados.insert({i, 0});
             }
         }
     }
-    
-    int resultado = 999;
     
     while(!cola.empty()) {
         auto actual = cola.front();
         cola.pop();
         
-        int fila = actual.first.first;
-        int col = actual.first.second;
+        Posicion pos = actual.first;
         int distancia = actual.second;
         
-        // Early termination si encontramos una distancia muy buena
-        if(distancia >= 8) break;
-        
         // Verificar si llegamos al borde opuesto
-        if((esVertical && fila == TABLERO_SIZE - 1) || (!esVertical && col == TABLERO_SIZE - 1)) {
-            resultado = distancia;
-            break;
+        bool llegadaObjetivo = false;
+        if(esVertical && pos.fila == TABLERO_SIZE - 1) { // Llegó al sur
+            llegadaObjetivo = true;
+        } else if(!esVertical && pos.columna == TABLERO_SIZE - 1) { // Llegó al este
+            llegadaObjetivo = true;
         }
         
-        // Explorar vecinos (versión optimizada)
-        static const int direcciones[6][2] = {
-            {-1, 0}, {-1, 1}, {0, -1}, {0, 1}, {1, -1}, {1, 0}
-        };
+        if(llegadaObjetivo) {
+            return distancia;
+        }
         
-        for(int i = 0; i < 6; i++) {
-            int nuevaFila = fila + direcciones[i][0];
-            int nuevaCol = col + direcciones[i][1];
-            
-            if(nuevaFila >= 0 && nuevaFila < TABLERO_SIZE && 
-               nuevaCol >= 0 && nuevaCol < TABLERO_SIZE && 
-               !visitados[nuevaFila][nuevaCol]) {
-                
-                EstadoCasilla casillaVecino = estadoJuego.getCasilla(nuevaFila, nuevaCol);
+        // Explorar vecinos
+        for(const auto& vecino : obtenerVecinosHex(pos.fila, pos.columna)) {
+            if(visitados.find({vecino.fila, vecino.columna}) == visitados.end()) {
+                EstadoCasilla casillaVecino = estadoJuego.getCasilla(vecino.fila, vecino.columna);
                 
                 if(casillaVecino == jugador) {
-                    cola.push({{nuevaFila, nuevaCol}, distancia});
-                    visitados[nuevaFila][nuevaCol] = true;
+                    // Mismo jugador, distancia 0
+                    cola.push({vecino, distancia});
+                    visitados.insert({vecino.fila, vecino.columna});
                 } else if(casillaVecino == EstadoCasilla::VACIA) {
-                    cola.push({{nuevaFila, nuevaCol}, distancia + 1});
-                    visitados[nuevaFila][nuevaCol] = true;
+                    // Casilla vacía, distancia +1
+                    cola.push({vecino, distancia + 1});
+                    visitados.insert({vecino.fila, vecino.columna});
                 }
+                // No explorar casillas del oponente
             }
         }
     }
     
-    // Guardar en cache
-    cacheDistancias[hashEstado] = resultado;
-    
-    return resultado;
+    return 999; // No hay camino posible
 }
 
-// Selección inteligente de movimientos candidatos
-std::vector<Posicion> IAHex::obtenerMovimientosCandidatos(const Hex& estadoJuego) {
+std::vector<Posicion> IAHex::obtenerMovimientosDisponibles(const Hex& estadoJuego) {
     std::vector<Posicion> movimientos;
-    std::vector<std::pair<Posicion, int>> movimientosConPrioridad;
-    const int TABLERO_SIZE = 11;
-    
-    // Primera pasada: encontrar casillas vacías adyacentes a fichas existentes
-    std::unordered_set<std::pair<int, int>, std::hash<std::pair<int, int>>> candidatos;
+    const int TABLERO_SIZE = estadoJuego.getTamañoTablero();
     
     for(int i = 0; i < TABLERO_SIZE; i++) {
         for(int j = 0; j < TABLERO_SIZE; j++) {
-            if(estadoJuego.getCasilla(i, j) != EstadoCasilla::VACIA) {
-                // Agregar vecinos vacíos como candidatos
-                static const int direcciones[6][2] = {
-                    {-1, 0}, {-1, 1}, {0, -1}, {0, 1}, {1, -1}, {1, 0}
-                };
-                
-                for(int d = 0; d < 6; d++) {
-                    int ni = i + direcciones[d][0];
-                    int nj = j + direcciones[d][1];
-                    
-                    if(ni >= 0 && ni < TABLERO_SIZE && nj >= 0 && nj < TABLERO_SIZE &&
-                       estadoJuego.getCasilla(ni, nj) == EstadoCasilla::VACIA) {
-                        candidatos.insert({ni, nj});
-                    }
-                }
+            if(estadoJuego.getCasilla(i, j) == EstadoCasilla::VACIA) {
+                movimientos.push_back(Posicion(i, j));
             }
         }
     }
     
-    // Si no hay fichas en el tablero, empezar en el centro
-    if(candidatos.empty()) {
-        candidatos.insert({5, 5});
-        candidatos.insert({4, 5});
-        candidatos.insert({6, 5});
-        candidatos.insert({5, 4});
-        candidatos.insert({5, 6});
-    }
+    // Optimización: ordenar por prioridad estratégica
+    std::sort(movimientos.begin(), movimientos.end(), [&](const Posicion& a, const Posicion& b) {
+        return evaluarPrioridadMovimiento(estadoJuego, a) > evaluarPrioridadMovimiento(estadoJuego, b);
+    });
     
-    // Evaluar candidatos con función de prioridad simplificada
-    for(const auto& pos : candidatos) {
-        int prioridad = evaluarPrioridadSimple(estadoJuego, Posicion(pos.first, pos.second));
-        movimientosConPrioridad.push_back({Posicion(pos.first, pos.second), prioridad});
-    }
-    
-    // Ordenar por prioridad
-    std::sort(movimientosConPrioridad.begin(), movimientosConPrioridad.end(),
-              [](const auto& a, const auto& b) { return a.second > b.second; });
-    
-    // Extraer solo las posiciones, limitando a los mejores
-    int limite = std::min(8, static_cast<int>(movimientosConPrioridad.size()));
-    for(int i = 0; i < limite; i++) {
-        movimientos.push_back(movimientosConPrioridad[i].first);
+    // Limitar a los mejores movimientos para optimización
+    if(movimientos.size() > 15) {
+        movimientos.resize(15);
     }
     
     return movimientos;
 }
 
-// Función de evaluación simplificada y rápida
-int IAHex::evaluarPrioridadSimple(const Hex& estadoJuego, const Posicion& mov) {
-    int prioridad = 0;
-    const int i = mov.fila;
-    const int j = mov.columna;
+int IAHex::evaluarDefensa(const Hex& estadoJuego) {
+    int puntuacion = 0;
     
-    // Conectividad con fichas propias (más rápido)
-    int conexionesIA = 0;
-    int conexionesOponente = 0;
+    // Calcular qué tan cerca está el oponente de ganar (ESTE-OESTE)
+    int distanciaOponente = calcularDistanciaCamino(estadoJuego, EstadoCasilla::JUGADOR1, false);
     
-    static const int direcciones[6][2] = {
-        {-1, 0}, {-1, 1}, {0, -1}, {0, 1}, {1, -1}, {1, 0}
-    };
-    
-    for(int d = 0; d < 6; d++) {
-        int ni = i + direcciones[d][0];
-        int nj = j + direcciones[d][1];
-        
-        if(ni >= 0 && ni < 11 && nj >= 0 && nj < 11) {
-            EstadoCasilla casilla = estadoJuego.getCasilla(ni, nj);
-            if(casilla == EstadoCasilla::JUGADOR2) {
-                conexionesIA++;
-            } else if(casilla == EstadoCasilla::JUGADOR1) {
-                conexionesOponente++;
-            }
-        }
+    if(distanciaOponente <= 2) {
+        puntuacion -= 2000; // Amenaza crítica
+        std::cout << "[DEBUG] AMENAZA CRÍTICA: Oponente a distancia " << distanciaOponente << std::endl;
+    } else if(distanciaOponente <= 4) {
+        puntuacion -= 1000; // Amenaza seria
+        std::cout << "[DEBUG] AMENAZA SERIA: Oponente a distancia " << distanciaOponente << std::endl;
+    } else if(distanciaOponente <= 6) {
+        puntuacion -= 300; // Amenaza moderada
     }
-    
-    prioridad += conexionesIA * 100;
-    prioridad += conexionesOponente * 80; // Bloquear también es importante
-    
-    // Bonificación por cercanía al centro
-    int distanciaCentro = abs(i - 5) + abs(j - 5);
-    prioridad += (10 - distanciaCentro) * 5;
-    
-    // Bonificación por estar en el camino vertical (objetivo de la IA)
-    if(i <= 2 || i >= 8) prioridad += 30; // Cerca de los bordes norte/sur
-    
-    return prioridad;
-}
-
-// Evaluación de tablero optimizada
-int IAHex::evaluarTableroRapido(const Hex& estadoJuego) {
-    if(estadoJuego.estaTerminado()) {
-        int ganador = estadoJuego.getGanador();
-        return ganador == 2 ? 5000 : -5000;
-    }
-
-    int distanciaIA = calcularDistanciaCaminoOptimizada(estadoJuego, EstadoCasilla::JUGADOR2, true);
-    int distanciaOponente = calcularDistanciaCaminoOptimizada(estadoJuego, EstadoCasilla::JUGADOR1, false);
-    
-    int puntuacion = (distanciaOponente - distanciaIA) * 100;
-    
-    // Bonificaciones simples
-    if(distanciaIA <= 2) puntuacion += 1000;
-    else if(distanciaIA <= 4) puntuacion += 300;
-    
-    if(distanciaOponente <= 2) puntuacion -= 1200;
-    else if(distanciaOponente <= 4) puntuacion -= 400;
     
     return puntuacion;
 }
 
-// Minimax optimizado con time limit y mejor poda
-int IAHex::minimaxOptimizado(Hex& estadoJuego, int profundidad, int alfa, int beta, 
-                            bool esMaximizador, std::chrono::steady_clock::time_point tiempoLimite) {
-    nodosExploradosTemp++;
+int IAHex::evaluarAtaque(const Hex& estadoJuego) {
+    int puntuacion = 0;
     
-    // Verificar límite de tiempo
-    if(std::chrono::steady_clock::now() > tiempoLimite) {
-        return evaluarTableroRapido(estadoJuego);
+    // Calcular qué tan cerca estamos de ganar (NORTE-SUR)
+    int nuestraDistancia = calcularDistanciaCamino(estadoJuego, EstadoCasilla::JUGADOR2, true);
+    
+    if(nuestraDistancia <= 2) {
+        puntuacion += 2000; // Estamos muy cerca de ganar
+        std::cout << "[DEBUG] OPORTUNIDAD DE VICTORIA: Distancia " << nuestraDistancia << std::endl;
+    } else if(nuestraDistancia <= 4) {
+        puntuacion += 1000; // Buena posición
+        std::cout << "[DEBUG] BUENA POSICIÓN: Distancia " << nuestraDistancia << std::endl;
+    } else if(nuestraDistancia <= 6) {
+        puntuacion += 400; // Posición aceptable
+    } else if(nuestraDistancia < 999) {
+        puntuacion += 100; // Al menos hay camino
     }
     
-    if(profundidad <= 0 || estadoJuego.estaTerminado() || nodosExploradosTemp > 2000) {
-        return evaluarTableroRapido(estadoJuego);
+    // Bonificación por controlar el centro (estratégicamente importante)
+    const int centro = 5;
+    for(int i = centro - 1; i <= centro + 1; i++) {
+        for(int j = centro - 1; j <= centro + 1; j++) {
+            if(estadoJuego.getCasilla(i, j) == EstadoCasilla::JUGADOR2) {
+                puntuacion += 50;
+            }
+        }
+    }
+    
+    return puntuacion;
+}
+
+int IAHex::evaluarPrioridadMovimiento(const Hex& estadoJuego, const Posicion& mov) {
+    int prioridad = 0;
+    const int i = mov.fila;
+    const int j = mov.columna;
+    
+    // Simular el movimiento y evaluar mejora
+    Hex copia = estadoJuego;
+    copia.hacerMovimiento(i, j); // Fixed: removed third parameter
+    
+    int distanciaAntes = calcularDistanciaCamino(estadoJuego, EstadoCasilla::JUGADOR2, true);
+    int distanciaDespues = calcularDistanciaCamino(copia, EstadoCasilla::JUGADOR2, true);
+    
+    // Alta prioridad si reduce nuestra distancia al objetivo
+    if(distanciaDespues < distanciaAntes) {
+        prioridad += (distanciaAntes - distanciaDespues) * 300;
+        std::cout << "[DEBUG] Movimiento (" << i << "," << j << ") reduce distancia de " 
+                  << distanciaAntes << " a " << distanciaDespues << std::endl;
+    }
+    
+    // Evaluar si bloquea al oponente
+    copia = estadoJuego;
+    copia.hacerMovimiento(i, j); // Fixed: removed third parameter
+    int distanciaOponenteAntes = calcularDistanciaCamino(estadoJuego, EstadoCasilla::JUGADOR1, false);
+    int distanciaOponenteDespues = calcularDistanciaCamino(copia, EstadoCasilla::JUGADOR1, false);
+    
+    if(distanciaOponenteDespues > distanciaOponenteAntes) {
+        prioridad += (distanciaOponenteDespues - distanciaOponenteAntes) * 200;
+        std::cout << "[DEBUG] Movimiento (" << i << "," << j << ") aumenta distancia oponente de " 
+                  << distanciaOponenteAntes << " a " << distanciaOponenteDespues << std::endl;
+    }
+    
+    // Prioridad por posición estratégica
+    // Centro del tablero
+    int distanciaCentro = abs(i - 5) + abs(j - 5);
+    prioridad += (10 - distanciaCentro) * 10;
+    
+    // Conectividad con fichas propias
+    int conexiones = 0;
+    for(const auto& vecino : obtenerVecinosHex(i, j)) {
+        if(estadoJuego.getCasilla(vecino.fila, vecino.columna) == EstadoCasilla::JUGADOR2) {
+            conexiones++;
+        }
+    }
+    prioridad += conexiones * 100;
+    
+    return prioridad;
+}
+
+int IAHex::evaluarTablero(const Hex& estadoJuego) {
+    if(estadoJuego.estaTerminado()) {
+        int ganador = estadoJuego.getGanador();
+        std::cout << "[DEBUG] JUEGO TERMINADO - Ganador: " << ganador << std::endl;
+        return ganador == 2 ? 8000 : -8000;
     }
 
-    std::vector<Posicion> movimientos = obtenerMovimientosCandidatos(estadoJuego);
+    int puntuacionDefensa = evaluarDefensa(estadoJuego);
+    int puntuacionAtaque = evaluarAtaque(estadoJuego);
+    
+    // Balance entre ataque y defensa
+    double factorAtaque = 0.6;
+    double factorDefensa = 0.4;
+    
+    int puntuacionFinal = static_cast<int>(
+        puntuacionDefensa * factorDefensa + 
+        puntuacionAtaque * factorAtaque
+    );
+    
+    std::cout << "[DEBUG] Evaluación - Defensa: " << puntuacionDefensa 
+              << ", Ataque: " << puntuacionAtaque << ", Total: " << puntuacionFinal << std::endl;
+    
+    return puntuacionFinal;
+}
+
+Posicion IAHex::buscarMovimientoOfensivo(const Hex& estadoJuego, const std::vector<Posicion>& movimientos) {
+    std::cout << "[DEBUG] Buscando movimiento ofensivo..." << std::endl;
+    
+    int mejorReduccion = 0;
+    Posicion mejorMovimiento(-1, -1);
+    int distanciaActual = calcularDistanciaCamino(estadoJuego, EstadoCasilla::JUGADOR2, true);
+    
+    for(const auto& mov : movimientos) {
+        Hex copia = estadoJuego;
+        if(copia.hacerMovimiento(mov.fila, mov.columna)) { // Fixed: removed third parameter
+            int nuevaDistancia = calcularDistanciaCamino(copia, EstadoCasilla::JUGADOR2, true);
+            int reduccion = distanciaActual - nuevaDistancia;
+            
+            if(reduccion > mejorReduccion) {
+                mejorReduccion = reduccion;
+                mejorMovimiento = mov;
+            }
+        }
+    }
+    
+    if(mejorReduccion > 0) {
+        std::cout << "[DEBUG] OPORTUNIDAD OFENSIVA: (" << mejorMovimiento.fila 
+                  << "," << mejorMovimiento.columna << ") reduce distancia en " 
+                  << mejorReduccion << std::endl;
+    }
+    
+    return mejorMovimiento;
+}
+
+bool IAHex::esAmenazaCritica(const Hex& estadoJuego, const Posicion& mov) {
+    // Simular movimiento del oponente
+    Hex copia = estadoJuego;
+    if(copia.hacerMovimiento(mov.fila, mov.columna)) { // Fixed: removed third parameter
+        int distanciaOponente = calcularDistanciaCamino(copia, EstadoCasilla::JUGADOR1, false);
+        return distanciaOponente <= 1; // Amenaza crítica si puede ganar en 1 movimiento
+    }
+    return false;
+}
+
+Posicion IAHex::calcularMejorMovimiento(Hex& estadoJuego) {
+    auto inicio = std::chrono::high_resolution_clock::now();
+    std::cout << "[DEBUG] ========== CALCULANDO MEJOR MOVIMIENTO ==========" << std::endl;
+    
+    try {
+        std::vector<Posicion> movimientos = obtenerMovimientosDisponibles(estadoJuego);
+        
+        if(movimientos.empty()) {
+            return Posicion(-1, -1);
+        }
+
+        // PASO 1: Verificar amenazas críticas del oponente
+        std::cout << "[DEBUG] PASO 1: Verificando amenazas críticas..." << std::endl;
+        for(const auto& mov : movimientos) {
+            if(esAmenazaCritica(estadoJuego, mov)) {
+                std::cout << "[DEBUG] *** DEFENSA CRÍTICA: (" << mov.fila << "," << mov.columna << ") ***" << std::endl;
+                return mov;
+            }
+        }
+
+        // PASO 2: Buscar oportunidades ofensivas
+        std::cout << "[DEBUG] PASO 2: Buscando oportunidades ofensivas..." << std::endl;
+        Posicion movOfensivo = buscarMovimientoOfensivo(estadoJuego, movimientos);
+        if(movOfensivo.fila != -1) {
+            int distanciaActual = calcularDistanciaCamino(estadoJuego, EstadoCasilla::JUGADOR2, true);
+            if(distanciaActual <= 3) { // Solo tomar oportunidad ofensiva si estamos cerca
+                std::cout << "[DEBUG] *** ATAQUE: (" << movOfensivo.fila << "," << movOfensivo.columna << ") ***" << std::endl;
+                return movOfensivo;
+            }
+        }
+
+        // PASO 3: Usar minimax para decisión estratégica
+        std::cout << "[DEBUG] PASO 3: Usando minimax..." << std::endl;
+        
+        int mejorValor = INT_MIN;
+        Posicion mejorMovimiento = movimientos[0];
+        
+        auto tiempoLimite = inicio + std::chrono::milliseconds(1500);
+
+        for(const auto& mov : movimientos) {
+            if(std::chrono::high_resolution_clock::now() > tiempoLimite) {
+                std::cout << "[DEBUG] LÍMITE DE TIEMPO ALCANZADO" << std::endl;
+                break;
+            }
+
+            Hex copiaEstado = estadoJuego;
+            if(copiaEstado.hacerMovimiento(mov.fila, mov.columna)) {
+                nodosExploradosTemp = 0;
+                int valor = minimax(copiaEstado, profundidadMaxima - 1, INT_MIN, INT_MAX, false);
+                
+                std::cout << "[DEBUG] Movimiento (" << mov.fila << "," << mov.columna 
+                          << ") valor: " << valor << std::endl;
+                
+                if(valor > mejorValor) {
+                    mejorValor = valor;
+                    mejorMovimiento = mov;
+                }
+            }
+        }
+
+        auto fin = std::chrono::high_resolution_clock::now();
+        auto duracion = std::chrono::duration_cast<std::chrono::milliseconds>(fin - inicio);
+        
+        std::cout << "[DEBUG] ========== RESUMEN ==========" << std::endl;
+        std::cout << "[DEBUG] Mejor movimiento: (" << mejorMovimiento.fila << "," << mejorMovimiento.columna << ")" << std::endl;
+        std::cout << "[DEBUG] Valor: " << mejorValor << std::endl;
+        std::cout << "[DEBUG] Tiempo: " << duracion.count() << "ms" << std::endl;
+        std::cout << "[DEBUG] ===============================" << std::endl;
+
+        return mejorMovimiento;
+
+    } catch(const std::exception& e) {
+        std::cerr << "[ERROR] Error en calcularMejorMovimiento: " << e.what() << std::endl;
+        std::vector<Posicion> movimientos = obtenerMovimientosDisponibles(estadoJuego);
+        return movimientos.empty() ? Posicion(-1, -1) : movimientos[0];
+    }
+}
+
+int IAHex::minimax(Hex& estadoJuego, int profundidad, int alfa, int beta, bool esMaximizador) {
+    nodosExploradosTemp++;
+    
+    if(nodosExploradosTemp > 5000 || profundidad <= 0 || estadoJuego.estaTerminado()) {
+        return evaluarTablero(estadoJuego);
+    }
+
+    std::vector<Posicion> movimientos = obtenerMovimientosDisponibles(estadoJuego);
+    
+    // Limitar movimientos para mejor rendimiento
+    if(movimientos.size() > 8) {
+        movimientos.resize(8);
+    }
     
     if(esMaximizador) {
         int mejorValor = INT_MIN;
         for(const auto& mov : movimientos) {
             Hex copiaEstado = estadoJuego;
             if(copiaEstado.hacerMovimiento(mov.fila, mov.columna)) {
-                int valor = minimaxOptimizado(copiaEstado, profundidad - 1, alfa, beta, false, tiempoLimite);
+                int valor = minimax(copiaEstado, profundidad - 1, alfa, beta, false);
                 mejorValor = std::max(mejorValor, valor);
                 alfa = std::max(alfa, mejorValor);
-                if(beta <= alfa) break; // Poda alfa-beta
+                if(beta <= alfa) break;
             }
         }
         return mejorValor;
@@ -277,91 +413,24 @@ int IAHex::minimaxOptimizado(Hex& estadoJuego, int profundidad, int alfa, int be
         for(const auto& mov : movimientos) {
             Hex copiaEstado = estadoJuego;
             if(copiaEstado.hacerMovimiento(mov.fila, mov.columna)) {
-                int valor = minimaxOptimizado(copiaEstado, profundidad - 1, alfa, beta, true, tiempoLimite);
+                int valor = minimax(copiaEstado, profundidad - 1, alfa, beta, true);
                 mejorValor = std::min(mejorValor, valor);
                 beta = std::min(beta, mejorValor);
-                if(beta <= alfa) break; // Poda alfa-beta
+                if(beta <= alfa) break;
             }
         }
         return mejorValor;
     }
 }
 
-// Función principal optimizada
-Posicion IAHex::calcularMejorMovimiento(Hex& estadoJuego) {
-    auto inicio = std::chrono::steady_clock::now();
-    auto tiempoLimite = inicio + std::chrono::milliseconds(800); // Reducir tiempo límite
+int IAHex::evaluarProgresoVictoria(const Hex& estadoJuego) {
+    int distanciaNuestra = calcularDistanciaCamino(estadoJuego, EstadoCasilla::JUGADOR2, true);
+    int distanciaOponente = calcularDistanciaCamino(estadoJuego, EstadoCasilla::JUGADOR1, false);
     
-    std::cout << "[DEBUG] Calculando movimiento optimizado..." << std::endl;
+    std::cout << "[DEBUG] === Progreso Victoria ===" << std::endl;
+    std::cout << "[DEBUG] Nuestra distancia (NORTE-SUR): " << distanciaNuestra << std::endl;
+    std::cout << "[DEBUG] Distancia oponente (ESTE-OESTE): " << distanciaOponente << std::endl;
     
-    std::vector<Posicion> movimientos = obtenerMovimientosCandidatos(estadoJuego);
-    
-    if(movimientos.empty()) {
-        return Posicion(5, 5); // Centro por defecto
-    }
-
-    // Verificar amenazas críticas rápidamente
-    for(const auto& mov : movimientos) {
-        Hex copia = estadoJuego;
-        if(copia.hacerMovimiento(mov.fila, mov.columna)) {
-            int distOponente = calcularDistanciaCaminoOptimizada(copia, EstadoCasilla::JUGADOR1, false);
-            if(distOponente == 0) { // El oponente ganaría
-                // Verificar si nosotros podemos bloquear
-                Hex copia2 = estadoJuego;
-                copia2.hacerMovimiento(mov.fila, mov.columna); // Nuestro movimiento
-                int distOponenteBloqueada = calcularDistanciaCaminoOptimizada(copia2, EstadoCasilla::JUGADOR1, false);
-                if(distOponenteBloqueada > 0) {
-                    std::cout << "[DEBUG] DEFENSA CRÍTICA: (" << mov.fila << "," << mov.columna << ")" << std::endl;
-                    return mov;
-                }
-            }
-        }
-    }
-
-    // Buscar victoria inmediata
-    for(const auto& mov : movimientos) {
-        Hex copia = estadoJuego;
-        if(copia.hacerMovimiento(mov.fila, mov.columna)) {
-            int nuestraDistancia = calcularDistanciaCaminoOptimizada(copia, EstadoCasilla::JUGADOR2, true);
-            if(nuestraDistancia == 0) {
-                std::cout << "[DEBUG] VICTORIA INMEDIATA: (" << mov.fila << "," << mov.columna << ")" << std::endl;
-                return mov;
-            }
-        }
-    }
-
-    // Minimax con tiempo limitado
-    int mejorValor = INT_MIN;
-    Posicion mejorMovimiento = movimientos[0];
-    
-    for(const auto& mov : movimientos) {
-        if(std::chrono::steady_clock::now() > tiempoLimite) break;
-        
-        Hex copiaEstado = estadoJuego;
-        if(copiaEstado.hacerMovimiento(mov.fila, mov.columna)) {
-            nodosExploradosTemp = 0;
-            int valor = minimaxOptimizado(copiaEstado, profundidadMaxima - 1, INT_MIN, INT_MAX, false, tiempoLimite);
-            
-            if(valor > mejorValor) {
-                mejorValor = valor;
-                mejorMovimiento = mov;
-            }
-        }
-    }
-
-    auto fin = std::chrono::steady_clock::now();
-    auto duracion = std::chrono::duration_cast<std::chrono::milliseconds>(fin - inicio);
-    
-    std::cout << "[DEBUG] Movimiento: (" << mejorMovimiento.fila << "," << mejorMovimiento.columna 
-              << ") Tiempo: " << duracion.count() << "ms" << std::endl;
-
-    return mejorMovimiento;
-}
-
-// Limpiar cache periódicamente para evitar uso excesivo de memoria
-void IAHex::limpiarCache() {
-    if(cacheDistancias.size() > 1000) {
-        cacheDistancias.clear();
-        std::cout << "[DEBUG] Cache limpiado" << std::endl;
-    }
+    // Retornar diferencia: positivo si estamos mejor, negativo si el oponente está mejor
+    return (distanciaOponente - distanciaNuestra) * 100;
 }

@@ -27,42 +27,40 @@ struct NodoHex {
 // Clase para manejar el grafo del tablero Hex
 class GrafoHex {
 private:
-    static const int TAMAÑO_TABLERO = 11;      // Tamaño para juego normal
-    static const int TAMAÑO_TABLERO_IA = 7;    // Tamaño para juego vs IA
+    int tamañoTablero; // Nuevo atributo dinámico
     std::unordered_map<int, NodoHex> nodos;
     bool modoIA;
-    
-    // Nodos virtuales para los bordes (para facilitar detección de victoria)
+
+    // Nodos virtuales para los bordes
     int nodoVirtualIzquierda;
     int nodoVirtualDerecha;
     int nodoVirtualArriba;
     int nodoVirtualAbajo;
-    
+
     int obtenerID(int fila, int col) const;
     void conectarVecinos();
     bool sonVecinos(int fila1, int col1, int fila2, int col2) const;
-    
+
 public:
-    GrafoHex(bool _modoIA = false);
-        
+    GrafoHex(int _tamaño = 11, bool _modoIA = false); // Cambiado: recibe tamaño
 
     void inicializar();
     void reiniciar();
-    
+
     // Operaciones básicas
     bool colocarFicha(int fila, int col, EstadoCasilla jugador);
     EstadoCasilla obtenerEstado(int fila, int col) const;
     bool esPosicionValida(int fila, int col) const;
     bool esCasillaVacia(int fila, int col) const;
-    
+
     // Detección de victoria usando DFS
     bool verificarVictoria(EstadoCasilla jugador);
     bool dfs(int nodoActual, int nodoDestino, EstadoCasilla jugador, std::unordered_set<int>& visitados);
-    
+
     // Getters
     const std::unordered_map<int, NodoHex>& getNodos() const { return nodos; }
-    int getTamañoTablero() const { return modoIA ? TAMAÑO_TABLERO_IA : TAMAÑO_TABLERO; }
-    
+    int getTamañoTablero() const { return tamañoTablero; } // Cambiado
+
     // Para debugging
     void mostrarGrafo() const;
     void mostrarConexiones(int fila, int col) const;
@@ -76,23 +74,22 @@ private:
     int ganador;
     bool primerMovimiento;
     bool puedeRobar;
-    int ultimaFila, ultimaColumna;  // Para la regla del robo
+    int ultimaFila, ultimaColumna;
     bool modoIA;
-    
-    // Métodos privados
+
     void mostrarTablero() const;
     void cambiarTurno();
     char obtenerSimbolo(EstadoCasilla estado) const;
-    
+
 public:
     // Constructor
-    Hex(bool _modoIA = false);
-    
+    Hex(int tamaño = 11, bool _modoIA = false); // Cambiado: recibe tamaño
+
     // Métodos virtuales puros de MiniJuego
     bool procesarMovimiento(int jugador, int input) override;
     void mostrarEstado() const override;
     void reiniciar() override;
-    
+
     // Métodos específicos de Hex
     void jugar();
     bool hacerMovimiento(int fila, int col);
@@ -100,17 +97,15 @@ public:
     int getGanador() const;
     bool estaTerminado() const;
     void mostrarInstrucciones() const;
-    
+
     // Getters para integración con Nodo.cpp
     EstadoCasilla getCasilla(int fila, int col) const;
     int getJugadorActual() const;
     bool getPuedeRobar() const;
     const GrafoHex& getGrafo() const { return grafo; }
-    
-    // Métodos adicionales necesarios para la integración
+
     int getTamañoTablero() const { return grafo.getTamañoTablero(); }
-    
-    // Método para verificar si una casilla está vacía (wrapper para mayor claridad)
+
     bool esCasillaVacia(int fila, int col) const {
         return grafo.esCasillaVacia(fila, col);
     }

@@ -6,14 +6,14 @@
 
 // ===================== IMPLEMENTACIÓN DE GrafoHex =====================
 
-GrafoHex::GrafoHex(bool _modoIA) : modoIA(_modoIA) {
+GrafoHex::GrafoHex(int _tamaño, bool _modoIA) : tamañoTablero(_tamaño), modoIA(_modoIA) {
     inicializar();
 }
 
 void GrafoHex::inicializar() {
     nodos.clear();
-    int tamaño = modoIA ? TAMAÑO_TABLERO_IA : TAMAÑO_TABLERO;
-    
+    int tamaño = tamañoTablero;
+
     // Crear nodos para cada casilla del tablero
     for (int i = 0; i < tamaño; i++) {
         for (int j = 0; j < tamaño; j++) {
@@ -21,18 +21,18 @@ void GrafoHex::inicializar() {
             nodos[id] = NodoHex(id, i, j);
         }
     }
-    
+
     // Crear nodos virtuales para los bordes
     nodoVirtualIzquierda = tamaño * tamaño;
     nodoVirtualDerecha = nodoVirtualIzquierda + 1;
     nodoVirtualArriba = nodoVirtualDerecha + 1;
     nodoVirtualAbajo = nodoVirtualArriba + 1;
-    
+
     nodos[nodoVirtualIzquierda] = NodoHex(nodoVirtualIzquierda, -1, -1);
     nodos[nodoVirtualDerecha] = NodoHex(nodoVirtualDerecha, -1, -1);
     nodos[nodoVirtualArriba] = NodoHex(nodoVirtualArriba, -1, -1);
     nodos[nodoVirtualAbajo] = NodoHex(nodoVirtualAbajo, -1, -1);
-    
+
     // Conectar nodos vecinos
     conectarVecinos();
 }
@@ -44,87 +44,71 @@ void GrafoHex::reiniciar() {
 }
 
 int GrafoHex::obtenerID(int fila, int col) const {
-    return fila * TAMAÑO_TABLERO + col;
+    return fila * tamañoTablero + col;
 }
 
-
-// Modificar la función conectarVecinos para asegurar conexiones correctas
 void GrafoHex::conectarVecinos() {
+    int tamaño = tamañoTablero;
     // Conectar casillas adyacentes
-    for (int i = 0; i < TAMAÑO_TABLERO; i++) {
-        for (int j = 0; j < TAMAÑO_TABLERO; j++) {
-            int idActual = obtenerID(i, j);
-            
-            // Direcciones para las 6 casillas adyacentes en un hexágono
-            const int direcciones[6][2] = {
-                {-1, 0},  // Arriba
-                {-1, 1},  // Arriba-derecha
-                {0, 1},   // Derecha
-                {1, 0},   // Abajo
-                {1, -1},  // Abajo-izquierda
-                {0, -1}   // Izquierda
+    for (int i = 0; i < tamaño; i++) {
+        for (int j = 0; j < tamaño; j++) {
+            int id = obtenerID(i, j);
+            std::vector<std::pair<int, int>> dirs = {
+                { -1, 0 }, { -1, 1 }, { 0, -1 },
+                { 0, 1 }, { 1, -1 }, { 1, 0 }
             };
-            
-            for (const auto& dir : direcciones) {
-                int nuevaFila = i + dir[0];
-                int nuevaCol = j + dir[1];
-                
-                if (esPosicionValida(nuevaFila, nuevaCol)) {
-                    int idVecino = obtenerID(nuevaFila, nuevaCol);
-                    nodos[idActual].vecinos.push_back(idVecino);
+            for (auto [di, dj] : dirs) {
+                int ni = i + di, nj = j + dj;
+                if (esPosicionValida(ni, nj)) {
+                    nodos[id].vecinos.push_back(obtenerID(ni, nj));
                 }
             }
         }
     }
-    
+
     // Conectar nodos virtuales con los bordes
-    for (int i = 0; i < TAMAÑO_TABLERO; i++) {
-        // Borde izquierdo
+    for (int i = 0; i < tamaño; i++) {
+        // Izquierda y derecha para jugador 1
         nodos[nodoVirtualIzquierda].vecinos.push_back(obtenerID(i, 0));
         nodos[obtenerID(i, 0)].vecinos.push_back(nodoVirtualIzquierda);
-        
-        // Borde derecho
-        nodos[nodoVirtualDerecha].vecinos.push_back(obtenerID(i, TAMAÑO_TABLERO-1));
-        nodos[obtenerID(i, TAMAÑO_TABLERO-1)].vecinos.push_back(nodoVirtualDerecha);
-        
-        // Borde superior
+
+        nodos[nodoVirtualDerecha].vecinos.push_back(obtenerID(i, tamaño - 1));
+        nodos[obtenerID(i, tamaño - 1)].vecinos.push_back(nodoVirtualDerecha);
+
+        // Arriba y abajo para jugador 2
         nodos[nodoVirtualArriba].vecinos.push_back(obtenerID(0, i));
         nodos[obtenerID(0, i)].vecinos.push_back(nodoVirtualArriba);
-        
-        // Borde inferior
-        nodos[nodoVirtualAbajo].vecinos.push_back(obtenerID(TAMAÑO_TABLERO-1, i));
-        nodos[obtenerID(TAMAÑO_TABLERO-1, i)].vecinos.push_back(nodoVirtualAbajo);
+
+        nodos[nodoVirtualAbajo].vecinos.push_back(obtenerID(tamaño - 1, i));
+        nodos[obtenerID(tamaño - 1, i)].vecinos.push_back(nodoVirtualAbajo);
     }
 }
-
 
 bool GrafoHex::colocarFicha(int fila, int col, EstadoCasilla jugador) {
     if (!esPosicionValida(fila, col) || !esCasillaVacia(fila, col)) {
         return false;
     }
-    
     int id = obtenerID(fila, col);
     nodos[id].estado = jugador;
     return true;
 }
 
 EstadoCasilla GrafoHex::obtenerEstado(int fila, int col) const {
-    if (!esPosicionValida(fila, col)) {
-        return EstadoCasilla::VACIA;
-    }
-    
+    if (!esPosicionValida(fila, col)) return EstadoCasilla::VACIA;
     int id = obtenerID(fila, col);
     auto it = nodos.find(id);
     return (it != nodos.end()) ? it->second.estado : EstadoCasilla::VACIA;
 }
 
 bool GrafoHex::esPosicionValida(int fila, int col) const {
-    return fila >= 0 && fila < TAMAÑO_TABLERO && col >= 0 && col < TAMAÑO_TABLERO;
+    return fila >= 0 && fila < tamañoTablero && col >= 0 && col < tamañoTablero;
 }
 
 bool GrafoHex::esCasillaVacia(int fila, int col) const {
     return obtenerEstado(fila, col) == EstadoCasilla::VACIA;
 }
+
+// ...resto de métodos igual, usando tamañoTablero en vez de TAMAÑO_TABLERO...
 
 // Modificar la función verificarVictoria en GrafoHex
 bool GrafoHex::verificarVictoria(EstadoCasilla jugador) {
@@ -136,11 +120,11 @@ bool GrafoHex::verificarVictoria(EstadoCasilla jugador) {
         bool hayFichaIzquierda = false;
         bool hayFichaDerecha = false;
         
-        for (int i = 0; i < TAMAÑO_TABLERO; i++) {
+        for (int i = 0; i < tamañoTablero; i++) {
             if (obtenerEstado(i, 0) == EstadoCasilla::JUGADOR1) {
                 hayFichaIzquierda = true;
             }
-            if (obtenerEstado(i, TAMAÑO_TABLERO-1) == EstadoCasilla::JUGADOR1) {
+            if (obtenerEstado(i, tamañoTablero-1) == EstadoCasilla::JUGADOR1) {
                 hayFichaDerecha = true;
             }
         }
@@ -156,11 +140,11 @@ bool GrafoHex::verificarVictoria(EstadoCasilla jugador) {
         bool hayFichaArriba = false;
         bool hayFichaAbajo = false;
         
-        for (int j = 0; j < TAMAÑO_TABLERO; j++) {
+        for (int j = 0; j < tamañoTablero; j++) {
             if (obtenerEstado(0, j) == EstadoCasilla::JUGADOR2) {
                 hayFichaArriba = true;
             }
-            if (obtenerEstado(TAMAÑO_TABLERO-1, j) == EstadoCasilla::JUGADOR2) {
+            if (obtenerEstado(tamañoTablero-1, j) == EstadoCasilla::JUGADOR2) {
                 hayFichaAbajo = true;
             }
         }
@@ -236,16 +220,15 @@ void GrafoHex::mostrarConexiones(int fila, int col) const {
 
 // ===================== IMPLEMENTACIÓN DE Hex =====================
 
-Hex::Hex(bool _modoIA) : modoIA(_modoIA), jugadorActual(1), 
-    juegoTerminado(false), ganador(0), primerMovimiento(true), 
-    puedeRobar(false), ultimaFila(-1), ultimaColumna(-1) {
-    grafo = GrafoHex(modoIA);
+Hex::Hex(int tamaño, bool _modoIA)
+    : grafo(tamaño, _modoIA), modoIA(_modoIA), jugadorActual(1),
+      juegoTerminado(false), ganador(0), primerMovimiento(true),
+      puedeRobar(false), ultimaFila(-1), ultimaColumna(-1) {
 }
 
 bool Hex::procesarMovimiento(int jugador, int input) {
     int fila = input / grafo.getTamañoTablero();
     int col = input % grafo.getTamañoTablero();
-    
     return hacerMovimiento(fila, col);
 }
 

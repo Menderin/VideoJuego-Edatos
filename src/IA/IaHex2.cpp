@@ -9,7 +9,7 @@
 
 IAHex::IAHex(int profundidad, int dificultadIA) 
     : profundidadMaxima(profundidad), dificultad(dificultadIA), nodosExploradosTemp(0) {
-    profundidadMaxima = std::min(profundidad, 4);
+    profundidadMaxima = std::min(profundidad, 10);
     std::cout << "[DEBUG] IAHex inicializada - Profundidad: " << profundidadMaxima 
               << ", Dificultad: " << dificultadIA << std::endl;
     std::cout << "[DEBUG] IA (Jugador 2) debe conectar NORTE-SUR (vertical)" << std::endl;
@@ -18,7 +18,7 @@ IAHex::IAHex(int profundidad, int dificultadIA)
 
 void IAHex::setDificultad(int nuevaDificultad) {
     int anterior = dificultad;
-    dificultad = std::clamp(nuevaDificultad, 1, 100);
+    dificultad = std::clamp(nuevaDificultad, 1, 500);
     std::cout << "[DEBUG] Dificultad cambiada de " << anterior << " a " << dificultad << std::endl;
 }
 

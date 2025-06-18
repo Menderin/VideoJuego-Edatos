@@ -217,7 +217,7 @@ void mostrarVentanaGanador(int puntosJ1, int puntosJ2) {
 
     sf::Text txtCerrar(fuente, "Cerrar", 20);
     txtCerrar.setPosition({270, 260}); 
-    txtCerrar.setFillColor(sf::Color::White);
+    txtCerrar.setFillColor(sf::Color::Black);
 
     
     while (ventanaGanador.isOpen()) {
@@ -464,7 +464,7 @@ void mostrarVentanaVictoria(int jugadorGanador, int numeroSecreto, Tablero& tabl
 
     sf::Text txtCerrar(fuente, "Cerrar", 20);
     txtCerrar.setPosition({225, 240});
-    txtCerrar.setFillColor(sf::Color::White);
+    txtCerrar.setFillColor(sf::Color::Black);
 
     // Loop de la ventana de victoria
     while (ventanaVictoria.isOpen()) {
@@ -1702,13 +1702,13 @@ void abrirHexVsIA(int casilla, Tablero& tablero, sf::Music& musicaFondo) {
     
     // Cargar y reproducir música de Hex
     sf::Music musicHex;
-    /*if (!musicHex.openFromFile("assets/Audios/Backgrounds/hex.ogg")) {
+    if (!musicHex.openFromFile("assets/Audios/Backgrounds/hex.ogg")) {
         std::cerr << "Error al cargar la música de Hex" << std::endl;
     } else {
         musicHex.setLooping(true);
         musicHex.setVolume(100.0f);
         musicHex.play();
-    }*/
+    }
 
     // Configurar fondo
     sf::Texture textureFondo;
@@ -2285,13 +2285,13 @@ int main() {
 
     // Cargar música de fondo
     sf::Music musicaFondo;
-    /*if (!musicaFondo.openFromFile("assets/Audios/backgrounds/musica1.ogg")) {
+    if (!musicaFondo.openFromFile("assets/Audios/backgrounds/musica1.ogg")) {
         std::cerr << "Error al cargar la música de fondo" << std::endl;
     } else {
         musicaFondo.setLooping(true); // Configurar la música para que se repita en bucle
         musicaFondo.setVolume(100.0f); // Ajustar el volumen
         musicaFondo.play(); // Reproducir la música
-    }*/
+    }
 
     // Cargar la imagen de fondo para el tablero principal
     sf::Texture textureFondoTablero;

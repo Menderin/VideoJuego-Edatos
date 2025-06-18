@@ -30,6 +30,7 @@ public:
     // Métodos de inicialización
     void inicializarMatriz();
     void reiniciar();
+    void reiniciarEstadoJuego();
     
     // Métodos de juego
     bool jugarNodo(int fila, int columna);

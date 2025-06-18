@@ -1,4 +1,3 @@
-
 #ifndef IA_BATALLA_CARTAS_H
 #define IA_BATALLA_CARTAS_H
 
@@ -7,25 +6,27 @@
 
 class IaBatallaCartas {
 private:
-    std::vector<int> cartasDisponibles;  // Cartas que la IA aún puede jugar
-    int puntosIA;                        // Puntos actuales de la IA
-    int puntosJugador;                   // Puntos actuales del jugador
-    int dificultad;                      // Nivel de dificultad de la IA (1-100)
+    std::vector<int> cartasDisponibles;
+    int puntosIA;
+    int puntosJugador;
+    int dificultad;
+
+    struct Estado {
+        std::vector<int> cartasIA;
+        int puntosIA;
+        int puntosJugador;
+        int ultimaCartaJugador;
+    };
+
+    // Declaración de métodos privados
+    int minimax(Estado estado, int profundidad, int alpha, int beta, bool esMaximizando);
+    int evaluarEstado(const Estado& estado);
 
 public:
-    // Constructor que inicializa la IA con un nivel de dificultad
     IaBatallaCartas(int nivelDificultad = 75);
-
-    // Método para elegir la carta a jugar
     int elegirCarta(int cartaJugador = -1);
-
-    // Método para actualizar las cartas disponibles
     void actualizarCartas(const std::vector<int>& nuevasCartas);
-
-    // Método para actualizar los puntos
     void actualizarPuntos(int puntosIA, int puntosJugador);
-
-    // Método para reiniciar la IA
     void reiniciar();
 };
 

@@ -1264,23 +1264,21 @@ bool ventanaJugador(bool esJugador1, std::vector<int>& valoresCartas, int& carta
         carta.setOutlineColor(sf::Color::Black);
         cartasVisuales.push_back(carta);
         
-        // Solo mostrar números si es el turno del jugador
-        if (esJugador1) {
-            // Número grande en el centro
-            sf::Text numero(fuente, std::to_string(valoresCartas[i]), 45);
-            auto bounds = numero.getLocalBounds();
-            float xPos = carta.getPosition().x + (CARTA_ANCHO/2) - (bounds.position.x/2);
-            float yPos = carta.getPosition().y + (CARTA_ALTO/2) - (bounds.position.y/2);
-            numero.setPosition({xPos, yPos});
-            numero.setFillColor(sf::Color::Black);
-            numerosCartas.push_back(numero);
-            
-            // Número pequeño en esquina
-            sf::Text numeroEsquina(fuente, std::to_string(valoresCartas[i]), 18);
-            numeroEsquina.setPosition({carta.getPosition().x + 8, carta.getPosition().y + 8});
-            numeroEsquina.setFillColor(sf::Color::Black);
-            numerosCartas.push_back(numeroEsquina);
-        }
+        // Mostrar números para ambos jugadores
+        // Número grande en el centro
+        sf::Text numero(fuente, std::to_string(valoresCartas[i]), 45);
+        auto bounds = numero.getLocalBounds();
+        float xPos = carta.getPosition().x + (CARTA_ANCHO/2) - (bounds.position.x/2);
+        float yPos = carta.getPosition().y + (CARTA_ALTO/2) - (bounds.position.y/2);
+        numero.setPosition({xPos, yPos});
+        numero.setFillColor(sf::Color::Black);
+        numerosCartas.push_back(numero);
+
+        // Número pequeño en esquina
+        sf::Text numeroEsquina(fuente, std::to_string(valoresCartas[i]), 18);
+        numeroEsquina.setPosition({carta.getPosition().x + 8, carta.getPosition().y + 8});
+        numeroEsquina.setFillColor(sf::Color::Black);
+        numerosCartas.push_back(numeroEsquina);
         
         // Número de posición
         sf::Text numeroPosicion(fuente, std::to_string(i + 1), 20);
@@ -2680,6 +2678,8 @@ int main() {
                 if (opcion == OpcionJuego::VOLVER_A_JUGAR) {
                     tablero = Tablero(); // Crear un nuevo tablero vacío
                     inicializarMinijuegosAleatorios(tablero); // Reiniciar minijuegos
+                    tablero.reiniciarEstadoJuego();
+                    victoriaMostrada = false; // Resetear el estado de victoria
                     // Actualizar símbolos de minijuegos
                     for(int i = 0; i < 9; i++) {
                         int fila = i / 3;
@@ -2693,18 +2693,19 @@ int main() {
                     for(int i = 0; i < 9; i++) {
                         fichasTablero[i].setString("");
                     }
-        
-                    victoriaMostrada = false; // Resetear el estado de victoria
+
+                    currentState = GameState::MENU;
+                    
 
                 } else if (opcion == OpcionJuego::SALIR) {
                     // Volver al menú principal
-                    currentState = GameState::MENU;
+                    window.close();
 
                     std::cout << "Regresando al menú principal" << std::endl;
                     exit(0);
                 }
 
-                victoriaMostrada = true;
+                victoriaMostrada = false; // Resetear el estado de victoria para evitar mostrarla varias veces
             }
         }
 

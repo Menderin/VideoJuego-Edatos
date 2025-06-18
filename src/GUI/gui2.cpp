@@ -15,7 +15,7 @@
 #include "Nodo.h"
 #include "Minijuegos/Minijuego.h"
 #include "Tablero.h"
-#include "IA/IaHex.h"
+#include "IA/IaHex2.h"
 #include "IA/IaAdivinaNumero.h"
 #include "IA/IaBatallaCartas.h"
 
@@ -1437,11 +1437,6 @@ bool ventanaJugador(bool esJugador1, std::vector<int>& valoresCartas, int& carta
     return false;
 }
 
-
-
-
-
-
 void mostrarVentanaAyuda() {
     sf::RenderWindow ventanaAyuda(sf::VideoMode({600, 400}), "Ayuda del Juego");
     sf::Font fuente("c:/WINDOWS/Fonts/ARIALI.TTF");
@@ -1803,7 +1798,7 @@ void abrirHexVsIA(int casilla, Tablero& tablero, sf::Music& musicaFondo) {
     // Crear instancias del juego y la IA
     Hex juegoHex(TABLERO_SIZE,true);
     
-    IAHex ia(4, 10); // Profundidad 4, dificultad 75
+    IAHex ia(3, 500); // Profundidad 3, dificultad 500 mejor version por el momento
     bool turnoJugador = true;
 
     // Loop principal

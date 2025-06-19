@@ -8,7 +8,7 @@
 #include <set>
 
 IAHex::IAHex(int profundidad, int dificultadIA) 
-    : profundidadMaxima(profundidad), dificultad(dificultadIA), nodosExploradosTemp(0) {
+    : profundidadMaxima(profundidad), dificultad(dificultadIA), nodosExploradosTemp(0), tiempoTotalMovimientos(0.0), cantidadMovimientos(0) {
     profundidadMaxima = std::min(profundidad, 10);
     std::cout << "[DEBUG] IAHex inicializada - Profundidad: " << profundidadMaxima 
               << ", Dificultad: " << dificultadIA << std::endl;
@@ -26,6 +26,24 @@ void IAHex::setProfundidadMaxima(int nuevaProfundidad) {
     int anterior = profundidadMaxima;
     profundidadMaxima = std::clamp(nuevaProfundidad, 1, 4);
     std::cout << "[DEBUG] Profundidad cambiada de " << anterior << " a " << profundidadMaxima << std::endl;
+}
+
+double IAHex::getTiempoPromedioMovimiento() const {
+    if (cantidadMovimientos == 0) return 0.0;
+    return tiempoTotalMovimientos / cantidadMovimientos;
+}
+
+double IAHex::getTiempoTotalMovimientos() const {
+    return tiempoTotalMovimientos;
+}
+
+int IAHex::getCantidadMovimientos() const {
+    return cantidadMovimientos;
+}
+
+void IAHex::resetEstadisticasTiempo() {
+    tiempoTotalMovimientos = 0.0;
+    cantidadMovimientos = 0;
 }
 
 // Función auxiliar para obtener vecinos en tablero hexagonal
@@ -304,6 +322,7 @@ bool IAHex::esAmenazaCritica(const Hex& estadoJuego, const Posicion& mov) {
     return false;
 }
 
+
 Posicion IAHex::calcularMejorMovimiento(Hex& estadoJuego) {
     auto inicio = std::chrono::high_resolution_clock::now();
     std::cout << "[DEBUG] ========== CALCULANDO MEJOR MOVIMIENTO ==========" << std::endl;
@@ -367,11 +386,18 @@ Posicion IAHex::calcularMejorMovimiento(Hex& estadoJuego) {
         auto fin = std::chrono::high_resolution_clock::now();
         auto duracion = std::chrono::duration_cast<std::chrono::milliseconds>(fin - inicio);
         
-        std::cout << "[DEBUG] ========== RESUMEN ==========" << std::endl;
-        std::cout << "[DEBUG] Mejor movimiento: (" << mejorMovimiento.fila << "," << mejorMovimiento.columna << ")" << std::endl;
-        std::cout << "[DEBUG] Valor: " << mejorValor << std::endl;
-        std::cout << "[DEBUG] Tiempo: " << duracion.count() << "ms" << std::endl;
-        std::cout << "[DEBUG] ===============================" << std::endl;
+        // Actualizar estadísticas
+        tiempoTotalMovimientos += duracion.count();
+        cantidadMovimientos++;
+        
+        // Agregar estos cout justo antes del return mejorMovimiento
+        std::cout << "\n=== Estadisticas de tiempo de la IA ===" << std::endl;
+        std::cout << "Tiempo del movimiento actual: " << duracion.count() << "ms" << std::endl;
+        std::cout << "Tiempo promedio por movimiento: " << getTiempoPromedioMovimiento() << "ms" << std::endl;
+        std::cout << "Tiempo total: " << getTiempoTotalMovimientos() << "ms" << std::endl;
+        std::cout << "Total movimientos: " << getCantidadMovimientos() << std::endl;
+        std::cout << "===============================" << std::endl;
+
 
         return mejorMovimiento;
 
@@ -381,6 +407,8 @@ Posicion IAHex::calcularMejorMovimiento(Hex& estadoJuego) {
         return movimientos.empty() ? Posicion(-1, -1) : movimientos[0];
     }
 }
+
+
 
 int IAHex::minimax(Hex& estadoJuego, int profundidad, int alfa, int beta, bool esMaximizador) {
     nodosExploradosTemp++;
@@ -434,3 +462,4 @@ int IAHex::evaluarProgresoVictoria(const Hex& estadoJuego) {
     // Retornar diferencia: positivo si estamos mejor, negativo si el oponente está mejor
     return (distanciaOponente - distanciaNuestra) * 100;
 }
+

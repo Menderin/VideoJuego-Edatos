@@ -7,6 +7,7 @@
 #include <vector>
 #include <algorithm>
 #include <SFML/Audio.hpp>
+#include <chrono>
 
 
 #include "MiniJuegos/AdivinaNumero/AdivinaNumero.h" 
@@ -15,7 +16,8 @@
 #include "Nodo.h"
 #include "Minijuegos/Minijuego.h"
 #include "Tablero.h"
-#include "IA/IaHex2.h"
+//#include "IA/IaHex2.h"
+#include "IA/IAhexVnegamex.h"
 #include "IA/IaAdivinaNumero.h"
 #include "IA/IaBatallaCartas.h"
 
@@ -1841,6 +1843,12 @@ void abrirHexVsIA(int casilla, Tablero& tablero, sf::Music& musicaFondo) {
                                     tablero.getNodo(casillaMiniJuego / 3, casillaMiniJuego % 3).setEstado(EstadoNodo::JUGADOR1);
                                     tablero.verificarVictoria();
                                     mostrarVentanaVictoria(1, -1, tablero);
+                                    // Agregar estos cout justo antes del return mejorMovimiento
+                                    std::cout << "\n=== TOTAL de estadisticas de la IA ===" << std::endl;
+                                    std::cout << "Tiempo promedio por movimiento: " << ia.getTiempoPromedioMovimiento() << "ms" << std::endl;
+                                    std::cout << "Tiempo total: " << ia.getTiempoTotalMovimientos() << "ms" << std::endl;
+                                    std::cout << "Total movimientos: " << ia.getCantidadMovimientos() << std::endl;
+                                    std::cout << "===============================" << std::endl;
                                     musicHex.stop();
                                     musicaFondo.play();
                                     ventanaHex.close();
@@ -1862,6 +1870,8 @@ void abrirHexVsIA(int casilla, Tablero& tablero, sf::Music& musicaFondo) {
             sf::sleep(sf::milliseconds(500));
             
             Posicion movimientoIA = ia.calcularMejorMovimiento(juegoHex);
+        
+        
             
             if (movimientoIA.fila >= 0 && movimientoIA.columna >= 0 && 
                 juegoHex.getCasilla(movimientoIA.fila, movimientoIA.columna) == EstadoCasilla::VACIA) {

@@ -19,6 +19,9 @@ private:
     
     // Variable de clase para contar nodos explorados
     int nodosExploradosTemp;
+
+    double tiempoTotalMovimientos;
+    int cantidadMovimientos;
     
     // MÉTODOS PRINCIPALES DE LA NUEVA LÓGICA
     
@@ -56,4 +59,9 @@ public:
     // Métodos auxiliares públicos
     void setDificultad(int nuevaDificultad);
     void setProfundidadMaxima(int nuevaProfundidad);
+    
+    double getTiempoPromedioMovimiento() const;
+    double getTiempoTotalMovimientos() const;
+    int getCantidadMovimientos() const;
+    void resetEstadisticasTiempo();
 };

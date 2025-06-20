@@ -217,7 +217,7 @@ int IAHex::evaluarPrioridadMovimiento(const Hex& estadoJuego, const Posicion& mo
     
     // Simular el movimiento y evaluar mejora
     Hex copia = estadoJuego;
-    copia.hacerMovimiento(i, j); // Fixed: removed third parameter
+    copia.hacerMovimiento(i, j); 
     
     int distanciaAntes = calcularDistanciaCamino(estadoJuego, EstadoCasilla::JUGADOR2, true);
     int distanciaDespues = calcularDistanciaCamino(copia, EstadoCasilla::JUGADOR2, true);
@@ -231,7 +231,7 @@ int IAHex::evaluarPrioridadMovimiento(const Hex& estadoJuego, const Posicion& mo
     
     // Evaluar si bloquea al oponente
     copia = estadoJuego;
-    copia.hacerMovimiento(i, j); // Fixed: removed third parameter
+    copia.hacerMovimiento(i, j); 
     int distanciaOponenteAntes = calcularDistanciaCamino(estadoJuego, EstadoCasilla::JUGADOR1, false);
     int distanciaOponenteDespues = calcularDistanciaCamino(copia, EstadoCasilla::JUGADOR1, false);
     
@@ -390,7 +390,7 @@ Posicion IAHex::calcularMejorMovimiento(Hex& estadoJuego) {
         tiempoTotalMovimientos += duracion.count();
         cantidadMovimientos++;
         
-        // Agregar estos cout justo antes del return mejorMovimiento
+       
         std::cout << "\n=== Estadisticas de tiempo de la IA ===" << std::endl;
         std::cout << "Tiempo del movimiento actual: " << duracion.count() << "ms" << std::endl;
         std::cout << "Tiempo promedio por movimiento: " << getTiempoPromedioMovimiento() << "ms" << std::endl;
@@ -462,4 +462,3 @@ int IAHex::evaluarProgresoVictoria(const Hex& estadoJuego) {
     // Retornar diferencia: positivo si estamos mejor, negativo si el oponente está mejor
     return (distanciaOponente - distanciaNuestra) * 100;
 }
-

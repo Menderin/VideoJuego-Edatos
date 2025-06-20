@@ -203,7 +203,7 @@ EstadoNodo Nodo::jugarMiniJuego() {
                     std::cout << "Entrada invalida. Elige una carta (1-" << std::min(5, (int)mazoJ1.size()) << "): ";
                     limpiarBuffer();
                 }
-                indiceJ1--; // Convertir a índice 0-based
+                indiceJ1--; // Convertir a índice 0
             } while (indiceJ1 < 0 || indiceJ1 >= (int)mazoJ1.size() || indiceJ1 >= 5);
             
             int cartaJ1 = mazoJ1[indiceJ1];

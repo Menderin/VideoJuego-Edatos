@@ -292,7 +292,7 @@ Posicion IAHex::buscarMovimientoOfensivo(const Hex& estadoJuego, const std::vect
     
     for(const auto& mov : movimientos) {
         Hex copia = estadoJuego;
-        if(copia.hacerMovimiento(mov.fila, mov.columna)) { // Fixed: removed third parameter
+        if(copia.hacerMovimiento(mov.fila, mov.columna)) { 
             int nuevaDistancia = calcularDistanciaCamino(copia, EstadoCasilla::JUGADOR2, true);
             int reduccion = distanciaActual - nuevaDistancia;
             
@@ -315,7 +315,7 @@ Posicion IAHex::buscarMovimientoOfensivo(const Hex& estadoJuego, const std::vect
 bool IAHex::esAmenazaCritica(const Hex& estadoJuego, const Posicion& mov) {
     // Simular movimiento del oponente
     Hex copia = estadoJuego;
-    if(copia.hacerMovimiento(mov.fila, mov.columna)) { // Fixed: removed third parameter
+    if(copia.hacerMovimiento(mov.fila, mov.columna)) { 
         int distanciaOponente = calcularDistanciaCamino(copia, EstadoCasilla::JUGADOR1, false);
         return distanciaOponente <= 1; // Amenaza crítica si puede ganar en 1 movimiento
     }

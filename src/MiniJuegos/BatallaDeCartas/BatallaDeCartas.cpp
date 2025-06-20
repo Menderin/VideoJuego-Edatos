@@ -103,8 +103,7 @@ void BatallaDeCartas::mostrarResultadoFinal() {
 
 // Implementación de métodos virtuales puros de MiniJuego con las firmas correctas
 bool BatallaDeCartas::procesarMovimiento(int jugador, int input) {
-    // Lógica para procesar movimiento según el jugador y el input
-    // Retorna true si el movimiento es válido, false si no
+
     
     if (jugador == 1) {
         // Validar que el input esté en rango válido para las cartas disponibles

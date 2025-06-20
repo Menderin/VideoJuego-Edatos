@@ -108,8 +108,6 @@ bool GrafoHex::esCasillaVacia(int fila, int col) const {
     return obtenerEstado(fila, col) == EstadoCasilla::VACIA;
 }
 
-// ...resto de métodos igual, usando tamañoTablero en vez de TAMAÑO_TABLERO...
-
 // Modificar la función verificarVictoria en GrafoHex
 bool GrafoHex::verificarVictoria(EstadoCasilla jugador) {
     std::unordered_set<int> visitados;

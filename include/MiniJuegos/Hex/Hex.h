@@ -42,7 +42,7 @@ private:
     bool sonVecinos(int fila1, int col1, int fila2, int col2) const;
 
 public:
-    GrafoHex(int _tamaño = 11, bool _modoIA = false); // Cambiado: recibe tamaño
+    GrafoHex(int _tamaño = 11, bool _modoIA = false); 
 
     void inicializar();
     void reiniciar();
@@ -59,7 +59,7 @@ public:
 
     // Getters
     const std::unordered_map<int, NodoHex>& getNodos() const { return nodos; }
-    int getTamañoTablero() const { return tamañoTablero; } // Cambiado
+    int getTamañoTablero() const { return tamañoTablero; } 
 
     // Para debugging
     void mostrarGrafo() const;
@@ -83,7 +83,7 @@ private:
 
 public:
     // Constructor
-    Hex(int tamaño = 11, bool _modoIA = false); // Cambiado: recibe tamaño
+    Hex(int tamaño = 11, bool _modoIA = false); 
 
     // Métodos virtuales puros de MiniJuego
     bool procesarMovimiento(int jugador, int input) override;

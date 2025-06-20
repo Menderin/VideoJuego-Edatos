@@ -23,7 +23,6 @@ private:
     double tiempoTotalMovimientos;
     int cantidadMovimientos;
     
-    // MÉTODOS PRINCIPALES DE LA NUEVA LÓGICA
     
     // Algoritmo de Dijkstra para calcular distancia mínima de conexión
     int dijkstra(const Hex& estadoJuego, EstadoCasilla jugador, bool esVertical);

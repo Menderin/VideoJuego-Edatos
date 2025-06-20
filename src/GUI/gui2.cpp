@@ -16,7 +16,6 @@
 #include "Nodo.h"
 #include "Minijuegos/Minijuego.h"
 #include "Tablero.h"
-//#include "IA/IaHex2.h"
 #include "IA/IAhexVnegamex.h"
 #include "IA/IaAdivinaNumero.h"
 #include "IA/IaBatallaCartas.h"
@@ -43,30 +42,13 @@ enum class OpcionJuego {
     NINGUNO
 };
 
-// Función para mostrar ventana de opciones después de la victoria
 OpcionJuego mostrarVentanaOpciones() {
     // Crear ventana de opciones
-
-    //sf::RenderWindow ventanaOpciones(sf::VideoMode({400, 300}), "Quieres volver a jugar?");
-
     sf::RenderWindow ventanaOpciones(sf::VideoMode({600, 600}), "Quieres volver a jugar?");
 
     
     // Crear fuente
     sf::Font fuente("c:/WINDOWS/Fonts/ARIALI.TTF");
-    
-
-    // Elementos de la ventana
-    /*sf::Text textoPregunta(fuente, "Quieres volver a jugar?", 25);
-    sf::RectangleShape btnVolverJugar({180, 50});
-    sf::RectangleShape btnSalir({120, 50});
-    sf::Text txtVolverJugar(fuente, "Volver a Jugar", 20);
-    sf::Text txtSalir(fuente, "Salir", 25);
-    
-    // Configurar posiciones y colores
-    // Alternative way using getSize()
-    textoPregunta.setPosition({110,60});
-    textoPregunta.setFillColor(sf::Color::Black);*/
 
     // Cargar la imagen de fondo
     sf::Texture textureFondo;
@@ -76,7 +58,7 @@ OpcionJuego mostrarVentanaOpciones() {
 
 
 
-        // Crear sprite para el fondo y ajustar escala
+     // Crear sprite para el fondo y ajustar escala
     sf::Sprite spriteFondo(textureFondo);
     sf::Vector2f scale(
         static_cast<float>(ventanaOpciones.getSize().x) / textureFondo.getSize().x,
@@ -150,7 +132,6 @@ OpcionJuego mostrarVentanaOpciones() {
         
         ventanaOpciones.clear(sf::Color::White);
         
-        // Dibujar elementos
         ventanaOpciones.draw(spriteFondo);
         ventanaOpciones.draw(textoPregunta);
         ventanaOpciones.draw(btnVolverJugar);
@@ -164,7 +145,6 @@ OpcionJuego mostrarVentanaOpciones() {
     return resultado;
 }
 
-// Función para mostrar la ventana del ganador - batlla de cartas
 void mostrarVentanaGanador(int puntosJ1, int puntosJ2) {
     sf::RenderWindow ventanaGanador(sf::VideoMode({600, 300}), "Resultado Final");
     sf::Font fuente("c:/WINDOWS/Fonts/ARIALI.TTF");
@@ -258,7 +238,6 @@ void mostrarVentanaGanador(int puntosJ1, int puntosJ2) {
 char tableroPrincipal[9] = {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '};
 int casillaMiniJuego = -1; // Para saber en qué casilla se jugó el minijuego
 
-// Función para mostrar ventana de victoria del tablero principal
 void mostrarVentanaVictoriaTablero(char simboloGanador) {
     sf::RenderWindow ventanaVictoria(sf::VideoMode({500, 300}), "Victoria del Tablero Principal!");
 
@@ -293,10 +272,7 @@ void mostrarVentanaVictoriaTablero(char simboloGanador) {
     textoGanador.setPosition({80, 50});
     textoGanador.setFillColor(sf::Color::Blue);
 
-    // Mensaje adicional
-    //sf::Text textoAdicional(fuente, "Consiguio 3 en linea en el tablero principal", 18);
-    //textoAdicional.setPosition({80, 160});
-    //textoAdicional.setFillColor(sf::Color::Black);
+
 
     // Botón para cerrar - POSICIÓN AJUSTADA A LA ESQUINA INFERIOR DERECHA
     sf::RectangleShape btnCerrar({120, 40});
@@ -330,7 +306,6 @@ void mostrarVentanaVictoriaTablero(char simboloGanador) {
         ventanaVictoria.draw(spriteFondo);
         ventanaVictoria.draw(tituloVictoria);
         ventanaVictoria.draw(textoGanador);
-        //ventanaVictoria.draw(btnCerrar);
         ventanaVictoria.draw(txtCerrar);
         ventanaVictoria.display();
     }
@@ -414,13 +389,11 @@ void mostrarVentanaVictoriaFichas(char simboloGanador) {
         ventanaVictoria.draw(tituloVictoria);
         ventanaVictoria.draw(textoGanador);
         ventanaVictoria.draw(textoAdicional);
-        //ventanaVictoria.draw(btnCerrar);
         ventanaVictoria.draw(txtCerrar);
         ventanaVictoria.display();
     }
 }
 
-// Función para mostrar ventana de victoria del minijuego (modificada)
 void mostrarVentanaVictoria(int jugadorGanador, int numeroSecreto, Tablero& tablero) {
     sf::RenderWindow ventanaVictoria(sf::VideoMode({500, 300}), "Victoria!");
 
@@ -654,11 +627,6 @@ void abrirHex(int casilla, Tablero& tablero,sf::Music& musicaFondo) {
     instrucciones.setPosition({220, 60});
     instrucciones.setFillColor(sf::Color::White);
 
-    // Botón de cerrar
-    /*sf::RectangleShape btnCerrar({100, 40});
-    btnCerrar.setPosition({350, 630});
-    btnCerrar.setFillColor(sf::Color::Red);*/
-
     sf::Text txtCerrar(fuente, "Cerrar", 25);
     txtCerrar.setPosition({360, 640});
     txtCerrar.setFillColor(sf::Color::White);
@@ -796,9 +764,7 @@ void abrirHex(int casilla, Tablero& tablero,sf::Music& musicaFondo) {
                 ventanaHex.draw(tableroHex[fila][col]);
             }
         }
-        //ventanaHex.draw(btnAyuda);
         ventanaHex.draw(txtAyuda);
-        //ventanaHex.draw(btnCerrar);
         ventanaHex.draw(txtCerrar);
         ventanaHex.display();
     }
@@ -1115,19 +1081,16 @@ void abrirAdivinaNumero(int casilla,Tablero& tablero,sf::Music& musicaFondo) {
             }
         }
         ventanaAdivina.clear(sf::Color::White);
-        ventanaAdivina.draw(spriteFondo); // Dibujar el fondo
+        ventanaAdivina.draw(spriteFondo); 
         ventanaAdivina.draw(RectanguloTitulo);
         ventanaAdivina.draw(titulo);
         ventanaAdivina.draw(mensajeJugador);
         ventanaAdivina.draw(campoNumero);
         ventanaAdivina.draw(textoNumero);
         ventanaAdivina.draw(instrucciones);
-        //ventanaAdivina.draw(btnConfirmar);
         ventanaAdivina.draw(txtConfirmar);
-       // ventanaAdivina.draw(btnCerrar);
         ventanaAdivina.draw(txtCerrar);
         ventanaAdivina.draw(mensajeResultado);
-        //ventanaAdivina.draw(btnAyuda);
         ventanaAdivina.draw(txtAyuda);
         ventanaAdivina.display();
     }
@@ -1222,7 +1185,6 @@ void mostrarVentanaAyudaBatallaCartas() {
     }
 }
 
-// Función para la ventana de cada jugador bounds.position.x/2
 bool ventanaJugador(bool esJugador1, std::vector<int>& valoresCartas, int& cartaSeleccionada, int puntosJ1, int puntosJ2, bool& iaPensando) {
     std::string titulo = esJugador1 ? "Turno Jugador 1" : "Turno Jugador 2";
     sf::Color colorJugador = esJugador1 ? sf::Color::Blue : sf::Color::Red;
@@ -1266,8 +1228,6 @@ bool ventanaJugador(bool esJugador1, std::vector<int>& valoresCartas, int& carta
         carta.setOutlineColor(sf::Color::Black);
         cartasVisuales.push_back(carta);
         
-        // Mostrar números para ambos jugadores
-        // Número grande en el centro
         sf::Text numero(fuente, std::to_string(valoresCartas[i]), 45);
         auto bounds = numero.getLocalBounds();
         float xPos = carta.getPosition().x + (CARTA_ANCHO/2) - (bounds.position.x/2);
@@ -1692,7 +1652,6 @@ std::string obtenerSimboloMinijuego(TipoMiniJuego tipo) {
     }
 }
 
-// Nueva función para jugar Hex vs IA
 void abrirHexVsIA(int casilla, Tablero& tablero, sf::Music& musicaFondo) {
     
     casillaMiniJuego = casilla;
@@ -1916,9 +1875,6 @@ void abrirHexVsIA(int casilla, Tablero& tablero, sf::Music& musicaFondo) {
     
     musicaFondo.play();
 }
-
-// Agregar después de la función abrirAdivinaNumero en gui2.cpp
-
 
 void abrirAdivinaNumeroVsIA(int casilla, Tablero& tablero, sf::Music& musicaFondo) {
     casillaMiniJuego = casilla;
@@ -2272,8 +2228,8 @@ int main() {
     // CENTRADO DEL TABLERO - Calcular offset para centrar
     const int CELL_SIZE = 160; // Tamaño de cada celda
     const int BOARD_SIZE = CELL_SIZE * 3; // 480 píxeles
-    const int OFFSET_X = (800 - BOARD_SIZE) / 2; // (800 - 480) / 2 = 160
-    const int OFFSET_Y = (800 - BOARD_SIZE) / 2; // (800 - 480) / 2 = 160
+    const int OFFSET_X = (800 - BOARD_SIZE) / 2; 
+    const int OFFSET_Y = (800 - BOARD_SIZE) / 2; 
     
     // Crear ventana
     sf::RenderWindow window(sf::VideoMode({800, 800}), "MendeWing");
@@ -2439,18 +2395,18 @@ int main() {
     }
 
     // Configuración de líneas verticales 
-    lineas[0].setSize({2, BOARD_SIZE});  // Vertical izquierda
-    lineas[1].setSize({2, BOARD_SIZE});  // Vertical derecha
+    lineas[0].setSize({2, BOARD_SIZE});  
+    lineas[1].setSize({2, BOARD_SIZE});  
 
     // Configuración de líneas horizontales
-    lineas[2].setSize({BOARD_SIZE, 2});  // Horizontal superior
-    lineas[3].setSize({BOARD_SIZE, 2});  // Horizontal inferior
+    lineas[2].setSize({BOARD_SIZE, 2});  
+    lineas[3].setSize({BOARD_SIZE, 2});  
 
     // Posicionamiento de líneas (CENTRADAS)
-    lineas[0].setPosition({OFFSET_X + CELL_SIZE, OFFSET_Y});     // Vertical izquierda
-    lineas[1].setPosition({OFFSET_X + CELL_SIZE * 2, OFFSET_Y}); // Vertical derecha
-    lineas[2].setPosition({OFFSET_X, OFFSET_Y + CELL_SIZE});     // Horizontal superior
-    lineas[3].setPosition({OFFSET_X, OFFSET_Y + CELL_SIZE * 2}); // Horizontal inferior
+    lineas[0].setPosition({OFFSET_X + CELL_SIZE, OFFSET_Y});     
+    lineas[1].setPosition({OFFSET_X + CELL_SIZE * 2, OFFSET_Y}); 
+    lineas[2].setPosition({OFFSET_X, OFFSET_Y + CELL_SIZE});     
+    lineas[3].setPosition({OFFSET_X, OFFSET_Y + CELL_SIZE * 2}); 
 
     // Crear símbolos para el tablero (CENTRADOS)
     sf::Text simbolos[9] = {
@@ -2471,8 +2427,8 @@ int main() {
         fichasTablero[i].setCharacterSize(80);
         fichasTablero[i].setFillColor(sf::Color::Red);
 
-        int x = OFFSET_X + (i % 3) * CELL_SIZE + 60; // Centrado en cada celda
-        int y = OFFSET_Y + (i / 3) * CELL_SIZE + 40; // Centrado en cada celda
+        int x = OFFSET_X + (i % 3) * CELL_SIZE + 60; 
+        int y = OFFSET_Y + (i / 3) * CELL_SIZE + 40; 
         fichasTablero[i].setPosition({x, y});
     }
 
@@ -2482,21 +2438,21 @@ int main() {
         simbolos[i].setCharacterSize(50);
         simbolos[i].setFillColor(sf::Color::White);
 
-        int x = OFFSET_X + (i % 3) * CELL_SIZE + 60; // Centrado en cada celda
-        int y = OFFSET_Y + (i / 3) * CELL_SIZE + 40; // Centrado en cada celda
+        int x = OFFSET_X + (i % 3) * CELL_SIZE + 60;
+        int y = OFFSET_Y + (i / 3) * CELL_SIZE + 40;
         simbolos[i].setPosition({x, y});
     }
 
     // Crear botón de ayuda circular
-    sf::CircleShape btnAyuda(30); // Radio de 30 pixels
-    btnAyuda.setPosition({20, 740}); // Posición en esquina inferior izquierda
+    sf::CircleShape btnAyuda(30);
+    btnAyuda.setPosition({20, 740});
     btnAyuda.setFillColor(sf::Color::White);
     btnAyuda.setOutlineThickness(2);
     btnAyuda.setOutlineColor(sf::Color::Black);
 
     // Texto del signo de interrogación
     sf::Text txtAyuda(fuente, "?", 24);
-    txtAyuda.setPosition({40, 755}); // Ajustar posición para centrar en el círculo
+    txtAyuda.setPosition({40, 755});
     txtAyuda.setFillColor(sf::Color::White);
     
     // Crear instancia del tablero
@@ -2559,7 +2515,6 @@ int main() {
                         continue;
                     }
                     
-                    // Verificar clicks en el tablero (AJUSTADO PARA EL CENTRADO)
                     // Calcular posición relativa al tablero centrado
                     int relativeX = mousePos.x - OFFSET_X;
                     int relativeY = mousePos.y - OFFSET_Y;
@@ -2608,15 +2563,11 @@ int main() {
 
                                         } else if (tipoMinijuego == TipoMiniJuego::BATALLA_CARTAS) {
                                             std::cout << "C en casilla " << index << " (JvIA)" << std::endl;
-                                            // Iniciar Batalla de Cartas vs IA
-                                            // abrirBatallaCartasVsIA(index, tablero, musicaFondo);
-                                            // Por ahora usar la versión JvJ
+
                                             abrirBatallaCartasVsIA(index, tablero, musicaFondo);
                                         } else if (tipoMinijuego == TipoMiniJuego::ADIVINA_NUMERO) {
                                             std::cout << "Abriendo Adivina el Numero en casilla " << index << " (JvIA)" << std::endl;
-                                            // Abrir ventana de Adivina el Número vs IA
-                                            // abrirAdivinaNumeroVsIA(index, tablero, musicaFondo);
-                                            // Por ahora usar la versión JvJ
+
                                             abrirAdivinaNumeroVsIA(index, tablero, musicaFondo);
                                         }
                                         break;
@@ -2642,7 +2593,6 @@ int main() {
         } 
         else {
             window.draw(spriteFondoTablero); // Dibujar el fondo del tablero
-            //window.draw(btnAyuda);
             window.draw(txtAyuda);
             // Dibujar tablero
             for (int i = 0; i < 4; i++) {
@@ -2660,12 +2610,12 @@ int main() {
                 EstadoNodo estado = tablero.getNodo(i / 3, i % 3).getEstado();
                 if (estado == EstadoNodo::JUGADOR1) {
                     fichasTablero[i].setString("X");
-                    //window.draw(fichasTablero[i]);
+                    
                     // Dibujar imagen encima de la X
                     window.draw(spritesImagenX[i]);
                 } else if (estado == EstadoNodo::JUGADOR2) {
                     fichasTablero[i].setString("O");
-                    //window.draw(fichasTablero[i]);
+                    
                     window.draw(spritesImagenY[i]);
                 }
             }
